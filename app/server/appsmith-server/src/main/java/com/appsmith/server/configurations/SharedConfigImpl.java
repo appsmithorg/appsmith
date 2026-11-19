@@ -17,6 +17,9 @@ public class SharedConfigImpl implements SharedConfig {
     @Value("${appsmith.plugin.response.size.max:5}")
     private float maxPluginResponseSize = 5;
 
+    @Value("${appsmith.plugin.query-timeout.cancel-enabled:false}")
+    private boolean queryTimeoutCancelEnabled;
+
     private final CloudServicesConfig cloudServicesConfig;
 
     @Override
@@ -32,6 +35,11 @@ public class SharedConfigImpl implements SharedConfig {
     @Override
     public String getRemoteExecutionUrl() {
         return cloudServicesConfig.getBaseUrl() + "/api/v1/actions/execute";
+    }
+
+    @Override
+    public boolean isQueryTimeoutCancelEnabled() {
+        return queryTimeoutCancelEnabled;
     }
 
     @Override

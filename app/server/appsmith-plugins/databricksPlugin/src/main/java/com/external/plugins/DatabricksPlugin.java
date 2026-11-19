@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.services.SharedConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.pf4j.Extension;
@@ -39,6 +40,10 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_INVALID_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.applyQueryTimeout;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.external.plugins.exceptions.DatabricksErrorMessages.INVALID_JDBC_URL_ERROR_MSG;
 import static com.external.plugins.exceptions.DatabricksErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
 import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUTION_FAILED;
@@ -76,12 +81,23 @@ public class DatabricksPlugin extends BasePlugin {
 
         private final Driver jdbcDriver;
 
+        private final SharedConfig sharedConfig;
+
         public DatabricksPluginExecutor() {
-            this(new com.databricks.client.jdbc.Driver());
+            this(new com.databricks.client.jdbc.Driver(), null);
+        }
+
+        public DatabricksPluginExecutor(SharedConfig sharedConfig) {
+            this(new com.databricks.client.jdbc.Driver(), sharedConfig);
         }
 
         DatabricksPluginExecutor(Driver jdbcDriver) {
+            this(jdbcDriver, null);
+        }
+
+        DatabricksPluginExecutor(Driver jdbcDriver, SharedConfig sharedConfig) {
             this.jdbcDriver = jdbcDriver;
+            this.sharedConfig = sharedConfig;
         }
 
         @Override
@@ -128,6 +144,7 @@ public class DatabricksPlugin extends BasePlugin {
 
                             // We can proceed since the connection is valid.
                             Statement statement = connection.createStatement();
+                            applyQueryTimeout(statement, actionConfiguration, isCancelEnabled(sharedConfig));
                             boolean hasResultSet = statement.execute(query);
 
                             if (!hasResultSet) {
@@ -165,6 +182,9 @@ public class DatabricksPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
+                            if (isQueryTimeoutCancellation(e, isCancelEnabled(sharedConfig))) {
+                                return Mono.error(queryTimeoutError(actionConfiguration.getTimeoutInMillisecond(), e));
+                            }
 
                             String sqlState = e.getSQLState();
                             // Databricks returns true on isValid check even if the connection is stale.

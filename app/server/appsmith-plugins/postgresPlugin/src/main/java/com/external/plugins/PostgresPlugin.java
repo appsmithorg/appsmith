@@ -102,6 +102,10 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.applyQueryTimeout;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
@@ -418,6 +422,7 @@ public class PostgresPlugin extends BasePlugin {
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
+                                applyQueryTimeout(statement, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -440,6 +445,7 @@ public class PostgresPlugin extends BasePlugin {
                                                         parameters.get(i).getValue())));
 
                                 requestData.put("ps-parameters", parameters);
+                                applyQueryTimeout(preparedQuery, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -547,6 +553,9 @@ public class PostgresPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
+                            if (isQueryTimeoutCancellation(e, isCancelEnabled(sharedConfig))) {
+                                return Mono.error(queryTimeoutError(actionConfiguration.getTimeoutInMillisecond(), e));
+                            }
                             log.debug("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
