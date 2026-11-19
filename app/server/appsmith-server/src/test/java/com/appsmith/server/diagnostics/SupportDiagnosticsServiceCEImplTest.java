@@ -372,6 +372,7 @@ class SupportDiagnosticsServiceCEImplTest {
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
         when(collector.isLicensed("org1")).thenReturn(Mono.just(false));
+        when(resultStore.delete("org1", DiagnosticsSectionId.INSTANCE)).thenReturn(Mono.empty());
         DiagnosticsRedactionGuard guardSpy = mock(DiagnosticsRedactionGuard.class);
         service = new SupportDiagnosticsServiceCEImpl(
                 userUtils, sessionUserService, resultStore, guardSpy, List.of(collector));
@@ -392,6 +393,67 @@ class SupportDiagnosticsServiceCEImplTest {
         verify(resultStore, never()).put(anyString(), any());
         verifyNoInteractions(guardSpy);
         verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
+        verify(resultStore).delete("org1", DiagnosticsSectionId.INSTANCE);
+    }
+
+    @Test
+    void should_returnNotLicensed_when_listingStoredOkAndSectionIsNotLicensed() {
+        // Given
+        givenAccessAllowed("org1");
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.just(false));
+        givenStoredOk();
+
+        // When / Then
+        StepVerifier.create(service.listSections())
+                .assertNext(response -> {
+                    DiagnosticsSectionResult section = response.sections().get(0);
+                    assertThat(section.status()).isEqualTo(DiagnosticsStatus.NOT_LICENSED);
+                    assertThat(section.data()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void should_returnNotCollected_when_listingStoredOkAndLicenseCheckIsEmpty() {
+        // Given
+        givenAccessAllowed("org1");
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.empty());
+        givenStoredOk();
+
+        // When / Then
+        StepVerifier.create(service.listSections())
+                .assertNext(response -> {
+                    DiagnosticsSectionResult section = response.sections().get(0);
+                    assertThat(section.status()).isEqualTo(DiagnosticsStatus.NOT_COLLECTED);
+                    assertThat(section.data()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void should_returnNotCollected_when_listingStoredOkAndLicenseCheckErrors() {
+        // Given
+        givenAccessAllowed("org1");
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
+        givenStoredOk();
+
+        // When / Then
+        StepVerifier.create(service.listSections())
+                .assertNext(response -> {
+                    DiagnosticsSectionResult section = response.sections().get(0);
+                    assertThat(section.status()).isEqualTo(DiagnosticsStatus.NOT_COLLECTED);
+                    assertThat(section.data()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    private void givenStoredOk() {
+        DiagnosticsSectionResult stored =
+                DiagnosticsSectionResult.ok(DiagnosticsSectionId.INSTANCE, Map.of("edition", "EE"), Instant.now());
+        when(resultStore.get("org1", DiagnosticsSectionId.INSTANCE)).thenReturn(Mono.just(stored));
     }
 
     @Test

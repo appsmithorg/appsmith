@@ -66,6 +66,8 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
                         ? resultStore
                                 .get(organizationId, sectionId)
                                 .filter(result -> result.status() != DiagnosticsStatus.NOT_SUPPORTED)
+                                .flatMap(stored ->
+                                        returnStoredIfLicensed(organizationId, collectors.get(sectionId), stored))
                                 .switchIfEmpty(
                                         Mono.fromSupplier(() -> DiagnosticsSectionResult.notCollected(sectionId)))
                         : Mono.just(DiagnosticsSectionResult.notSupported(sectionId)))
@@ -126,12 +128,33 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
                 });
     }
 
+    /**
+     * Returns the stored result only while the section is licensed. An unknown license state hides the stored data.
+     */
+    private Mono<DiagnosticsSectionResult> returnStoredIfLicensed(
+            String organizationId, DiagnosticsCollector collector, DiagnosticsSectionResult stored) {
+        DiagnosticsSectionId sectionId = stored.sectionId();
+        return Mono.defer(() -> collector.isLicensed(organizationId))
+                .timeout(COLLECT_TIMEOUT)
+                .onErrorResume(error -> {
+                    log.warn(
+                            "Support diagnostics license check failed for section {} with {}",
+                            sectionId,
+                            error.getClass().getName());
+                    return Mono.empty();
+                })
+                .map(licensed ->
+                        Boolean.TRUE.equals(licensed) ? stored : DiagnosticsSectionResult.notLicensed(sectionId));
+    }
+
     private Mono<DiagnosticsSectionResult> runCollector(String organizationId, DiagnosticsCollector collector) {
         DiagnosticsSectionId sectionId = collector.sectionId();
         return Mono.defer(() -> collector.isLicensed(organizationId))
                 .flatMap(licensed -> Boolean.TRUE.equals(licensed)
                         ? collectAndCheck(organizationId, collector)
-                        : Mono.just(DiagnosticsSectionResult.notLicensed(sectionId)))
+                        : resultStore
+                                .delete(organizationId, sectionId)
+                                .thenReturn(DiagnosticsSectionResult.notLicensed(sectionId)))
                 .switchIfEmpty(Mono.fromSupplier(() -> {
                     log.warn("Support diagnostics license state is unknown for section {}", sectionId);
                     return DiagnosticsSectionResult.unavailable(sectionId, "license_unknown");

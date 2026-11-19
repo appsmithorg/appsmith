@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.Application;
@@ -373,15 +374,23 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<ApplicationDiagnosticsCounts> countForDiagnostics() {
         // A default-branch document has equal defaultBranchName and branchName. Both fields are missing for an app
         // without Git, so they are equal too.
-        Document isDefaultBranch = new Document(
-                "$eq", List.of("$gitApplicationMetadata.defaultBranchName", "$gitApplicationMetadata.branchName"));
+        // A tag document is not a branch. A missing refType counts as a branch, because $ne is true for a missing
+        // field.
+        Document isBranchRef = new Document("$ne", List.of("$gitApplicationMetadata.refType", RefType.tag.name()));
+        Document isDefaultBranch = and(
+                isBranchRef,
+                new Document(
+                        "$eq",
+                        List.of("$gitApplicationMetadata.defaultBranchName", "$gitApplicationMetadata.branchName")));
         Document group = new Document("_id", null)
                 .append("applications", countIf(isDefaultBranch))
                 .append("published", countIf(and(isDefaultBranch, isPresent("$" + Fields.lastDeployedAt))))
                 .append(
                         "gitConnected",
                         countIf(and(isDefaultBranch, isPresent("$" + Fields.gitApplicationMetadata_gitAuth))))
-                .append("gitBranchDocuments", countIf(isPresent("$" + Fields.gitApplicationMetadata_branchName)));
+                .append(
+                        "gitBranchDocuments",
+                        countIf(and(isBranchRef, isPresent("$" + Fields.gitApplicationMetadata_branchName))));
         Aggregation aggregation = Aggregation.newAggregation(
                         Aggregation.match(notDeleted()), context -> new Document("$group", group))
                 .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);

@@ -92,6 +92,30 @@ class DiagnosticsCountsRepositoryTest {
     }
 
     @Test
+    void should_notCountTagDocument_when_refTypeIsTag() {
+        // Given
+        ApplicationDiagnosticsCounts before = applicationCounts();
+        seed(Application.class, app().append("gitApplicationMetadata", git("main", "main", true)));
+        seed(
+                Application.class,
+                app().append("gitApplicationMetadata", git("main", "main", true).append("refType", "branch")));
+        seed(
+                Application.class,
+                app().append("gitApplicationMetadata", git("main", "main", true).append("refType", "tag")));
+        seed(
+                Application.class,
+                app().append("gitApplicationMetadata", git("main", "v1", false).append("refType", "tag")));
+
+        // When
+        ApplicationDiagnosticsCounts after = applicationCounts();
+
+        // Then
+        assertThat(after.applications() - before.applications()).isEqualTo(2);
+        assertThat(after.gitBranchDocuments() - before.gitBranchDocuments()).isEqualTo(2);
+        assertThat(after.gitConnected() - before.gitConnected()).isEqualTo(2);
+    }
+
+    @Test
     void should_splitPublishedAndDraft_when_lastDeployedAtVaries() {
         // Given
         ApplicationDiagnosticsCounts before = applicationCounts();

@@ -33,6 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -190,6 +191,10 @@ class SupportDiagnosticsNoSecretsTest {
                 new UsernamePasswordAuthenticationToken(user, "password", user.getAuthorities());
         return WebTestClient.bindToApplicationContext(context)
                 .apply(springSecurity())
+                .build()
+                .mutate()
+                // The server stops a section after 10 seconds, which is longer than the 5 second client default.
+                .responseTimeout(Duration.ofSeconds(15))
                 .build()
                 .mutateWith(mockAuthentication(authentication))
                 .mutateWith(csrf());
