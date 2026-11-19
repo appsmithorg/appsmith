@@ -11,6 +11,7 @@ import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { memo } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { getExportCellValue } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
@@ -160,16 +161,18 @@ function TableDataDownload(props: TableDataDownloadProps) {
 
         props.columns.forEach((column) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
-            const value = data[column.alias];
-
-            if (
-              column.columnProperties?.columnType === "number" &&
-              typeof value === "string"
-            ) {
-              tableRow.push(Number(value) || 0);
-            } else {
-              tableRow.push(value);
-            }
+            tableRow.push(
+              getExportCellValue(
+                column.metaProperties.type,
+                data[column.alias],
+                {
+                  asNumber: column.columnProperties?.columnType === "number",
+                  // SheetJS writes primitive strings as text cells; a leading
+                  // apostrophe would become part of the Excel cell value.
+                  neutralizeFormulas: false,
+                },
+              ),
+            );
           }
         });
 
@@ -201,6 +204,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
     const csvData = transformTableDataIntoCsv({
       columns: props.columns,
       data: props.data,
+      delimiter: props.delimiter,
     });
 
     downloadDataAsCSV({

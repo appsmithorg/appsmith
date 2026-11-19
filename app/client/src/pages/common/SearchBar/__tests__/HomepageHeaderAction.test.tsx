@@ -51,7 +51,7 @@ jest.mock("utils/bootPylon", () => ({
   isPylonChatAvailable: () => false,
 }));
 
-jest.mock("utils/hooks/useBetterbugsMetadata", () => ({
+jest.mock("ee/hooks/useBetterbugsMetadata", () => ({
   useBetterbugsMetadata: () => ({}),
 }));
 

@@ -37,4 +37,7 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_INVALID_DATABASE_NAME_ERROR_MSG =
             "Invalid database name: the database name must not contain ';' or control characters.";
+
+    public static final String DS_INVALID_HOST_ERROR_MSG =
+            "Invalid host: the host must not contain ';', '=', '{', '}' or control characters.";
 }

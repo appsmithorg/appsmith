@@ -335,9 +335,9 @@ const PATCH_ARGS = {
 function layoutApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
   return {
     ...stubApi(),
-    getApplicationContext: jest.fn(async () => ({
+    getApplicationContext: jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: { dsl: ROOT_DSL },
     })),
     updateLayout: jest.fn(async () => ({ ok: true })),
@@ -789,7 +789,10 @@ describe("the M7 branch gate on mutating tools", () => {
     const api: AppsmithApi = {
       ...stubApi(),
       getApplication: jest.fn(async () => GIT_APP),
-      getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "ws1",
+        pages: [{ id: "p1", name: "Page1" }],
+      })),
       listDatasources: jest.fn(async () => [
         { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
       ]),
@@ -954,9 +957,9 @@ describe("the M7 branch gate on mutating tools", () => {
     const api: AppsmithApi = {
       ...stubApi(),
       getApplication: jest.fn(async () => GIT_APP),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout,
@@ -1045,12 +1048,38 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
       mutators: ["updatePage"],
     },
     {
+      tool: "set_page_visibility",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          revision: REVISION,
+          hidden: true,
+        },
+      },
+      mutators: ["updatePage"],
+    },
+    {
       tool: "confirm_delete_page",
       args: {
         spec: { applicationId: APP_ID, pageId: PAGE_ID, revision: REVISION },
         confirmationId: "bogus-confirmation",
       },
       mutators: ["deletePage"],
+    },
+    {
+      tool: "confirm_remove_widgets",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          layoutId: ENTITY_ID,
+          revision: REVISION,
+          names: ["Greeting"],
+        },
+        confirmationId: "bogus-confirmation",
+      },
+      mutators: ["updateLayout"],
     },
     {
       tool: "create_rest_api",
@@ -1117,6 +1146,20 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
           applicationId: APP_ID,
           revision: REVISION,
           name: "copyOfQuery",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      // The gate checks the TARGET app, where the copy is written.
+      tool: "copy_action",
+      args: {
+        spec: {
+          actionId: ENTITY_ID,
+          applicationId: "e".repeat(24),
+          revision: REVISION,
+          name: "copyOfQuery",
+          target: { applicationId: APP_ID, pageId: PAGE_ID },
         },
       },
       mutators: ["createAction"],
@@ -1644,7 +1687,11 @@ describe("M9-F1 — getApplication sourced from the pages DTO's .application sub
         }
 
         if (target.includes("/api/v1/pages/p1")) {
-          return json({ id: "p1", layouts: [{ id: "l1" }] });
+          return json({
+            id: "p1",
+            applicationId: "app1",
+            layouts: [{ id: "l1" }],
+          });
         }
 
         if (target.includes("/status?compareRemote=")) {

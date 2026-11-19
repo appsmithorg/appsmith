@@ -17,6 +17,8 @@ import {
   MULTISELECT_CHECKBOX_WIDTH,
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
+  CompactModeTypes,
+  TABLE_CELL_ACTION_VERTICAL_PADDING,
 } from "./Constants";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
@@ -51,10 +53,12 @@ export const TableWrapper = styled.div<
     variant?: TableVariant;
     isAddRowInProgress: boolean;
     multiRowSelection?: boolean;
+    isAutoHeightEnabled?: boolean;
   }
 >`
   width: 100%;
-  height: 100%;
+  height: ${({ isAutoHeightEnabled }) =>
+    isAutoHeightEnabled ? "auto" : "100%"};
   background: white;
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
@@ -96,7 +100,8 @@ export const TableWrapper = styled.div<
     }
   }
   .tableWrap {
-    height: 100%;
+    height: ${({ isAutoHeightEnabled }) =>
+      isAutoHeightEnabled ? "auto" : "100%"};
     display: block;
     position: relative;
     width: ${({ width }) => width}px;
@@ -712,6 +717,17 @@ export const CellWrapper = styled.div<{
       display: inline;
     }
   }
+`;
+
+/**
+ * Icon Button / Video cells: SHORT keeps 0 vertical padding; DEFAULT/TALL use
+ * TABLE_CELL_ACTION_VERTICAL_PADDING (including TALL, so a 30px control fits).
+ */
+export const ActionCellWrapper = styled(CellWrapper)<{ compactMode?: string }>`
+  padding: ${({ compactMode }) =>
+    compactMode === CompactModeTypes.SHORT
+      ? "0 10px"
+      : `${TABLE_CELL_ACTION_VERTICAL_PADDING}px 10px`};
 `;
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{

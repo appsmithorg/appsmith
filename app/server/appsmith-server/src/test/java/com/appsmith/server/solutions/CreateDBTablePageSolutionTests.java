@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,11 @@ import static org.mockito.Mockito.spy;
 @SpringBootTest
 @DirtiesContext
 public class CreateDBTablePageSolutionTests {
+
+    private static final String INVALID_GENERATED_PAGE_NAME_MESSAGE = AppsmithError.GENERIC_BAD_REQUEST.getMessage(
+            "The page name is taken from the table or sheet name, and that name is not a valid page name. "
+                    + "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, cannot start or end with a dot, cannot be longer than 255 characters, and cannot be a reserved device name such as CON or NUL."
+                    + " Rename the table or sheet and try again.");
 
     // Regex to break string in separate words
     static final String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
@@ -140,6 +146,9 @@ public class CreateDBTablePageSolutionTests {
 
     @Autowired
     NewPageService newPageService;
+
+    @Autowired
+    PagePermission pagePermission;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -317,6 +326,35 @@ public class CreateDBTablePageSolutionTests {
                                 .getMessage()
                                 .equals(AppsmithError.INVALID_PARAMETER.getMessage("tableName and datasourceId")))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectRequestAndCreateNoPage_when_tableNameIsNotValidPageName() {
+        // Given
+        resource.setApplicationId(testApp.getId());
+        resource.setTableName("Parent/Child");
+        int pageCountBefore = pageCountOf(testApp.getId());
+
+        // When
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource, testDefaultEnvironmentId);
+
+        // Then
+        StepVerifier.create(resultMono)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(INVALID_GENERATED_PAGE_NAME_MESSAGE))
+                .verify();
+        assertThat(pageCountOf(testApp.getId())).isEqualTo(pageCountBefore);
+    }
+
+    private int pageCountOf(String applicationId) {
+        return newPageService
+                .findByApplicationId(applicationId, pagePermission.getEditPermission(), false)
+                .collectList()
+                .block()
+                .size();
     }
 
     @Test

@@ -23,6 +23,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 
 import static com.appsmith.external.constants.spans.ActionSpan.FILL_SELF_REFERENCING_PATHS_ACTION;
@@ -76,7 +77,62 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
 
     @Override
     public Mono<Layout> findAndUpdateLayout(String creatorId, String layoutId, Layout layout) {
-        Mono<PageDTO> pageDTOMono = newPageService
+        return findEditablePage(creatorId, layoutId)
+                .flatMap(page -> {
+                    copyLayoutIntoPage(page.getLayouts(), layoutId, layout);
+                    return applicationService
+                            .saveLastEditInformation(page.getApplicationId())
+                            .name(APPLICATION_SAVE_LAST_EDIT_INFO_SPAN)
+                            .tap(Micrometer.observation(observationRegistry))
+                            .then(newPageService.saveUnpublishedPage(page));
+                })
+                .flatMap(page -> Mono.justOrEmpty(findLayout(page.getLayouts(), layoutId)));
+    }
+
+    /**
+     * Saves the layout only if the page did not change since {@code expectedUpdatedAt}.
+     *
+     * <ul>
+     *   <li>{@code expectedUpdatedAt} is null: same as the unconditional save.
+     *   <li>Page changed: fails with {@code STALE_LAYOUT_UPDATE} and writes nothing.
+     *   <li>Saved: the returned layout carries the new page revision.
+     * </ul>
+     * The application's last-edit information is updated only after the page write succeeds.
+     */
+    @Override
+    public Mono<Layout> findAndUpdateLayout(
+            String creatorId, String layoutId, Layout layout, Instant expectedUpdatedAt) {
+        if (expectedUpdatedAt == null) {
+            return findAndUpdateLayout(creatorId, layoutId, layout);
+        }
+
+        return findEditablePage(creatorId, layoutId)
+                .flatMap(page -> {
+                    copyLayoutIntoPage(page.getLayouts(), layoutId, layout);
+                    return newPageService
+                            .saveUnpublishedPageIfUnchanged(page, expectedUpdatedAt)
+                            .flatMap(savedPage -> applicationService
+                                    .saveLastEditInformation(page.getApplicationId())
+                                    .name(APPLICATION_SAVE_LAST_EDIT_INFO_SPAN)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .thenReturn(savedPage));
+                })
+                .flatMap(savedPage -> {
+                    Layout savedLayout =
+                            findLayout(savedPage.getUnpublishedPage().getLayouts(), layoutId);
+                    if (savedLayout == null) {
+                        return Mono.empty();
+                    }
+                    savedLayout.setRevision(
+                            String.valueOf(savedPage.getUpdatedAt().toEpochMilli()));
+                    return Mono.just(savedLayout);
+                });
+    }
+
+    // Reads the unpublished page that holds the layout, with edit permission. Fails with ACL_NO_RESOURCE_FOUND when
+    // the page or layout is missing or the user cannot edit it.
+    private Mono<PageDTO> findEditablePage(String creatorId, String layoutId) {
+        return newPageService
                 .findByIdAndLayoutsId(creatorId, layoutId, pagePermission.getEditPermission(), false)
                 .name(GET_PAGE_BY_ID_AND_LAYOUTS_ID)
                 .tap(Micrometer.observation(observationRegistry))
@@ -84,38 +140,24 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
                         AppsmithError.ACL_NO_RESOURCE_FOUND,
                         FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID,
                         creatorId + ", " + layoutId)));
+    }
 
-        return pageDTOMono
-                .flatMap(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    // Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the
-                    // layoutId here.
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            // Now that all the on load actions have been computed, set the vertices, edges, actions in
-                            // DSL in the layout for re-use to avoid computing DAG unnecessarily.
+    // Copies the computed layout (DSL, on-load actions, and the rest) over the stored layout with the same id. The
+    // lookup matched this layoutId, so the layout is in the list.
+    private static void copyLayoutIntoPage(List<Layout> layouts, String layoutId, Layout layout) {
+        Layout storedLayout = findLayout(layouts, layoutId);
+        if (storedLayout != null) {
+            BeanUtils.copyProperties(layout, storedLayout);
+            storedLayout.setId(layoutId);
+        }
+    }
 
-                            BeanUtils.copyProperties(layout, storedLayout);
-                            storedLayout.setId(layoutId);
-
-                            break;
-                        }
-                    }
-                    page.setLayouts(layoutList);
-                    return applicationService
-                            .saveLastEditInformation(page.getApplicationId())
-                            .name(APPLICATION_SAVE_LAST_EDIT_INFO_SPAN)
-                            .tap(Micrometer.observation(observationRegistry))
-                            .then(newPageService.saveUnpublishedPage(page));
-                })
-                .flatMap(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            return Mono.just(storedLayout);
-                        }
-                    }
-                    return Mono.empty();
-                });
+    private static Layout findLayout(List<Layout> layouts, String layoutId) {
+        for (Layout storedLayout : layouts) {
+            if (storedLayout.getId().equals(layoutId)) {
+                return storedLayout;
+            }
+        }
+        return null;
     }
 }

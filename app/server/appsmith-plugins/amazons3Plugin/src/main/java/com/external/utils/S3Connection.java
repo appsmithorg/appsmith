@@ -95,10 +95,17 @@ public class S3Connection implements AutoCloseable {
         return builder.build();
     }
 
-    /** The proxy comes from the https proxy settings; see {@link AwsHttpsProxyConfiguration}. */
+    /**
+     * The proxy comes from the https proxy settings; see {@link AwsHttpsProxyConfiguration}. Every other host is
+     * resolved under the restricted host policy; see {@link RestrictedHostDnsResolver}.
+     */
     static ApacheHttpClient.Builder httpClientBuilder(Duration socketTimeout, Duration connectionTimeout) {
+        AwsHttpsProxyConfiguration.HttpsProxy proxy =
+                AwsHttpsProxyConfiguration.resolve(System::getProperty, System::getenv);
         return AwsHttpsProxyConfiguration.configure(
-                ApacheHttpClient.builder().socketTimeout(socketTimeout).connectionTimeout(connectionTimeout));
+                        ApacheHttpClient.builder().socketTimeout(socketTimeout).connectionTimeout(connectionTimeout),
+                        proxy)
+                .dnsResolver(new RestrictedHostDnsResolver(proxy == null ? null : proxy.host()));
     }
 
     /**

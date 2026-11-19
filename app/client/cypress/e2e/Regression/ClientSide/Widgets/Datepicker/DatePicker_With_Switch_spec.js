@@ -6,6 +6,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { otherDayThisMonth } from "../../../../../support/otherDayThisMonth";
 
 describe(
   "Switch Widget within Form widget Functionality",
@@ -36,7 +37,7 @@ describe(
       cy.get(formWidgetsPage.defaultDate).click();
       _.agHelper.GetNClick(".ads-v2-datepicker__calender-today");
       cy.get(formWidgetsPage.defaultDate).click();
-      cy.setDate(1, "ddd MMM DD YYYY");
+      cy.setDate(otherDayThisMonth());
       const nextDay = dayjs().format("DD/MM/YYYY");
       cy.log(nextDay);
       cy.selectResetWidget("onDateSelected");

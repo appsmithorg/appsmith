@@ -32,6 +32,19 @@ export default class PartialImportExport {
           "[data-testid='t--partialExportModal-customJSLibsSection']",
         widgetsSection: "[data-testid='t--partialExportModal-widgetsSection']",
         exportButton: "[data-testid='t-partial-export-entities-btn']",
+        selectAllCheckboxes: {
+          jsObjects:
+            "[data-testid='t--partial-export-modal-jsObjects-select-all']",
+          datasources:
+            "[data-testid='t--partial-export-modal-datasources-select-all']",
+          queries: "[data-testid='t--partial-export-modal-queries-select-all']",
+          customJSLibs:
+            "[data-testid='t--partial-export-modal-customJSLibs-select-all']",
+          widgets: "[data-testid='t--partial-export-modal-widget-select-all']",
+        } satisfies Record<
+          keyof typeof exportedPropertiesToUIEntitiesMap,
+          string
+        >,
       },
     },
   };
@@ -72,12 +85,12 @@ export default class PartialImportExport {
       sectionIndex,
     );
 
-    const currentSection = this.agHelper.GetElement(sectionSelector);
-
-    const checkboxesInSection = currentSection.find("input[type='checkbox']");
-    checkboxesInSection.each((element) => {
-      cy.wrap(element).click({ force: true });
-    });
+    this.agHelper.AssertElementVisibility(sectionSelector);
+    this.agHelper.GetNClick(
+      this.locators.export.modelContents.selectAllCheckboxes[sectionName],
+      0,
+      true,
+    );
 
     this.agHelper.AssertElementEnabledDisabled(
       this.locators.export.modelContents.exportButton,

@@ -1,8 +1,13 @@
 import { RenderModes } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   DynamicHeight,
   hideDynamicHeightPropertyControl,
+  PropertyPaneConfigTemplates,
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
 } from "./WidgetFeatures";
 
 const DUMMY_WIDGET: WidgetProps = {
@@ -66,5 +71,47 @@ describe("Widget Features tests", () => {
 
       expect(result).toBe(false);
     });
+  });
+});
+
+describe("Height control options", () => {
+  const getHeightOptions = (widgetType: WidgetType) => {
+    const config = [
+      {
+        sectionName: "General",
+        children: PropertyPaneConfigTemplates[
+          RegisteredWidgetFeatures.DYNAMIC_HEIGHT
+        ]({ active: true, sectionIndex: 0 }),
+      },
+    ];
+    const [section] = WidgetFeaturePropertyPaneEnhancements[
+      RegisteredWidgetFeatures.DYNAMIC_HEIGHT
+    ](config, widgetType);
+    const heightControl = section.children?.find(
+      (control) =>
+        (control as PropertyPaneControlConfig).propertyName === "dynamicHeight",
+    ) as PropertyPaneControlConfig & { options: { value: string }[] };
+
+    return heightControl.options.map(
+      (option: { value: string }) => option.value,
+    );
+  };
+
+  it.each(["MODAL_WIDGET", "TABLE_WIDGET_V2"])(
+    "offers only Auto Height and Fixed for %s",
+    (widgetType) => {
+      expect(getHeightOptions(widgetType)).toEqual([
+        DynamicHeight.AUTO_HEIGHT,
+        DynamicHeight.FIXED,
+      ]);
+    },
+  );
+
+  it("offers Auto Height with limits for other widgets", () => {
+    expect(getHeightOptions("TEXT_WIDGET")).toEqual([
+      DynamicHeight.AUTO_HEIGHT,
+      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
+      DynamicHeight.FIXED,
+    ]);
   });
 });

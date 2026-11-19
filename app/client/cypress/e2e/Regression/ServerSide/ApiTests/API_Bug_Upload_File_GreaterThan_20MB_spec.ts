@@ -35,7 +35,7 @@ describe.skip(
       agHelper.UploadFile("FileGreaterThan20MB.json");
 
       // Assert that the file is selected
-      agHelper.AssertText(locators._buttonText, "text", "1 files selected");
+      agHelper.AssertText(locators._buttonText, "text", "1 file selected");
 
       // Step 3: Create and configure the API
       apiPage.CreateAndFillApi(

@@ -49,9 +49,11 @@ Findings from building an internal admin app through MCP, all fixed without wide
   normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
   interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
   its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
-- Follow-ups from the reviews above, all landed: every compiled JS-object `call` site carries a runtime call-depth
-  guard (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code
-  is stopped at run time too, not only the statically detectable ones; `update_js_object` refuses a rename onto a
+- Follow-ups from the reviews above, all landed: every cross-object JS `call` site carries a runtime call-depth guard
+  (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code is
+  stopped at run time too, not only the statically detectable ones. The original one-line layout guards sibling
+  calls as well; the readable layout writes a sibling call as a plain `await this.<name>(…)`, because create and
+  update refuse every sibling cycle before writing (`callCycleProblem`); `update_js_object` refuses a rename onto a
   name another JS object or query on the page already uses (`name_taken`); stored definitions are decoded once per
   body (bounded cache) so the cycle check stays cheap on large pages; one `patch_widgets` update's props are capped
   at 64 KB; `inspect_page` reports `narrow-canvas` for nested content laid out by an earlier MCP version at the
@@ -90,15 +92,25 @@ Findings from building an internal admin app through MCP, all fixed without wide
   `split` with a named separator, `trim`, `map`/`filter` with `{ item }`, `unique`, `number`, `date`, `isoString`).
   The Banner editor's `splitLines`, `splitDomains`, related-field validation and Save orchestration all compile from
   structure; the agent never writes JavaScript, regular expressions or member access, and node count, depth,
-  statement count and parameter count are capped. The compiled body embeds its definition as a base64 block comment,
-  so `read_js_object` returns a `definition` to edit and send back, and a compiler-authored object is recognised
-  exactly (the decoded definition must recompile to the code byte for byte). An object whose code is edited in the
-  editor after the compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'` with
-  `definitionState: 'drifted'`; its source is withheld and agents recreate it from a definition rather than
-  update it. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
+  statement count and parameter count are capped. With a governance store, the compiled body is readable code: one
+  statement per line, indented, with no marker. Its definition is saved first in the `mcp_js_definitions` Mongo
+  collection, keyed by the caller's organization and the SHA-256 of the exact body. Each JS-object listing loads
+  the records for its bodies, so `read_js_object` returns a `definition` to edit and send back. An object is
+  compiler-authored only while its body still has that exact hash. Records do not expire. Without a definition
+  store, or when the caller's organization is unknown, the body is written in the original layout: one line with
+  the definition embedded as a base64 block comment, recognised when the decoded definition recompiles to the code
+  byte for byte. EE workflow logic always uses that layout. An object whose code is edited in the editor after the
+  compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'`, with `definitionState: 'drifted'`
+  for the original layout and `'none'` for the readable one. Agents recreate such an object from a definition
+  rather than update it. When the store cannot be read, objects read as `authoredBy: 'editor'` with
+  `definitionState: 'unavailable'` until it can. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
   functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
   globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
   locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.
+  Version-1 markers remain readable. A legacy single-field `returns: { user: "email" }` (also `name` or
+  `username`) is returned as an explicit `{ object: { user: "email" } }` literal record, so editing it preserves
+  its meaning. New definitions use version 2 to distinguish the current-user leaf. Rolling back the MCP server
+  leaves these objects executable, but the older server cannot read their version-2 definitions for editing.
 - A `js-objects` guide (`get_guide` slug `js-objects`, resource `appsmith://guide/js-objects`) documents the
   definition grammar. Its operator, function and separator tables are rendered from the compiler's own exports and
   its worked examples are compiled in the test suite, so it cannot drift from what the compiler accepts. It also
@@ -337,7 +349,8 @@ unaffected — the parameter is optional and ignored.
   remote?"); only an explicit accept proceeds, and decline/cancel/timeout leave the confirmation unconsumed
   (bounded at 3 prompts per confirmation, after which it is invalidated). The same elicitation layer guards
   **every** destructive confirm tool — `confirm_delete_page`, `confirm_delete_action`, `confirm_delete_js_object`,
-  `confirm_publish`, `confirm_rollback`, `confirm_run_action`, and `confirm_commit`: each prompt states the
+  `confirm_publish`, `confirm_rollback`, `confirm_run_action`, `confirm_remove_widgets`, and `confirm_commit`: each
+  prompt states the
   operation's load-bearing facts (what is deleted/deployed/run, with any agent-controlled text quoted and
   sanitized), a declined or unanswered prompt never consumes the one-time confirmation (the same token remains
   usable after the user approves), and each `prepare_*` tool returns relay text for the fallback posture.
@@ -402,8 +415,9 @@ files. Checklist:
    `EXTENSION_TOOL_ANNOTATIONS` entry. `catalog.ts` is data only, with `import type` and nothing else, because core
    modules read it at load. Optional: `EXTENSION_GUIDES` (served by `get_guide` and `appsmith://guide/<slug>`) and
    `EXTENSION_SERVER_INSTRUCTIONS` (appended to the initialize instructions).
-3. **Register in `tools.ts`** through `host.registerTool` only. It throws for a name that is not catalogued, and for
-   a caller-supplied annotations object. It skips a tool whose gate is off, so register every tool unconditionally.
+3. **Register in `tools.ts`** through `host.registerTool`, or `host.registerGovernedOperation` for a destructive
+   operation (item 5), never `server.tool`. `registerTool` throws for a name that is not catalogued, and for a
+   caller-supplied annotations object. Both skip a tool whose gate is off, so register every tool unconditionally.
    Any runtime import from `app.ts` there may only be used inside functions (`app.ts` imports `tools.ts`).
 4. **Gates**: use a core gate (`always`, `data`, `governance`, ...) or an edition gate `extension:<name>`. Every
    `extension:<name>` needs an `EXTENSION_GATE_REQUIREMENTS[<name>]` (`requires` / `provides`, shown in
@@ -412,12 +426,22 @@ files. Checklist:
    and is never stored. Missing, non-`true`, a throw, or no answer within `EXTENSION_GATES_TIMEOUT_MS` (5 s) all
    mean off. Because it is re-resolved per build, an entitlement change mid-session can make replicas disagree about
    one session until the client reconnects — the same posture as `isAdmin`. `host.gates` is frozen.
-5. **No destructive tools yet.** The host refuses `destructiveHint: true`, and a non-read-only tool that leaves
-   `destructiveHint` unset, until it offers governed approval (prepare/confirm, elicitation) to extensions.
+5. **Destructive operations are governed pairs.** `host.registerTool` refuses `destructiveHint: true`, and a
+   non-read-only tool that leaves `destructiveHint` unset. Register a destructive operation with
+   `host.registerGovernedOperation` instead. It adds a prepare tool and a confirm tool, and the host runs the
+   one-time token, the git branch gate and the user's approval prompt. The edition supplies a spec schema, `plan`
+   and `execute` (see `GovernedOperation` in `src/ce/extensions/tools.ts`). Requirements:
+
+   - Catalog both tools with `governed: true`. They are on only when their gate is on and governance is configured,
+     and `get_capabilities` reports the same.
+   - Annotate the prepare tool as a non-destructive write and the confirm tool `destructiveHint: true` (not
+     read-only).
+   - In `execute`, write through `ctx.governance.execute` with `expectedRevision: target.revision`.
+
    **Labelling rule for reviewers:** any tool that triggers, runs or publishes a workflow, or has any other external
-   side effect, must be annotated `destructiveHint: true` — and is therefore refused until CE adds that approval
-   layer. Annotations are not access control: server-side licence and ACL enforcement on `/api/v1/workflows` stays
-   mandatory.
+   side effect, must be annotated `destructiveHint: true`, so it must be a governed pair. Annotations are not access
+   control: server-side licence and ACL enforcement on `/api/v1/workflows` stays mandatory.
+
 6. **Capabilities**: `capabilities.ts` returns extra top-level `get_capabilities` sections; a key that collides with
    a core section is refused. An edition's override must keep a `workflows` section with an `available` key
    (`extensions.test.ts` asserts it).
@@ -437,8 +461,8 @@ files. Checklist:
 
 **Where each check fails.** Catalog, annotation and guide-slug collisions, and an edition gate with no
 `EXTENSION_GATE_REQUIREMENTS` entry, throw at **module load** (the server will not start, and every test that
-imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations)
-throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
+imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations, or a
+governed pair that is not catalogued `governed: true` or is annotated wrongly) throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
 test like those in `extensions.test.ts`. An API method that shadows a core one throws in **every
 `createAppsmithApi` call**. A capability section that overwrites a core one throws on **every `get_capabilities`
 call**. On the server, an extension rule outside `extensionPathPrefixes()`, a prefix in a core route family or with a

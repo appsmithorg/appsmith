@@ -24,6 +24,7 @@ dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
+const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
@@ -179,6 +180,14 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword, redirectUrl) => {
+  // Unload the open app page first. Its requests get a 401 after the logout,
+  // and the client answers a 401 with its own logout, which can arrive after
+  // the login below and end the new session. cy.visit resolves "about:blank"
+  // against baseUrl and loads the app again, so navigate the window instead.
+  cy.window({ log: false }).then((win) => {
+    win.location.href = "about:blank";
+  });
+  cy.location("href").should("eq", "about:blank");
   homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
@@ -536,21 +545,37 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = dayjs().add(date, "days").format(dateFormate);
-  return eDate;
-});
+// Clicks a day in an open date picker. `day` is a dayjs date in the month the calendar shows: use
+// otherDayThisMonth() (support/otherDayThisMonth.js), never today + N days, which can fall outside that month.
+//   - v2: the property pane's date control (ADS DatePicker). `dateFormate` is not used.
+//   - v1: the widget's own calendar (Blueprint DateInput). Its day labels are Date.toDateString() text, such as
+//     "Thu Oct 15 2026", so `dateFormate` defaults to that format.
+Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
+  // A shape check, not dayjs.isDayjs: Cypress bundles this file and each spec separately, each with its own copy
+  // of dayjs, so a date made in a spec is not an instance of this file's dayjs class.
+  if (typeof day === "number" || typeof day?.format !== "function") {
+    throw new Error(
+      "setDate takes a dayjs date in the shown month, such as otherDayThisMonth(), not a number of days from today",
+    );
+  }
 
-Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
+  // The day locators (FormWidgets.json) leave out the greyed-out days of the next or previous month.
   if (ver == "v2") {
-    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
-    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`)
+    cy.get(
+      formWidgetsPage.propertyPaneCalendarDay.replace(
+        "{day}",
+        day.format("dddd, MMMM D"),
+      ),
+    )
       .first()
       .click();
   } else if (ver == "v1") {
-    const expDate = dayjs().add(date, "days").format(dateFormate);
-    const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
-    cy.get(sel).click();
+    cy.get(
+      formWidgetsPage.widgetCalendarDay.replace(
+        "{day}",
+        day.format(dateFormate ?? "ddd MMM DD YYYY"),
+      ),
+    ).click();
   }
 });
 
@@ -1020,6 +1045,17 @@ Cypress.Commands.add("createSuperUser", () => {
 });
 
 Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
+  // Unload the open app page first. Its requests get a 401 after the logout
+  // that comes before a signup, and the client answers a 401 with its own
+  // logout. That logout can end the session this request runs in, and the
+  // server then answers the signup with a 500. cy.visit resolves "about:blank"
+  // against baseUrl and loads the app again, so navigate the window instead.
+  cy.window({ log: false }).then((win) => {
+    win.location.href = "about:blank";
+  });
+  cy.location("href").should("eq", "about:blank");
+  // Drop the logged-out session cookie so the signup starts a new session.
+  cy.clearCookie("SESSION");
   cy.request({
     method: "POST",
     url: "api/v1/users",

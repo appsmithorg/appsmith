@@ -115,4 +115,44 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       JSON.stringify(expectedCsvData),
     );
   });
+
+  it("neutralizes spreadsheet formula prefixes in CSV cells", () => {
+    const data = [
+      { id: "=1+2" },
+      { id: "+1234" },
+      { id: "-5" },
+      { id: "@SUM(A1)" },
+      { id: "safe" },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    const expectedCsvData = [
+      ["Id"],
+      ["'=1+2"],
+      ["'+1234"],
+      ["'-5"],
+      ["'@SUM(A1)"],
+      ["safe"],
+    ];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
+
+  it("quotes and escapes embedded quotes so formula neutralization cannot be bypassed", () => {
+    const data = [{ id: '"=1+2"' }, { id: 'He said "hi"' }];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    // Logical value `"=1+2"` stays that text after parse; not decoded to `=1+2`.
+    const expectedCsvData = [["Id"], ['"""=1+2"""'], ['"He said ""hi"""']];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
 });

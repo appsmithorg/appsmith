@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -266,12 +267,28 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
 
         String mcpKeyId = McpUserKeyCodec.expandKeyId(userKey);
         if (!StringUtils.hasText(mcpKeyId)) {
+            logAuthFailure(AuthFailure.MALFORMED_TOKEN, null, userKey, null);
             return Mono.empty();
         }
 
         return authenticateFromCache(userKey, mcpKeyId)
                 .switchIfEmpty(Mono.defer(() -> authenticateFromStore(userKey, mcpKeyId)))
-                .flatMap(this::requireMcpEnabled);
+                .flatMap(user -> requireMcpEnabled(user)
+                        .doOnError(error -> logAuthFailure(AuthFailure.MCP_DISABLED, mcpKeyId, userKey, null)));
+    }
+
+    @Override
+    public Mono<User> authenticateCached(String userKey) {
+        if (!StringUtils.hasText(userKey)) {
+            return Mono.empty();
+        }
+
+        String mcpKeyId = McpUserKeyCodec.expandKeyId(userKey);
+        if (!StringUtils.hasText(mcpKeyId)) {
+            return Mono.empty();
+        }
+
+        return authenticateFromCache(userKey, mcpKeyId).flatMap(this::requireMcpEnabled);
     }
 
     private Mono<User> requireMcpEnabled(User user) {
@@ -293,14 +310,93 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
                 .flatMap(entry -> loadEnabledUser(entry.userId()));
     }
 
+    /**
+     * Accepts the presented key only when its key has an ACTIVE token with the same hash that has not expired, and
+     * the token's owner is enabled. Every refusal writes one log line with the reason (see {@link #logAuthFailure}).
+     */
     private Mono<User> authenticateFromStore(String userKey, String mcpKeyId) {
         return mcpTokenRepository
                 .findByMcpKeyIdAndStatus(mcpKeyId, McpTokenStatus.ACTIVE)
-                .filter(storedToken -> McpTokenUtils.matches(userKey, storedToken.getTokenHash()))
-                .filter(storedToken -> isNotExpired(storedToken.getExpiresAt()))
-                .next()
-                .flatMap(storedToken -> putCachedToken(storedToken).thenReturn(storedToken))
-                .flatMap(storedToken -> loadEnabledUser(storedToken.getUserId()));
+                .collectList()
+                .flatMap(activeTokens -> {
+                    if (activeTokens.isEmpty()) {
+                        logAuthFailure(AuthFailure.NO_ACTIVE_TOKEN, mcpKeyId, userKey, null);
+                        return Mono.empty();
+                    }
+
+                    McpToken matched = activeTokens.stream()
+                            .filter(storedToken -> McpTokenUtils.matches(userKey, storedToken.getTokenHash()))
+                            .findFirst()
+                            .orElse(null);
+                    if (matched == null) {
+                        logAuthFailure(AuthFailure.SECRET_MISMATCH, mcpKeyId, userKey, null);
+                        return Mono.empty();
+                    }
+
+                    if (!isNotExpired(matched.getExpiresAt())) {
+                        logAuthFailure(AuthFailure.EXPIRED, mcpKeyId, userKey, matched);
+                        return Mono.empty();
+                    }
+
+                    return putCachedToken(matched)
+                            .then(Mono.defer(() -> loadEnabledUser(matched.getUserId())))
+                            .switchIfEmpty(Mono.fromRunnable(
+                                    () -> logAuthFailure(AuthFailure.USER_DISABLED, mcpKeyId, userKey, matched)));
+                });
+    }
+
+    /**
+     * Why the store refused a presented MCP key. The reason is logged so an operator can tell, for example, an
+     * expired key from a mistyped one. The HTTP answer stays the same for every reason.
+     */
+    private enum AuthFailure {
+        // The value starts with neither a valid "mcp_<keyId>_" nor "mcp_<keyId>." prefix.
+        MALFORMED_TOKEN,
+        // The key has no ACTIVE token. The key is unknown, revoked, or its token was rotated away.
+        NO_ACTIVE_TOKEN,
+        // The key has an ACTIVE token, but the presented secret does not hash to it. For example, an old secret
+        // after a rotate, or a token that was cut short or edited.
+        SECRET_MISMATCH,
+        // The secret matches, but the token's expiresAt has passed.
+        EXPIRED,
+        // The secret matches and is live, but the owner is missing or disabled.
+        USER_DISABLED,
+        // The key is valid, but the organization check failed. MCP is turned off for the organization, or the
+        // organization could not be read. Logged only on a cache miss: when the token is cached, the fast path
+        // (authenticateCached) fails first and this service never runs authenticate.
+        MCP_DISABLED
+    }
+
+    // Length of the public key id prefix written to the log. The key id is public (the MCP keys page shows it), but
+    // a prefix is enough to find the key and keeps the log from carrying the whole id.
+    private static final int LOGGED_KEY_ID_PREFIX_LENGTH = 10;
+
+    /**
+     * Logs one refused MCP authentication. The line never holds the secret or the full key:
+     * <ul>
+     *   <li>keyIdPrefix: the first {@value #LOGGED_KEY_ID_PREFIX_LENGTH} characters of the public key id in lower
+     *       case, or "invalid" when the value is malformed. The MCP service logs the same value in its
+     *       appsmith_mcp_request event, so a search on keyIdPrefix finds both lines.</li>
+     *   <li>presentedLength: the length of the presented value. A valid ObjectId key is 72 characters, so another
+     *       length points to a value that was cut short or has extra characters.</li>
+     *   <li>userId and expiresAt: only when a stored token was found.</li>
+     * </ul>
+     */
+    private void logAuthFailure(AuthFailure reason, String mcpKeyId, String userKey, McpToken storedToken) {
+        log.warn(
+                "MCP token rejected: reason={}, keyIdPrefix={}, presentedLength={}, userId={}, expiresAt={}",
+                reason,
+                keyIdPrefix(mcpKeyId),
+                userKey == null ? 0 : userKey.length(),
+                storedToken == null ? "-" : storedToken.getUserId(),
+                storedToken == null ? "-" : storedToken.getExpiresAt());
+    }
+
+    private static String keyIdPrefix(String mcpKeyId) {
+        if (!StringUtils.hasText(mcpKeyId) || mcpKeyId.length() < LOGGED_KEY_ID_PREFIX_LENGTH) {
+            return "invalid";
+        }
+        return mcpKeyId.substring(0, LOGGED_KEY_ID_PREFIX_LENGTH).toLowerCase(Locale.ROOT);
     }
 
     private Mono<User> loadEnabledUser(String userId) {

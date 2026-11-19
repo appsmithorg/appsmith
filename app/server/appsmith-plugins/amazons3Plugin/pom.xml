@@ -72,8 +72,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
-                    <!-- A free port for the local listener HTTP_PROXY points at in the http-proxy-environment test
-                         execution. -->
+                    <!-- A port for HTTP_PROXY to point at in the http-proxy-environment test execution. The test
+                         opens no listener on it, so a request sent to that proxy never reaches the S3 server. -->
                     <execution>
                         <id>reserve-http-proxy-environment-port</id>
                         <goals>
