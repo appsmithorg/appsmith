@@ -1,9 +1,9 @@
 export default {
   isValid: (props, moment) => {
-    const parsedMinDate = new Date(props.minDate);
-    const parsedMaxDate = new Date(props.maxDate);
+    const parsedMinDate = props.minDate ? moment(props.minDate) : null;
+    const parsedMaxDate = props.maxDate ? moment(props.maxDate) : null;
     const parsedSelectedDate = props.selectedDate
-      ? moment(new Date(props.selectedDate))
+      ? moment(props.selectedDate)
       : null;
 
     // only do validation when the date is dirty
