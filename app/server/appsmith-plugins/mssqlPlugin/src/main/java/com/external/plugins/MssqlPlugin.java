@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -270,16 +271,20 @@ public class MssqlPlugin extends BasePlugin {
                         ;
 
                         // The reactive timeout below cannot interrupt this blocking call: it reports the timeout only
-                        // after the call returns. So the query gets the same timeout here. The driver cancels the
-                        // query on SQL Server when it runs out, and the plugin stops reading results at the deadline.
+                        // after the call returns. So the query gets the same timeout here:
+                        // - the driver's query timeout, while SQL Server has not answered yet;
+                        // - a timer that cancels the query at the deadline, while a read of later results blocks;
+                        // - checks between reads, which stop a query that returns results without end.
                         final int timeoutMillis = actionConfiguration.getTimeoutInMillisecond();
                         final int queryTimeoutSeconds = MssqlExecuteUtils.queryTimeoutSeconds(timeoutMillis);
                         final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+                        ScheduledFuture<?> cancelAtDeadline = null;
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = sqlConnectionFromPool.createStatement();
                                 statement.setQueryTimeout(queryTimeoutSeconds);
+                                cancelAtDeadline = MssqlExecuteUtils.cancelAtDeadline(statement, deadlineNanos);
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -299,6 +304,7 @@ public class MssqlPlugin extends BasePlugin {
                                                         parameters.get(i).getValue())));
 
                                 preparedQuery.setQueryTimeout(queryTimeoutSeconds);
+                                cancelAtDeadline = MssqlExecuteUtils.cancelAtDeadline(preparedQuery, deadlineNanos);
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -315,13 +321,23 @@ public class MssqlPlugin extends BasePlugin {
                                     deadlineNanos);
 
                         } catch (SQLException e) {
+                            // After the deadline, the error comes from the cancel or the driver's query timeout.
+                            String errorMessage = MssqlExecuteUtils.isPastDeadline(deadlineNanos)
+                                    ? String.format(MssqlErrorMessages.QUERY_TIMEOUT_ERROR_MSG, timeoutMillis)
+                                    : e.getMessage();
                             return Mono.error(new AppsmithPluginException(
                                     MssqlPluginError.QUERY_EXECUTION_FAILED,
                                     MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
-                                    e.getMessage(),
+                                    errorMessage,
                                     "SQLSTATE: " + e.getSQLState()));
 
                         } finally {
+                            // Stop the timer before the connection goes back to the pool, so that it never cancels
+                            // a statement on a connection another query is using.
+                            if (cancelAtDeadline != null) {
+                                cancelAtDeadline.cancel(false);
+                            }
+
                             // Log HikariCP status
                             logHikariCPStatus(
                                     MessageFormat.format("After executing Mssql query [{0}]", query),

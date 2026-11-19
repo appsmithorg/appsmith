@@ -512,8 +512,16 @@ public class MssqlDriverBehaviourTest {
                                 "SELECT 1 AS first_result; WHILE 1 = 1 UPDATE driver_dml SET name = name",
                                 prepared,
                                 "ran longer than its timeout of 3000 ms"),
-                        // One statement that runs longer than the timeout. The driver's query timeout stops it.
-                        Arguments.of("WAITFOR DELAY '00:00:20'", prepared, "The query has timed out")));
+                        // One statement that runs longer than the timeout. The driver's query timeout, or the timer,
+                        // stops it.
+                        Arguments.of("WAITFOR DELAY '00:00:20'", prepared, "ran longer than its timeout of 3000 ms"),
+                        // A later statement that waits, after a first result the server sends at once. The wait
+                        // happens inside a read of the later results.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; RAISERROR('flush', 0, 1) WITH NOWAIT;"
+                                        + " WAITFOR DELAY '00:00:20'; SELECT 2 AS later_result",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms")));
     }
 
     // AIP-FD-38: a query that runs past its timeout must not hold a pooled connection and a worker thread. The
