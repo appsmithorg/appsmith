@@ -395,6 +395,9 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                popoverClassName: this.props.isRequired
+                  ? `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}-required`
+                  : undefined,
                 onClose: this.props.onPopoverClosed,
                 /*
                   Conditional popover props are the popover props that should not be sent to

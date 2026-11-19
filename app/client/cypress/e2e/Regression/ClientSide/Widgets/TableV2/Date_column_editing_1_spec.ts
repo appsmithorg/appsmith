@@ -145,30 +145,58 @@ describe(
     });
 
     it("6. should check property pane Required toggle functionality", () => {
+      // Ensure any popover from the previous test is closed before clearing the cell
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.NavigateBackToPropertyPane();
+      table.EditColumn("release_date", "v2");
+
+      // Clear cell value while Required is Off so the required error can be verified after enabling Required
+      table.ClickOnEditIcon(0, 2);
+      agHelper
+        .GetElement(`${table._dateInputPopover} .bp3-datepicker-footer`)
+        .contains("Clear")
+        .should("be.visible")
+        .click();
+
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.NavigateBackToPropertyPane();
       table.EditColumn("release_date", "v2");
       propPane.TogglePropertyState("Required", "On");
       agHelper.Sleep(2000);
-      //Edits the date by selecting from the popup
+
+      // Opening an empty required date cell shows the required error and hides the Clear button
       table.ClickOnEditIcon(0, 2);
-      agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
-      );
-      //Clears the date selected in previous step
-      table.ClickOnEditIcon(0, 2);
-      agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
-      );
       agHelper
         .GetText(table._popoverErrorMsg("This field is required"))
         .then(($textData) => expect($textData).to.eq("This field is required"));
+      agHelper
+        .GetElement(`${table._dateInputPopover} .bp3-datepicker-footer`)
+        .contains("Clear")
+        .should("not.be.visible");
+
+      // Selecting a date clears the required error
       agHelper.GetNClick(
         `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
       );
       agHelper.AssertElementAbsence(
         table._popoverErrorMsg("This field is required"),
       );
+
+      // Re-clicking the selected date with Required On does not clear the selection
+      table.ClickOnEditIcon(0, 2);
+      agHelper
+        .GetElement(`${table._dateInputPopover} .bp3-datepicker-footer`)
+        .contains("Clear")
+        .should("not.be.visible");
+      agHelper.GetNClick(
+        `${table._dateInputPopover} [aria-label='Wed May 26 2021']`,
+      );
+      agHelper.AssertElementAbsence(
+        table._popoverErrorMsg("This field is required"),
+      );
+      agHelper
+        .GetText(`${table._tableRow1Child3}`)
+        .then(($textData) => expect($textData).to.eq("26/05/2021"));
     });
 
     it("7. should check date cells behave as expected when adding a new row to table", () => {

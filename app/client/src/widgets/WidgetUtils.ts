@@ -409,7 +409,7 @@ export const PopoverStyles = createGlobalStyle<{
     ${
       hideClearButton
         ? `
-        .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON}:last-child {
+        .${portalClassName}-required .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON}:last-child {
           display: none;
         }
       `
