@@ -2,8 +2,10 @@ package com.appsmith.server.diagnostics.collectors;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
+import com.appsmith.server.diagnostics.DiagnosticsRedactionGuard;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsField;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +33,8 @@ class DeploymentDiagnosticsCollectorTest {
     @InjectMocks
     private DeploymentDiagnosticsCollector collector;
 
+    private final DiagnosticsRedactionGuard guard = new DiagnosticsRedactionGuard(new ObjectMapper());
+
     @Test
     void should_reportDeploymentSection_when_asked() {
         // When
@@ -47,7 +51,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getTool()).thenReturn(tool);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -62,7 +66,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getTool()).thenReturn("nomad");
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -79,7 +83,7 @@ class DeploymentDiagnosticsCollectorTest {
         // Given: DeploymentProperties getters all return null
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -100,7 +104,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getEfs()).thenReturn(blank);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -119,7 +123,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getEfs()).thenReturn(efs);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -134,7 +138,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getEfs()).thenReturn("mounted");
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -153,7 +157,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getCloudProvider()).thenReturn(cloudProvider);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -169,7 +173,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(deploymentProperties.getCloudProvider()).thenReturn(cloudProvider);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -188,7 +192,7 @@ class DeploymentDiagnosticsCollectorTest {
         when(commonConfig.getIsCloudHosting()).thenReturn(isCloud);
 
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -200,7 +204,7 @@ class DeploymentDiagnosticsCollectorTest {
     @Test
     void should_reportCpuAndMemoryFromJvm_when_collected() {
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -224,7 +228,7 @@ class DeploymentDiagnosticsCollectorTest {
     @Test
     void should_reportReplicasUnknown_when_collected() {
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
@@ -236,24 +240,61 @@ class DeploymentDiagnosticsCollectorTest {
     @Test
     void should_neverExportHostname_when_collected() {
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
                 .assertNext(data -> assertThat(data).doesNotContainKey("hostname"))
                 .verifyComplete();
         verify(deploymentProperties, never()).getHostname();
-        assertThat(collector.allowedKeys()).doesNotContain("hostname");
+        assertThat(collector.schema().keys().keySet()).doesNotContain("hostname");
     }
 
     @Test
     void should_emitOnlyAllowedKeys_when_collected() {
         // When
-        var result = collector.collect();
+        var result = collector.collect("org-1");
 
         // Then
         StepVerifier.create(result)
-                .assertNext(data -> assertThat(data.keySet()).isEqualTo(collector.allowedKeys()))
+                .assertNext(data -> assertThat(data.keySet())
+                        .isEqualTo(collector.schema().keys().keySet()))
+                .verifyComplete();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "kubernetes, amazon, present, true",
+        "ecs-fargate, others(including local), absent, false",
+        "nomad, aws, mounted, false"
+    })
+    void should_passTheRedactionGuard_when_collectedWithItsOwnSchema(
+            String tool, String cloudProvider, String efs, boolean isCloud) {
+        // Given
+        when(deploymentProperties.getTool()).thenReturn(tool);
+        when(deploymentProperties.getCloudProvider()).thenReturn(cloudProvider);
+        when(deploymentProperties.getEfs()).thenReturn(efs);
+        when(commonConfig.getIsCloudHosting()).thenReturn(isCloud);
+
+        // When
+        var result = collector.collect("org-1");
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(data ->
+                        assertThat(guard.violation(collector.schema(), data)).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    void should_passTheRedactionGuard_when_infraFileIsMissing() {
+        // When
+        var result = collector.collect("org-1");
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(data ->
+                        assertThat(guard.violation(collector.schema(), data)).isEmpty())
                 .verifyComplete();
     }
 }

@@ -128,16 +128,15 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
 
     private Mono<DiagnosticsSectionResult> runCollector(String organizationId, DiagnosticsCollector collector) {
         DiagnosticsSectionId sectionId = collector.sectionId();
-        return Mono.defer(collector::collect)
-                .timeout(COLLECT_TIMEOUT)
-                .map(data -> redactionGuard
-                        .violation(collector.allowedKeys(), data)
-                        .map(code -> DiagnosticsSectionResult.unavailable(sectionId, code))
-                        .orElseGet(() -> DiagnosticsSectionResult.ok(sectionId, data, Instant.now())))
+        return Mono.defer(() -> collector.isLicensed(organizationId))
+                .flatMap(licensed -> Boolean.TRUE.equals(licensed)
+                        ? collectAndCheck(organizationId, collector)
+                        : Mono.just(DiagnosticsSectionResult.notLicensed(sectionId)))
                 .switchIfEmpty(Mono.fromSupplier(() -> {
-                    log.warn("Support diagnostics collector returned no data for section {}", sectionId);
-                    return DiagnosticsSectionResult.unavailable(sectionId, "collector_failed");
+                    log.warn("Support diagnostics license state is unknown for section {}", sectionId);
+                    return DiagnosticsSectionResult.unavailable(sectionId, "license_unknown");
                 }))
+                .timeout(COLLECT_TIMEOUT)
                 .onErrorResume(error -> {
                     if (error instanceof TimeoutException) {
                         log.warn("Support diagnostics collector timed out for section {}", sectionId);
@@ -152,6 +151,19 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
                 .flatMap(result -> isStorable(result)
                         ? resultStore.put(organizationId, result).thenReturn(result)
                         : Mono.just(result));
+    }
+
+    private Mono<DiagnosticsSectionResult> collectAndCheck(String organizationId, DiagnosticsCollector collector) {
+        DiagnosticsSectionId sectionId = collector.sectionId();
+        return Mono.defer(() -> collector.collect(organizationId))
+                .map(data -> redactionGuard
+                        .violation(collector.schema(), data)
+                        .map(code -> DiagnosticsSectionResult.unavailable(sectionId, code))
+                        .orElseGet(() -> DiagnosticsSectionResult.ok(sectionId, data, Instant.now())))
+                .switchIfEmpty(Mono.fromSupplier(() -> {
+                    log.warn("Support diagnostics collector returned no data for section {}", sectionId);
+                    return DiagnosticsSectionResult.unavailable(sectionId, "collector_failed");
+                }));
     }
 
     private static boolean isStorable(DiagnosticsSectionResult result) {

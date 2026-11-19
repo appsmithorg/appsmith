@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.appsmith.server.diagnostics.collectors.DiagnosticsCollector;
+import com.appsmith.server.diagnostics.collectors.DiagnosticsSchema;
+import com.appsmith.server.diagnostics.collectors.FeatureFlagsDiagnosticsCollector;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsDownloadRequest;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionResult;
@@ -12,6 +14,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,9 +31,9 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +54,8 @@ import static org.mockito.Mockito.when;
 class SupportDiagnosticsServiceCEImplTest {
 
     private static final String LEAKY_MESSAGE = "mongodb://admin:hunter2@db.internal";
+    private static final DiagnosticsSchema EDITION_SCHEMA =
+            DiagnosticsSchema.builder().category("edition", "EE").build();
 
     @Mock
     private UserUtils userUtils;
@@ -103,6 +108,7 @@ class SupportDiagnosticsServiceCEImplTest {
     private DiagnosticsCollector givenCollector(DiagnosticsSectionId sectionId) {
         DiagnosticsCollector collector = mock(DiagnosticsCollector.class);
         when(collector.sectionId()).thenReturn(sectionId);
+        lenient().when(collector.isLicensed(anyString())).thenReturn(Mono.just(true));
         service = newService(List.of(collector));
         return collector;
     }
@@ -149,8 +155,8 @@ class SupportDiagnosticsServiceCEImplTest {
         lenient().when(resultStore.put(anyString(), any())).thenReturn(Mono.empty());
         lenient().when(resultStore.get(anyString(), any())).thenReturn(Mono.empty());
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        lenient().when(collector.allowedKeys()).thenReturn(Set.of("edition"));
-        lenient().when(collector.collect()).thenReturn(Mono.just(Map.of("edition", "EE")));
+        lenient().when(collector.schema()).thenReturn(EDITION_SCHEMA);
+        lenient().when(collector.collect("org1")).thenReturn(Mono.just(Map.of("edition", "EE")));
         clearInvocations(collector);
 
         // When / Then
@@ -189,8 +195,8 @@ class SupportDiagnosticsServiceCEImplTest {
         givenLockAcquired();
         givenPutSucceeds();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.allowedKeys()).thenReturn(Set.of("edition"));
-        when(collector.collect()).thenReturn(Mono.just(Map.of("edition", "EE")));
+        when(collector.schema()).thenReturn(EDITION_SCHEMA);
+        when(collector.collect("org1")).thenReturn(Mono.just(Map.of("edition", "EE")));
 
         // When
         Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
@@ -230,7 +236,7 @@ class SupportDiagnosticsServiceCEImplTest {
         givenAccessAllowed("org1");
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.collect()).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
+        when(collector.collect("org1")).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
 
         // When
         Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
@@ -253,7 +259,7 @@ class SupportDiagnosticsServiceCEImplTest {
         givenAccessAllowed("org1");
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.collect()).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
+        when(collector.collect("org1")).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
         Logger logger = (Logger) LoggerFactory.getLogger(SupportDiagnosticsServiceCEImpl.class);
         ListAppender<ILoggingEvent> appender = new ListAppender<>();
         appender.start();
@@ -283,7 +289,7 @@ class SupportDiagnosticsServiceCEImplTest {
         givenAccessAllowed("org1");
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.collect()).thenReturn(Mono.empty());
+        when(collector.collect("org1")).thenReturn(Mono.empty());
 
         // When
         Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
@@ -305,7 +311,7 @@ class SupportDiagnosticsServiceCEImplTest {
         givenAccessAllowed("org1");
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.collect()).thenReturn(Mono.never());
+        when(collector.collect("org1")).thenReturn(Mono.never());
 
         // When / Then
         StepVerifier.withVirtualTime(() -> service.collect(DiagnosticsSectionId.INSTANCE))
@@ -319,13 +325,34 @@ class SupportDiagnosticsServiceCEImplTest {
     }
 
     @Test
+    void should_timeOutAndNotStore_when_flagCacheHangs() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        FeatureFlagService featureFlagService = mock(FeatureFlagService.class);
+        when(featureFlagService.getOrganizationFeatures("org1")).thenReturn(Mono.never());
+        service = newService(List.of(new FeatureFlagsDiagnosticsCollector(featureFlagService)));
+
+        // When / Then
+        StepVerifier.withVirtualTime(() -> service.collect(DiagnosticsSectionId.FEATURE_FLAGS))
+                .expectSubscription()
+                .thenAwait(Duration.ofSeconds(10))
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.UNAVAILABLE);
+                    assertThat(r.errorCode()).isEqualTo("timeout");
+                })
+                .verifyComplete();
+        verify(resultStore, never()).put(anyString(), any());
+    }
+
+    @Test
     void should_returnUnavailable_when_guardReportsViolation() {
         // Given
         givenAccessAllowed("org1");
         givenLockAcquired();
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.allowedKeys()).thenReturn(Set.of("edition"));
-        when(collector.collect()).thenReturn(Mono.just(Map.of("hostname", "db.internal")));
+        when(collector.schema()).thenReturn(EDITION_SCHEMA);
+        when(collector.collect("org1")).thenReturn(Mono.just(Map.of("hostname", "db.internal")));
 
         // When
         Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
@@ -333,6 +360,168 @@ class SupportDiagnosticsServiceCEImplTest {
         // Then
         StepVerifier.create(result)
                 .assertNext(r -> assertThat(r.errorCode()).isEqualTo("key_not_allowed"))
+                .verifyComplete();
+        verify(resultStore, never()).put(anyString(), any());
+        verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
+    }
+
+    @Test
+    void should_returnNotLicensed_when_collectorIsNotLicensed() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.just(false));
+        DiagnosticsRedactionGuard guardSpy = mock(DiagnosticsRedactionGuard.class);
+        service = new SupportDiagnosticsServiceCEImpl(
+                userUtils, sessionUserService, resultStore, guardSpy, List.of(collector));
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.NOT_LICENSED);
+                    assertThat(r.data()).isNull();
+                    assertThat(r.errorCode()).isNull();
+                    assertThat(r.collectedAt()).isNull();
+                })
+                .verifyComplete();
+        verify(collector, never()).collect(any());
+        verify(resultStore, never()).put(anyString(), any());
+        verifyNoInteractions(guardSpy);
+        verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
+    }
+
+    @Test
+    void should_returnLicenseUnknown_when_isLicensedIsEmpty() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.empty());
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.UNAVAILABLE);
+                    assertThat(r.errorCode()).isEqualTo("license_unknown");
+                })
+                .verifyComplete();
+        verify(collector, never()).collect(any());
+        verify(resultStore, never()).put(anyString(), any());
+    }
+
+    @Test
+    void should_returnUnavailable_when_isLicensedErrors() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.error(new IllegalStateException(LEAKY_MESSAGE)));
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.UNAVAILABLE);
+                    assertThat(r.errorCode()).isEqualTo("collector_failed");
+                })
+                .verifyComplete();
+        verify(collector, never()).collect(any());
+        verify(resultStore, never()).put(anyString(), any());
+        verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
+    }
+
+    @Test
+    void should_timeOut_when_isLicensedNeverCompletes() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.isLicensed("org1")).thenReturn(Mono.never());
+
+        // When / Then
+        StepVerifier.withVirtualTime(() -> service.collect(DiagnosticsSectionId.INSTANCE))
+                .expectSubscription()
+                .thenAwait(Duration.ofSeconds(10))
+                .assertNext(r -> assertThat(r.errorCode()).isEqualTo("timeout"))
+                .verifyComplete();
+        verify(resultStore, never()).put(anyString(), any());
+        verify(collector, never()).collect(any());
+    }
+
+    @Test
+    void should_passOrganizationId_when_collecting() {
+        // Given
+        givenAccessAllowed("org-1");
+        givenLockAcquired();
+        givenPutSucceeds();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.schema()).thenReturn(EDITION_SCHEMA);
+        when(collector.collect("org-1")).thenReturn(Mono.just(Map.of("edition", "EE")));
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> assertThat(r.status()).isEqualTo(DiagnosticsStatus.OK))
+                .verifyComplete();
+        verify(collector).collect("org-1");
+        verify(collector).isLicensed("org-1");
+    }
+
+    @Test
+    void should_returnUnavailable_when_collectorMapHasNullValueForCount() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.schema())
+                .thenReturn(DiagnosticsSchema.builder()
+                        .key("x", DiagnosticsSchema.ValueKind.COUNT)
+                        .build());
+        Map<String, Object> data = new HashMap<>();
+        data.put("x", null);
+        when(collector.collect("org1")).thenReturn(Mono.just(data));
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.UNAVAILABLE);
+                    assertThat(r.errorCode()).isEqualTo("value_not_allowed");
+                })
+                .verifyComplete();
+        verify(resultStore, never()).put(anyString(), any());
+    }
+
+    @Test
+    void should_returnCollectorFailed_when_collectReturnsNullMono() {
+        // Given
+        givenAccessAllowed("org1");
+        givenLockAcquired();
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.collect("org1")).thenReturn(null);
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> {
+                    assertThat(r.status()).isEqualTo(DiagnosticsStatus.UNAVAILABLE);
+                    assertThat(r.errorCode()).isEqualTo("collector_failed");
+                })
                 .verifyComplete();
         verify(resultStore, never()).put(anyString(), any());
         verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
@@ -368,8 +557,8 @@ class SupportDiagnosticsServiceCEImplTest {
         when(resultStore.tryLock("org1", DiagnosticsSectionId.INSTANCE))
                 .thenReturn(Mono.just(DiagnosticsLockOutcome.UNCONFIRMED));
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(collector.allowedKeys()).thenReturn(Set.of("edition"));
-        when(collector.collect()).thenReturn(Mono.just(Map.of("edition", "EE")));
+        when(collector.schema()).thenReturn(EDITION_SCHEMA);
+        when(collector.collect("org1")).thenReturn(Mono.just(Map.of("edition", "EE")));
 
         // When
         Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
@@ -395,7 +584,7 @@ class SupportDiagnosticsServiceCEImplTest {
                 .expectErrorSatisfies(e -> assertAppsmithError(e, AppsmithError.TOO_MANY_REQUESTS))
                 .verify();
         verify(resultStore, never()).unlock(anyString(), any());
-        verify(collector, never()).collect();
+        verify(collector, never()).collect(any());
     }
 
     @Test
@@ -481,12 +670,12 @@ class SupportDiagnosticsServiceCEImplTest {
         }
 
         @Override
-        public Set<String> allowedKeys() {
-            return Set.of();
+        public DiagnosticsSchema schema() {
+            return DiagnosticsSchema.builder().build();
         }
 
         @Override
-        public Mono<Map<String, Object>> collect() {
+        public Mono<Map<String, Object>> collect(String organizationId) {
             return Mono.just(Map.of());
         }
     }
