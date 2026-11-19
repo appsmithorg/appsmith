@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,8 @@ import java.util.stream.Stream;
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -529,48 +532,41 @@ public class MssqlDriverBehaviourTest {
     // ones forever, because the plugin reads the later results to find errors (APP-16536).
     @ParameterizedTest(name = "{0}, prepared statement {1}")
     @MethodSource("endlessLaterResults")
-    public void endlessLaterResults_stopAtTheQueryTimeout(String sql, boolean preparedStatement, String expectedError)
-            throws InterruptedException {
+    void should_failAndFreeTheConnection_when_theQueryRunsPastItsTimeout(
+            String sql, boolean preparedStatement, String expectedError) {
+        // Given
         HikariDataSource connectionPool = mssqlPluginExecutor
                 .datasourceCreate(createDatasourceConfiguration(container))
                 .block();
-        assertNotNull(connectionPool);
+        assertThat(connectionPool).isNotNull();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(sql);
+        actionConfiguration.setTimeoutInMillisecond("3000");
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
 
         try {
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setBody(sql);
-            actionConfiguration.setTimeoutInMillisecond("3000");
-            actionConfiguration.setPluginSpecifiedTemplates(
-                    List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
-
+            // When
             // Before the fix, this call never returned: the reactive timeout cannot interrupt the blocking read.
-            Instant started = Instant.now();
-            ActionExecutionResult result = mssqlPluginExecutor
-                    .executeParameterized(
+            Duration took = StepVerifier.create(mssqlPluginExecutor.executeParameterized(
                             connectionPool,
                             new ExecuteActionDTO(),
                             createDatasourceConfiguration(container),
-                            actionConfiguration)
-                    .block(Duration.ofSeconds(30));
-            Duration took = Duration.between(started, Instant.now());
-
-            assertNotNull(result);
-            assertFalse(result.getIsExecutionSuccess(), () -> "the query should fail: " + result.getBody());
-            assertTrue(
-                    String.valueOf(result.getBody()).contains(expectedError),
-                    () -> "expected \"" + expectedError + "\" in: " + result.getBody());
-            assertTrue(took.compareTo(Duration.ofSeconds(10)) < 0, () -> "the query stopped only after " + took);
+                            actionConfiguration))
+                    // Then
+                    .assertNext(result -> {
+                        assertThat(result.getIsExecutionSuccess()).isFalse();
+                        assertThat(String.valueOf(result.getBody())).contains(expectedError);
+                    })
+                    .expectComplete()
+                    .verify(Duration.ofSeconds(30));
+            assertThat(took).isLessThan(Duration.ofSeconds(10));
 
             // The connection goes back to the pool shortly after the timeout.
-            Instant giveUp = Instant.now().plusSeconds(10);
-            while (connectionPool.getHikariPoolMXBean().getActiveConnections() > 0
-                    && Instant.now().isBefore(giveUp)) {
-                Thread.sleep(200);
-            }
-            assertEquals(
-                    0,
-                    connectionPool.getHikariPoolMXBean().getActiveConnections(),
-                    "the query still holds its connection after the timeout");
+            await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(
+                            connectionPool.getHikariPoolMXBean().getActiveConnections())
+                    .as("connections the query still holds after its timeout")
+                    .isZero());
         } finally {
             connectionPool.close();
         }

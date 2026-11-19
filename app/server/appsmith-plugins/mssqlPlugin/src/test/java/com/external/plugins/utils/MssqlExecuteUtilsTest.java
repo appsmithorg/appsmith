@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.Boolean.FALSE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -49,7 +52,6 @@ class MssqlExecuteUtilsTest {
         // An update count first, then results without end, and a deadline that has passed.
         Statement statement = Mockito.mock(Statement.class);
         when(statement.getUpdateCount()).thenReturn(1);
-        when(statement.getMoreResults()).thenReturn(true);
         long deadlinePassed = System.nanoTime() - TimeUnit.SECONDS.toNanos(1);
 
         // When
@@ -58,26 +60,31 @@ class MssqlExecuteUtilsTest {
         // Then
         assertThat(error).isInstanceOf(SQLTimeoutException.class).hasMessage(TIMEOUT_MESSAGE);
         verify(statement).cancel();
+        // The deadline check stopped the reading before any later result was read.
+        verify(statement, never()).getMoreResults();
     }
 
     @Test
     void should_reportATimeout_when_theDriverStopsTheQueryAfterTheDeadline() throws SQLException {
         // Given
-        // The driver's own query timeout ends the query while the later results are read.
+        // The driver's own query timeout ends the query while the later results are read: the read waits until the
+        // deadline has passed, then fails.
         Statement statement = Mockito.mock(Statement.class);
         when(statement.getUpdateCount()).thenReturn(1);
-        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(50);
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(500);
+        SQLException driverTimeout = new SQLException("The query has timed out.", "HY008");
         when(statement.getMoreResults()).thenAnswer(invocation -> {
-            Thread.sleep(100);
-            throw new SQLException("The query has timed out.", "HY008");
+            await().atMost(Duration.ofSeconds(5)).until(() -> MssqlExecuteUtils.isPastDeadline(deadline));
+            throw driverTimeout;
         });
 
         // When
         Throwable error = catchThrowable(() -> populate(statement, deadline));
 
         // Then
+        verify(statement).getMoreResults();
         assertThat(error).isInstanceOf(SQLTimeoutException.class).hasMessage(TIMEOUT_MESSAGE);
-        assertThat(error.getCause()).hasMessage("The query has timed out.");
+        assertThat(error.getCause()).isSameAs(driverTimeout);
         // Some errors do not end the query, so it is cancelled before the timeout is reported.
         verify(statement).cancel();
     }
@@ -104,10 +111,10 @@ class MssqlExecuteUtilsTest {
 
         // When
         MssqlExecuteUtils.cancelAtDeadline(statement, deadline).cancel(false);
-        Thread.sleep(400);
 
         // Then
-        verify(statement, never()).cancel();
+        // Still not cancelled well after the deadline.
+        verify(statement, after(400).never()).cancel();
     }
 
     @Test
@@ -154,7 +161,7 @@ class MssqlExecuteUtilsTest {
 
         // Then
         assertThat(error)
-                .isNotInstanceOf(SQLTimeoutException.class)
+                .isExactlyInstanceOf(SQLException.class)
                 .hasMessageStartingWith("A statement in this query failed.")
                 .hasMessageContaining("Invalid object name 'missing'.");
         verify(statement, never()).cancel();
