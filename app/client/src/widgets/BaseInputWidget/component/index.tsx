@@ -26,7 +26,7 @@ import { Icon } from "@design-system/widgets-old";
 import type { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import { lightenColor } from "widgets/WidgetUtils";
+import { getLocaleDecimalSeperator, lightenColor } from "widgets/WidgetUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
@@ -424,6 +424,82 @@ export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
 
+const getExpectedDecimalSeparator = (shouldUseLocale?: boolean): string => {
+  if (!shouldUseLocale) {
+    return ".";
+  }
+
+  return getLocaleDecimalSeperator() || ".";
+};
+
+const getAllowedNumericChars = (
+  expectedDecimalSeparator: string,
+  locale?: string,
+): Set<string> => {
+  const allowed = new Set<string>([
+    "e",
+    "E",
+    "+",
+    "-",
+    expectedDecimalSeparator,
+  ]);
+
+  for (let digit = 0; digit <= 9; digit++) {
+    allowed.add(String(digit));
+
+    if (locale) {
+      allowed.add(digit.toLocaleString(locale));
+    }
+  }
+
+  return allowed;
+};
+
+/**
+ * Normalizes alternate decimal separators (`.` / `,`) typed by regional mobile
+ * keypads to `expectedDecimalSeparator` and strips non-numeric characters.
+ */
+export const normalizeNumericInputValue = (
+  value: string,
+  expectedDecimalSeparator: string,
+  locale?: string,
+): string => {
+  if (!value) {
+    return value;
+  }
+
+  // Convert full-width digits (e.g. Japanese IME) to ASCII, matching Blueprint's NumericInput.
+  let normalized = value.replace(/[\uFF10-\uFF19]/g, (ch) =>
+    String.fromCharCode(ch.charCodeAt(0) - 0xfee0),
+  );
+
+  if (!normalized.includes(expectedDecimalSeparator)) {
+    const alternates = [".", ","].filter(
+      (sep) => sep !== expectedDecimalSeparator && normalized.includes(sep),
+    );
+
+    if (alternates.length === 1) {
+      const alt = alternates[0];
+      const firstIdx = normalized.indexOf(alt);
+
+      // Only treat a single alternate separator as a decimal point (multiple occurrences are thousand separators).
+      if (firstIdx !== -1 && normalized.indexOf(alt, firstIdx + 1) === -1) {
+        normalized =
+          normalized.slice(0, firstIdx) +
+          expectedDecimalSeparator +
+          normalized.slice(firstIdx + 1);
+      }
+    }
+  }
+
+  const allowed = getAllowedNumericChars(expectedDecimalSeparator, locale);
+
+  return normalized
+    .split("")
+    .filter((ch) => allowed.has(ch))
+    .join("");
+};
+
 class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
@@ -483,8 +559,35 @@ class BaseInputComponent extends React.Component<
     this.props.onValueChange(event.target.value);
   };
 
-  onNumberChange = (valueAsNum: number, valueAsString: string) => {
-    this.props.onValueChange(valueAsString);
+  onNumberChange = (
+    valueAsNum: number,
+    valueAsString: string,
+    inputElement?: HTMLInputElement | null,
+  ) => {
+    let nextValue = valueAsString;
+
+    if (this.props.allowNumericCharactersOnly !== false) {
+      const locale = this.props.shouldUseLocale ? getLocale() : undefined;
+      const expectedDecimalSeparator = getExpectedDecimalSeparator(
+        this.props.shouldUseLocale,
+      );
+
+      nextValue = normalizeNumericInputValue(
+        valueAsString,
+        expectedDecimalSeparator,
+        locale,
+      );
+
+      if (
+        inputElement &&
+        nextValue !== valueAsString &&
+        nextValue === (this.props.value ?? "")
+      ) {
+        inputElement.value = nextValue;
+      }
+    }
+
+    this.props.onValueChange(nextValue);
   };
 
   getType(inputType: InputHTMLType = "TEXT") {
@@ -518,6 +621,49 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onNumericKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (this.props.allowNumericCharactersOnly !== false) {
+      const { key } = e;
+
+      if (
+        key != null &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey &&
+        key.length === 1
+      ) {
+        const locale = this.props.shouldUseLocale ? getLocale() : undefined;
+        const expectedDecimalSeparator = getExpectedDecimalSeparator(
+          this.props.shouldUseLocale,
+        );
+        const allowed = getAllowedNumericChars(
+          expectedDecimalSeparator,
+          locale,
+        );
+        const isAlternateSeparator =
+          (key === "." || key === ",") && key !== expectedDecimalSeparator;
+
+        if (!allowed.has(key) && !isAlternateSeparator) {
+          e.preventDefault();
+
+          return;
+        }
+
+        if (isAlternateSeparator) {
+          const currentVal = e.currentTarget.value ?? "";
+          const start = e.currentTarget.selectionStart ?? currentVal.length;
+          const end = e.currentTarget.selectionEnd ?? start;
+          const unselectedVal =
+            currentVal.slice(0, start) + currentVal.slice(end);
+
+          if (unselectedVal.includes(expectedDecimalSeparator)) {
+            e.preventDefault();
+          }
+        }
+      }
+    }
+  };
+
   onKeyUp = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
@@ -542,7 +688,7 @@ class BaseInputComponent extends React.Component<
 
     return (
       <StyledNumericInput
-        allowNumericCharactersOnly
+        allowNumericCharactersOnly={false}
         autoFocus={this.props.autoFocus}
         buttonPosition={this.props.buttonPosition}
         className={
@@ -564,6 +710,7 @@ class BaseInputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyPress={this.onNumericKeyPress}
         onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
