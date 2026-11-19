@@ -65,12 +65,14 @@ public class URIUtils {
     }
 
     /**
-     * Prepends {@code http://} when the URL does not already start with a URI scheme (e.g. {@code http://},
-     * {@code https://}, {@code ftp://}). Domains that merely start with {@code http} (such as {@code httpbin.org/get})
-     * still receive the {@code http://} prefix.
+     * Prepends {@code http://} when the URL does not already start with an explicit {@code scheme://} prefix
+     * (e.g. {@code http://}, {@code https://}, {@code ftp://}). Returns {@code null} unchanged. Inputs without an
+     * explicit {@code ://} delimiter (such as {@code httpbin.org/get} or {@code file:/tmp/report}) still receive
+     * the {@code http://} prefix.
      *
-     * @param url input URL string
-     * @return URL guaranteed to keep an existing scheme prefix or have {@code http://} prepended
+     * @param url input URL string, possibly {@code null}
+     * @return {@code null} if {@code url} is {@code null}, the input unchanged if it starts with {@code scheme://},
+     *         or {@code "http://" + url} otherwise
      */
     protected String addHttpToUrlWhenPrefixNotPresent(String url) {
         if (url == null || SCHEME_PATTERN.matcher(url).find()) {

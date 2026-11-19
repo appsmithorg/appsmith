@@ -4,73 +4,98 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link URIUtils}.
  */
-public class URIUtilsTest {
+class URIUtilsTest {
 
     private final URIUtils uriUtils = new URIUtils();
 
     /**
-     * Tests that null input is returned as null.
+     * Verifies that null input is returned unchanged.
      */
     @Test
-    public void addHttpToUrlWhenPrefixNotPresent_withNull_returnsNull() {
-        assertNull(uriUtils.addHttpToUrlWhenPrefixNotPresent(null));
+    void should_returnNull_when_urlIsNull() {
+        // Given
+        String inputUrl = null;
+
+        // When
+        String result = uriUtils.addHttpToUrlWhenPrefixNotPresent(inputUrl);
+
+        // Then
+        assertThat(result).isNull();
     }
 
     /**
-     * Tests that URLs starting with "http" as part of the hostname (without a scheme) get "http://" prepended.
+     * Verifies that schemeless URLs (including domains starting with "http" or query strings containing "://")
+     * have "http://" prepended.
      */
-    @Test
-    public void addHttpToUrlWhenPrefixNotPresent_withHostnameStartingWithHttp_prependsHttp() {
-        assertEquals("http://httpbin.org/get", uriUtils.addHttpToUrlWhenPrefixNotPresent("httpbin.org/get"));
-        assertEquals("http://https-api.example.com", uriUtils.addHttpToUrlWhenPrefixNotPresent("https-api.example.com"));
-        assertEquals("http://http:8080/status", uriUtils.addHttpToUrlWhenPrefixNotPresent("http:8080/status"));
+    @ParameterizedTest
+    @CsvSource({
+        "httpbin.org/get, http://httpbin.org/get",
+        "https-api.example.com, http://https-api.example.com",
+        "http:8080/status, http://http:8080/status",
+        "example.com/path?next=https://other.com, http://example.com/path?next=https://other.com"
+    })
+    void should_prependHttpPrefix_when_schemelessUrlProvided(String inputUrl, String expectedUrl) {
+        // Given
+        // inputUrl from parameterized source
+
+        // When
+        String result = uriUtils.addHttpToUrlWhenPrefixNotPresent(inputUrl);
+
+        // Then
+        assertThat(result).isEqualTo(expectedUrl);
     }
 
     /**
-     * Tests that schemeless URLs containing "://" only inside a query parameter still get "http://" prepended.
+     * Verifies that URLs starting with an explicit {@code scheme://} prefix remain unchanged.
      */
-    @Test
-    public void addHttpToUrlWhenPrefixNotPresent_withSchemeInQueryParamOnly_prependsHttp() {
-        assertEquals(
-                "http://example.com/path?next=https://other.com",
-                uriUtils.addHttpToUrlWhenPrefixNotPresent("example.com/path?next=https://other.com"));
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "http://httpbin.org/get",
+                "https://httpbin.org/get",
+                "HTTPS://EXAMPLE.COM/api",
+                "ftp://files.example.com"
+            })
+    void should_keepUrlUnchanged_when_explicitSchemePrefixExists(String inputUrl) {
+        // Given
+        // inputUrl with explicit scheme:// prefix
+
+        // When
+        String result = uriUtils.addHttpToUrlWhenPrefixNotPresent(inputUrl);
+
+        // Then
+        assertThat(result).isEqualTo(inputUrl);
     }
 
     /**
-     * Tests that URLs already starting with an explicit scheme remain unchanged.
+     * Verifies that {@link URIUtils#createUriWithQueryParams} builds a valid HTTP URI for schemeless domains
+     * starting with "http".
      */
     @Test
-    public void addHttpToUrlWhenPrefixNotPresent_withExistingScheme_returnsUnchanged() {
-        assertEquals("http://httpbin.org/get", uriUtils.addHttpToUrlWhenPrefixNotPresent("http://httpbin.org/get"));
-        assertEquals("https://httpbin.org/get", uriUtils.addHttpToUrlWhenPrefixNotPresent("https://httpbin.org/get"));
-        assertEquals("HTTPS://EXAMPLE.COM/api", uriUtils.addHttpToUrlWhenPrefixNotPresent("HTTPS://EXAMPLE.COM/api"));
-        assertEquals("ftp://files.example.com", uriUtils.addHttpToUrlWhenPrefixNotPresent("ftp://files.example.com"));
-    }
-
-    /**
-     * Tests that createUriWithQueryParams builds a valid HTTP URI for schemeless domains starting with "http".
-     */
-    @Test
-    public void createUriWithQueryParams_withHttpPrefixedDomainWithoutScheme_buildsValidUri()
-            throws URISyntaxException {
+    void should_buildValidHttpUri_when_schemelessDomainStartsWithHttp() throws URISyntaxException {
+        // Given
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setQueryParameters(List.of(new Property("key", "value")));
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
+        // When
         URI result = uriUtils.createUriWithQueryParams(
                 actionConfiguration, datasourceConfiguration, "httpbin.org/get", true);
 
-        assertEquals(URI.create("http://httpbin.org/get?key=value"), result);
+        // Then
+        assertThat(result).isEqualTo(URI.create("http://httpbin.org/get?key=value"));
     }
 }
