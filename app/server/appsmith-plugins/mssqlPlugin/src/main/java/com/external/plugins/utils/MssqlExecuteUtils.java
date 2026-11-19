@@ -1,5 +1,6 @@
 package com.external.plugins.utils;
 
+import microsoft.sql.DateTimeOffset;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.sql.Connection;
@@ -9,12 +10,14 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
@@ -22,8 +25,15 @@ import static java.lang.Boolean.FALSE;
 
 public class MssqlExecuteUtils {
 
+    // 0x followed by upper-case hex digits, the way SQL Server shows binary values.
+    private static String toHexLiteral(byte[] bytes) {
+        return "0x" + HexFormat.of().withUpperCase().formatHex(bytes);
+    }
+
     private static final String DATE_COLUMN_TYPE_NAME = "date";
-    private static final String TIMESTAMP_TYPE_NAME = "timestamp";
+    // SQL Server reports a rowversion column as "timestamp", the type's older name.
+    private static final Set<String> ROWVERSION_TYPE_NAMES = Set.of("timestamp", "rowversion");
+    private static final String DATETIMEOFFSET_TYPE_NAME = "datetimeoffset";
     private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
     private static final String TIME_TYPE_NAME = "time";
     private static final String TIMETZ_TYPE_NAME = "timetz";
@@ -101,11 +111,17 @@ public class MssqlExecuteUtils {
                         value = DateTimeFormatter.ISO_DATE.format(
                                 resultSet.getDate(i).toLocalDate());
 
-                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.of(
-                                        resultSet.getDate(i).toLocalDate(),
-                                        resultSet.getTime(i).toLocalTime()))
-                                + "Z";
+                    } else if (typeName != null && ROWVERSION_TYPE_NAMES.contains(typeName.toLowerCase(Locale.ROOT))) {
+                        // In SQL Server, timestamp is rowversion: 8 binary bytes, not a date. Return them as hex
+                        // (0x00000000000007D1), as SQL Server shows them. Reading them as a date failed every query.
+                        value = toHexLiteral(resultSet.getBytes(i));
+
+                    } else if (DATETIMEOFFSET_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        // An ISO 8601 string that keeps the offset and every fractional digit, such as
+                        // 2024-02-29T13:45:30.1234567+05:30. The driver's own DateTimeOffset object cannot be written
+                        // as JSON, so returning it failed every query.
+                        value = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+                                resultSet.getObject(i, OffsetDateTime.class));
 
                     } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE_TIME.format(resultSet.getObject(i, OffsetDateTime.class));
@@ -119,6 +135,12 @@ public class MssqlExecuteUtils {
 
                     } else {
                         value = resultSet.getObject(i);
+
+                        // A sql_variant column reports its own type name, so a datetimeoffset stored in one arrives
+                        // here as the driver's object. Return it in the same ISO 8601 form as a datetimeoffset column.
+                        if (value instanceof DateTimeOffset dateTimeOffset) {
+                            value = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(dateTimeOffset.getOffsetDateTime());
+                        }
                     }
 
                     row.put(metaData.getColumnName(i), value);
@@ -126,6 +148,44 @@ public class MssqlExecuteUtils {
 
                 rowsList.add(row);
             }
+        }
+
+        drainRemainingResults(FALSE.equals(preparedStatement) ? statement : preparedQuery);
+    }
+
+    /**
+     * Reads the results of the remaining statements in a query. The response still shows only the first result, but
+     * the driver raises an error from a later statement only when its result is read. Without this, a query such as
+     * {@code UPDATE ...; INSERT INTO missing_table ...} reported success. Other statements may already have run: the
+     * ones before the error, and, because SQL Server continues after many statement errors, some after it. Without an
+     * explicit transaction they are committed. So the error says so.
+     */
+    private static void drainRemainingResults(Statement statement) throws SQLException {
+        if (statement == null) {
+            return;
+        }
+
+        try {
+            while (true) {
+                if (statement.getMoreResults()) {
+                    // A later SELECT can fail while its rows are read, for example on a divide by zero in row 5.
+                    // Step through its rows (they are not returned) so that error surfaces too.
+                    try (ResultSet laterRows = statement.getResultSet()) {
+                        while (laterRows != null && laterRows.next()) {
+                            // Nothing to keep.
+                        }
+                    }
+                } else if (statement.getUpdateCount() == -1) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException(
+                    "A statement in this query failed. Other statements in the query may already have run."
+                            + (e.getMessage() == null ? "" : " " + e.getMessage()),
+                    e.getSQLState(),
+                    e.getErrorCode(),
+                    e);
         }
     }
 }
