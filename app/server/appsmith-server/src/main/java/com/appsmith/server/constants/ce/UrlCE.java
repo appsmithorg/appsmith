@@ -23,6 +23,7 @@ public class UrlCE {
     public static final String IMPORT_URL = BASE_URL + VERSION + "/import";
     public static final String ASSET_URL = BASE_URL + VERSION + "/assets";
     public static final String INSTANCE_ADMIN_URL = BASE_URL + VERSION + "/admin";
+    public static final String SUPPORT_DIAGNOSTICS_URL = INSTANCE_ADMIN_URL + "/support/diagnostics";
     public static final String GIT_URL = BASE_URL + VERSION + "/git";
     public static final String THEME_URL = BASE_URL + VERSION + "/themes";
     public static final String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
