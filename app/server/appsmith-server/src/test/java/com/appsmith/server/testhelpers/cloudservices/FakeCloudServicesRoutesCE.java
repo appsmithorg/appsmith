@@ -47,6 +47,11 @@ public class FakeCloudServicesRoutesCE {
         if ("POST".equals(method) && "/api/v1/installations".equals(path)) {
             return Optional.of(ok("\"fake-registered-instance\""));
         }
+        // CacheablePylonHelperCEImpl accepts only responses signed by cloud-services, which this fake cannot
+        // sign. Answer with an error, so the caller takes its documented fallback.
+        if ("POST".equals(method) && "/api/v1/pylon/email-hash".equals(path)) {
+            return Optional.of(new MockResponse().setResponseCode(503));
+        }
         if (!"GET".equals(method)) {
             return Optional.empty();
         }
