@@ -10,6 +10,8 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -59,6 +61,13 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
   }
 
   public render() {
+    const { evaluatedValue, propertyValue } = this.props;
+    const isDynamicProperty =
+      typeof propertyValue === "string" && isDynamicValue(propertyValue);
+    const value = isDynamicProperty
+      ? evaluatedValue ?? propertyValue
+      : propertyValue ?? evaluatedValue ?? "";
+
     return (
       <SegmentedControl
         isFullWidth={false}
@@ -71,11 +80,7 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
         }}
         options={options}
         ref={this.componentRef}
-        value={
-          this.props.evaluatedValue !== undefined
-            ? this.props.evaluatedValue
-            : this.props.propertyValue || ""
-        }
+        value={value}
       />
     );
   }

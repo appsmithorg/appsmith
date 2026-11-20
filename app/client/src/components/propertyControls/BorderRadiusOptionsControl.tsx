@@ -10,6 +10,7 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
@@ -66,6 +67,13 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
   }
 
   public render() {
+    const { evaluatedValue, propertyValue } = this.props;
+    const isDynamicProperty =
+      typeof propertyValue === "string" && isDynamicValue(propertyValue);
+    const value = isDynamicProperty
+      ? evaluatedValue ?? propertyValue
+      : propertyValue ?? evaluatedValue ?? "";
+
     return (
       <SegmentedControl
         isFullWidth={false}
@@ -78,11 +86,7 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
         }}
         options={options}
         ref={this.componentRef}
-        value={
-          this.props.evaluatedValue !== undefined
-            ? this.props.evaluatedValue
-            : this.props.propertyValue || ""
-        }
+        value={value}
       />
     );
   }
