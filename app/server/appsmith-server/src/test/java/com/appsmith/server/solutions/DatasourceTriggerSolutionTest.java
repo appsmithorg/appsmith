@@ -32,14 +32,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -58,13 +58,13 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class DatasourceTriggerSolutionTest {
 
-    @MockBean
+    @MockitoBean
     DatasourceStructureSolution datasourceStructureSolution;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @MockitoBean
     PluginExecutor pluginExecutor;
 
     @Autowired
@@ -82,7 +82,7 @@ public class DatasourceTriggerSolutionTest {
     @Autowired
     PluginService pluginService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceService datasourceService;
 
     @Autowired
@@ -91,7 +91,7 @@ public class DatasourceTriggerSolutionTest {
     @Autowired
     DatasourcePermission datasourcePermission;
 
-    @MockBean
+    @MockitoBean
     FeatureFlagService featureFlagService;
 
     @Autowired

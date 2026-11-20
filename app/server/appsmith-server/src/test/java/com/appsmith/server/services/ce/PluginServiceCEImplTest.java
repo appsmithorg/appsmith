@@ -17,8 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
@@ -33,22 +33,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 public class PluginServiceCEImplTest {
 
-    @MockBean
+    @MockitoBean
     Validator validator;
 
-    @MockBean
+    @MockitoBean
     PluginRepository repository;
 
-    @MockBean
+    @MockitoBean
     AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     WorkspaceService workspaceService;
 
-    @MockBean
+    @MockitoBean
     PluginManager pluginManager;
 
-    @MockBean
+    @MockitoBean
     PluginTransformationSolution pluginTransformationSolution;
 
     ObjectMapper objectMapper;

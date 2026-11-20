@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -54,7 +54,7 @@ public class UserServiceWithDisabledSignupTest {
     @Autowired
     UserOrganizationHelper userOrganizationHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     CommonConfig commonConfig;
 
     @Autowired

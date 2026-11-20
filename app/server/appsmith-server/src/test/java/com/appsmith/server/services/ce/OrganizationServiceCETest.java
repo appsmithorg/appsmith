@@ -26,10 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -60,7 +60,7 @@ class OrganizationServiceCETest {
     @Autowired
     OrganizationService organizationService;
 
-    @MockBean
+    @MockitoBean
     EnvManager envManager;
 
     @Autowired
@@ -72,19 +72,19 @@ class OrganizationServiceCETest {
     @Autowired
     UserUtils userUtils;
 
-    @SpyBean
+    @MockitoSpyBean
     FeatureFlagService featureFlagService;
 
     @Autowired
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
-    @SpyBean
+    @MockitoSpyBean
     CacheManager cacheManager;
 
-    @SpyBean
+    @MockitoSpyBean
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    @MockBean
+    @MockitoBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     @Autowired

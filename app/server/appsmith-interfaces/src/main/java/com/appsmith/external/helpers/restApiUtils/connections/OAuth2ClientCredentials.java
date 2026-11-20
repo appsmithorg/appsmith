@@ -109,8 +109,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 .method(HttpMethod.POST)
                 .uri(oAuth2.getAccessTokenUrl())
                 .body(clientCredentialsTokenBody(oAuth2))
-                .exchange()
-                .flatMap(response -> response.body(BodyExtractors.toMono(Map.class)))
+                .exchangeToMono(response -> response.body(BodyExtractors.toMono(Map.class)))
                 // Receive and parse response
                 .map(mappedResponse -> {
                     AuthenticationResponse authenticationResponse = new AuthenticationResponse();

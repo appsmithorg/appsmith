@@ -16,8 +16,8 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -45,7 +45,7 @@ public class ExchangeJsonConversionTests {
     @Autowired
     CommonGitFileUtils commonGitFileUtils;
 
-    @SpyBean
+    @MockitoSpyBean
     FSGitHandler fsGitHandler;
 
     @TestTemplate

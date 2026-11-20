@@ -57,9 +57,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -118,10 +118,10 @@ public class PageServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @MockitoBean
     PluginExecutor pluginExecutor;
 
     @Autowired

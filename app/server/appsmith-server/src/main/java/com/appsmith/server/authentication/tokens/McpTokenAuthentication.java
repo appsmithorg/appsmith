@@ -5,6 +5,8 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
+
 public class McpTokenAuthentication extends AbstractAuthenticationToken {
 
     // Marker authority stamped on the authenticated principal so downstream code can tell an MCP-token-authenticated
@@ -41,7 +43,8 @@ public class McpTokenAuthentication extends AbstractAuthenticationToken {
     }
 
     public McpTokenAuthentication(String token, String clientAddress) {
-        super(null);
+        // Spring Security 7 adds a Builder constructor, so a bare null is ambiguous
+        super((Collection<? extends GrantedAuthority>) null);
         this.token = token;
         this.clientAddress = clientAddress;
         setAuthenticated(false);

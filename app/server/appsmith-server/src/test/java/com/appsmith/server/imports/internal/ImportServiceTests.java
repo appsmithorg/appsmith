@@ -92,8 +92,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -104,6 +102,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Flux;
@@ -205,7 +205,7 @@ public class ImportServiceTests {
     @Autowired
     ActionCollectionService actionCollectionService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
@@ -229,7 +229,7 @@ public class ImportServiceTests {
     @Autowired
     ApplicationPermission applicationPermission;
 
-    @SpyBean
+    @MockitoSpyBean
     PluginService pluginService;
 
     @Autowired

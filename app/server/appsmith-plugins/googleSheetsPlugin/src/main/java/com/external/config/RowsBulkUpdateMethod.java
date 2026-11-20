@@ -132,8 +132,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(response -> {
                     // Choose body depending on response status
                     byte[] responseBody = response.getBody();

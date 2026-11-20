@@ -95,13 +95,24 @@ public class SignupRateLimitFilter implements WebFilter {
 
         InetSocketAddress remoteAddress = request.getRemoteAddress();
         if (remoteAddress != null) {
-            String host = remoteAddress.getHostString();
+            String host = withoutIpv6Brackets(remoteAddress.getHostString());
             if (InetAddresses.isInetAddress(host)) {
                 return InetAddresses.forString(host).getHostAddress();
             }
         }
 
         return UNKNOWN_CLIENT;
+    }
+
+    /**
+     * Spring Framework 7 keeps the brackets around an IPv6 client that ForwardedHeaderTransformer takes from
+     * X-Forwarded-For ("[2001:db8::1]"). A direct connection reports the address without them.
+     */
+    private static String withoutIpv6Brackets(String host) {
+        if (host != null && host.length() > 2 && host.startsWith("[") && host.endsWith("]")) {
+            return host.substring(1, host.length() - 1);
+        }
+        return host;
     }
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {

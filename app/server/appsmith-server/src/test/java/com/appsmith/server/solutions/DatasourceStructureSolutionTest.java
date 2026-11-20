@@ -37,8 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -46,6 +44,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -80,28 +80,28 @@ public class DatasourceStructureSolutionTest {
     @Autowired
     PluginService pluginService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @MockitoBean
     PluginExecutor pluginExecutor;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceService datasourceService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
     DatasourcePermission datasourcePermission;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceStructureService datasourceStructureService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceContextService datasourceContextService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceStructureSolution datasourceStructureSolution;
 
     @Autowired

@@ -183,7 +183,9 @@ public class AstServiceCEImpl implements AstServiceCE {
                                 }
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.RTS_SERVER_ERROR,
-                                        entityRefactorResponseResponseEntity.getStatusCodeValue()));
+                                        entityRefactorResponseResponseEntity
+                                                .getStatusCode()
+                                                .value()));
                             })
                             .elapsed()
                             .map(tuple -> {
