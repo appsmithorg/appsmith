@@ -83,7 +83,7 @@ export const APPROVED_ERROR_MESSAGES = {
     /^Password length should be between [0-9]+ and [0-9]+$/,
     /^Unable to find user with email [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     /^Please enter a valid parameter [a-zA-Z][a-zA-Z0-9._-]*\.$/,
-    /^There is already an account registered with this email [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\. Please sign in instead\.$/,
+    /^There is already an account registered with this email [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\. Please sign in instead, or use "Forgot password" to set a password\.$/,
     /^Cannot find an outstanding reset password request for this email\. Please initiate a request via "forgot password" button to reset your password$/,
     /^A password reset link has been sent to your email address [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,} registered with Appsmith\.$/,
     /^Password must be [0-9]+-[0-9]+ characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces\.$/,
