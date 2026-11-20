@@ -166,8 +166,17 @@ function TableDataDownload(props: TableDataDownloadProps) {
             : "string";
 
         if (column.metaProperties && !column.metaProperties.isHidden) {
+          let cellValue = data[column.accessor];
+
+          // zipcelx marks cells as string|number. Coerce number columns so
+          // values like "-5" stay numeric (same as Table v2 Excel asNumber).
+          // Do not apostrophe-prefix strings: zipcelx writes typed string cells.
+          if (type === "number" && typeof cellValue === "string") {
+            cellValue = Number(cellValue) || 0;
+          }
+
           tableRow.push({
-            value: data[column.accessor],
+            value: cellValue as string | number,
             type: type,
           });
         }

@@ -38,9 +38,15 @@ public class MssqlTestDBContainerManager {
 
     public static MssqlDatasourceUtils mssqlDatasourceUtils = new MssqlDatasourceUtils();
 
+    // The SQL Server image the tests run on. Override it to test another version, for example
+    // -Dmssql.test.image=mcr.microsoft.com/mssql/server:2019-latest
+    private static final String MSSQL_TEST_IMAGE =
+            System.getProperty("mssql.test.image", "mcr.microsoft.com/mssql/server:2022-latest");
+
     @SuppressWarnings("rawtypes")
     public static MSSQLServerContainer getMssqlDBForTest() {
-        return new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2022-latest"))
+        return new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_TEST_IMAGE)
+                        .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server"))
                 .acceptLicense()
                 .withExposedPorts(1433)
                 .withPassword("Mssql12;3");

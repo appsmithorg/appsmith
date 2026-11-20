@@ -69,6 +69,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -268,9 +270,21 @@ public class MssqlPlugin extends BasePlugin {
                                 MessageFormat.format("Before executing Mssql query [{0}]", query), hikariDSConnection);
                         ;
 
+                        // The reactive timeout below cannot interrupt this blocking call: it reports the timeout only
+                        // after the call returns. So the query gets the same timeout here:
+                        // - the driver's query timeout, while SQL Server has not answered yet;
+                        // - a timer that cancels the query at the deadline, while a read of later results blocks;
+                        // - checks between reads, which stop a query that returns results without end.
+                        final int timeoutMillis = actionConfiguration.getTimeoutInMillisecond();
+                        final int queryTimeoutSeconds = MssqlExecuteUtils.queryTimeoutSeconds(timeoutMillis);
+                        final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+                        ScheduledFuture<?> cancelAtDeadline = null;
+
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = sqlConnectionFromPool.createStatement();
+                                statement.setQueryTimeout(queryTimeoutSeconds);
+                                cancelAtDeadline = MssqlExecuteUtils.cancelAtDeadline(statement, deadlineNanos);
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -289,6 +303,8 @@ public class MssqlPlugin extends BasePlugin {
                                                         parameters.get(i).getKey(),
                                                         parameters.get(i).getValue())));
 
+                                preparedQuery.setQueryTimeout(queryTimeoutSeconds);
+                                cancelAtDeadline = MssqlExecuteUtils.cancelAtDeadline(preparedQuery, deadlineNanos);
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -300,16 +316,28 @@ public class MssqlPlugin extends BasePlugin {
                                     isResultSet,
                                     preparedStatement,
                                     statement,
-                                    preparedQuery);
+                                    preparedQuery,
+                                    timeoutMillis,
+                                    deadlineNanos);
 
                         } catch (SQLException e) {
+                            // After the deadline, the error comes from the cancel or the driver's query timeout.
+                            String errorMessage = MssqlExecuteUtils.isPastDeadline(deadlineNanos)
+                                    ? String.format(MssqlErrorMessages.QUERY_TIMEOUT_ERROR_MSG, timeoutMillis)
+                                    : e.getMessage();
                             return Mono.error(new AppsmithPluginException(
                                     MssqlPluginError.QUERY_EXECUTION_FAILED,
                                     MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
-                                    e.getMessage(),
+                                    errorMessage,
                                     "SQLSTATE: " + e.getSQLState()));
 
                         } finally {
+                            // Stop the timer before the connection goes back to the pool, so that it never cancels
+                            // a statement on a connection another query is using.
+                            if (cancelAtDeadline != null) {
+                                cancelAtDeadline.cancel(false);
+                            }
+
                             // Log HikariCP status
                             logHikariCPStatus(
                                     MessageFormat.format("After executing Mssql query [{0}]", query),
@@ -397,6 +425,12 @@ public class MssqlPlugin extends BasePlugin {
 
             if (isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
+            } else if (datasourceConfiguration.getEndpoints().stream()
+                    .anyMatch(endpoint ->
+                            endpoint != null && hostContainsConnectionStringInjection(endpoint.getHost()))) {
+                // The host is put into the JDBC connection string as it is. Refuse one that could add connection
+                // properties, as for the database name below.
+                invalids.add(MssqlErrorMessages.DS_INVALID_HOST_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getConnection() != null
@@ -603,6 +637,25 @@ public class MssqlPlugin extends BasePlugin {
         return databaseName.chars().anyMatch(c -> c == ';' || Character.isISOControl(c));
     }
 
+    /**
+     * Returns true if the given host could inject JDBC connection properties. The host is put into the connection
+     * string as it is ({@code jdbc:sqlserver://<host>:<port>;}), so these characters are refused:
+     * <ul>
+     *   <li>a semicolon, which starts a new property, such as {@code ;authenticationScheme=NTLM};</li>
+     *   <li>an equals sign, which gives a property its value;</li>
+     *   <li>an opening or closing brace, which the driver uses to quote a value;</li>
+     *   <li>any ISO control character.</li>
+     * </ul>
+     * A backslash stays allowed, for a named instance ({@code host\SQLEXPRESS}). A null or blank host is not checked
+     * here.
+     */
+    static boolean hostContainsConnectionStringInjection(String host) {
+        if (!StringUtils.hasLength(host)) {
+            return false;
+        }
+        return host.chars().anyMatch(c -> c == ';' || c == '=' || c == '{' || c == '}' || Character.isISOControl(c));
+    }
+
     private static HikariDataSource createConnectionPool(
             DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize, Integer socketTimeoutSeconds)
             throws AppsmithPluginException {
@@ -642,6 +695,13 @@ public class MssqlPlugin extends BasePlugin {
 
         urlBuilder = new StringBuilder("jdbc:sqlserver://");
         for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+            // Defence in depth: validateDatasource() already refuses this. Never build a JDBC URL from a host that
+            // could add connection properties.
+            if (hostContainsConnectionStringInjection(endpoint.getHost())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        MssqlErrorMessages.DS_INVALID_HOST_ERROR_MSG);
+            }
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
@@ -664,6 +724,14 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
+
+        // Driver 13.2 and later return a vector column (SQL Server 2025, Azure SQL) as a driver object. Keep the
+        // earlier behavior, where it comes back as a JSON string.
+        urlBuilder.append("vectorTypeSupport=off;");
+
+        // By default the driver sends a bound time value as datetime, so WHERE time_column = {{...}} failed with "The
+        // data types time and datetime are incompatible". Send it as time.
+        urlBuilder.append("sendTimeAsDatetime=false;");
 
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         if (configurationConnection != null && configurationConnection.getMode() == READ_ONLY) {

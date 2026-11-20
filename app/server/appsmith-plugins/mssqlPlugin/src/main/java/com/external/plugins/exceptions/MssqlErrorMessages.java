@@ -11,6 +11,9 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Your query failed to execute. Please check more information in the error details.";
 
+    public static final String QUERY_TIMEOUT_ERROR_MSG = "The query ran longer than its timeout of %d ms, so Appsmith"
+            + " stopped it. Statements in the query that already ran may have been saved.";
+
     public static final String QUERY_PREPARATION_FAILED_ERROR_MSG = "Query preparation failed while inserting value: %s"
             + " for binding: {{%s}}. Please check the query again.";
 
@@ -37,4 +40,7 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_INVALID_DATABASE_NAME_ERROR_MSG =
             "Invalid database name: the database name must not contain ';' or control characters.";
+
+    public static final String DS_INVALID_HOST_ERROR_MSG =
+            "Invalid host: the host must not contain ';', '=', '{', '}' or control characters.";
 }

@@ -69,6 +69,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on if your team uses it, or use "Forgot password" to set a password.`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on to activate it.`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your account`;
