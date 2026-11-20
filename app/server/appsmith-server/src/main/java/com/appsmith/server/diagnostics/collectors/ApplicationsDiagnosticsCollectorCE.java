@@ -9,7 +9,6 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +23,6 @@ import java.util.stream.Stream;
  * Reports instance-wide counts of workspaces, applications, pages, actions and JS objects. Page, action and JS object
  * counts include Git branch documents. Each count is one query or one aggregation, without ACL.
  */
-@Slf4j
 public class ApplicationsDiagnosticsCollectorCE implements DiagnosticsCollector {
 
     protected static final List<String> EE_KEYS = List.of("packages", "publishedPackageVersions", "modulesByType");
@@ -127,10 +125,7 @@ public class ApplicationsDiagnosticsCollectorCE implements DiagnosticsCollector 
                 });
 
         // The EE stage starts with the CE queries, so both share the section time limit.
-        return Mono.zip(ceData, eeFieldsOrUnknown(organizationId)).map(parts -> {
-            parts.getT1().putAll(parts.getT2());
-            return parts.getT1();
-        });
+        return DiagnosticsEeFields.merge(ceData, () -> eeFields(organizationId), EE_KEYS, "applications");
     }
 
     /**
@@ -138,22 +133,6 @@ public class ApplicationsDiagnosticsCollectorCE implements DiagnosticsCollector 
      */
     protected Mono<Map<String, Object>> eeFields(String organizationId) {
         return Mono.just(DiagnosticsValues.allNotSupported(EE_KEYS));
-    }
-
-    /**
-     * Calls {@link #eeFields(String)}. An error, a timeout or an empty result reports {@code UNKNOWN} for every EE key
-     * and keeps the section.
-     */
-    private Mono<Map<String, Object>> eeFieldsOrUnknown(String organizationId) {
-        return Mono.defer(() -> eeFields(organizationId))
-                .timeout(DiagnosticsValues.EE_FIELDS_TIMEOUT)
-                .onErrorResume(error -> {
-                    log.debug(
-                            "Support diagnostics applications EE fields failed with {}",
-                            error.getClass().getName());
-                    return Mono.just(DiagnosticsValues.allWith(EE_KEYS, DiagnosticsValues.UNKNOWN));
-                })
-                .switchIfEmpty(Mono.fromSupplier(() -> DiagnosticsValues.allWith(EE_KEYS, DiagnosticsValues.UNKNOWN)));
     }
 
     private static Map<String, Long> addActionGroup(Map<String, Long> totals, Document group) {
