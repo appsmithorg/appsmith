@@ -15,6 +15,22 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
     Mono<Void> removeApplicationFromFavorites(String applicationId);
 
     /**
+     * Removes the given application ID from all users' recently used lists.
+     *
+     * @param applicationId ID of the application to remove
+     * @return Mono completing when the operation finishes
+     */
+    Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId);
+
+    /**
+     * Removes the given workspace ID from all users' recently used lists.
+     *
+     * @param workspaceId ID of the workspace to remove
+     * @return Mono completing when the operation finishes
+     */
+    Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId);
+
+    /**
      * Add an application to a single user's favorites list using an atomic update.
      *
      * @param userId        ID of the user whose favorites list should be updated
