@@ -551,7 +551,11 @@ public class MssqlDriverBehaviourTest {
         // When
         StepVerifier.create(mssqlPluginExecutor.executeParameterized(
                         pool, new ExecuteActionDTO(), createDatasourceConfiguration(container), actionConfiguration))
-                .assertNext(result -> assertThat(result.getIsExecutionSuccess()).isFalse())
+                // The query must fail because of its timeout, not because the connection broke for another reason.
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(String.valueOf(result.getBody())).contains("ran longer than its timeout of 3000 ms");
+                })
                 .expectComplete()
                 .verify(Duration.ofSeconds(30));
 

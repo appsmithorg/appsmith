@@ -132,14 +132,16 @@ class MssqlExecuteUtilsTest {
     // must win: the cancel must not run afterwards, and the connection can be reused.
     @Test
     void should_neverCancel_when_stopComesBetweenTheTimerAndTheCancel() throws Exception {
-        // Given: the test holds the lock, so the cancel the timer started waits for it.
+        // Given: the test holds the lock, then starts the cancel itself, so the cancel always waits for the lock. The
+        // timer's own deadline is far away, so only the test starts it.
         Statement statement = Mockito.mock(Statement.class);
         MssqlExecuteUtils.DeadlineCancel cancel =
-                MssqlExecuteUtils.cancelAtDeadline(statement, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(50));
+                MssqlExecuteUtils.cancelAtDeadline(statement, System.nanoTime() + TimeUnit.MINUTES.toNanos(1));
         ReentrantLock lock = cancel.lockForTests();
         lock.lock();
         CompletableFuture<Boolean> stop;
         try {
+            cancel.startCancelForTests();
             await().atMost(Duration.ofSeconds(5)).until(lock::hasQueuedThreads);
 
             // When: stop() is called, and also waits for the lock.
@@ -214,15 +216,18 @@ class MssqlExecuteUtilsTest {
                 .when(statement)
                 .cancel();
         MssqlExecuteUtils.DeadlineCancel cancel = MssqlExecuteUtils.cancelAtDeadline(statement, System.nanoTime());
-        assertThat(cancelStarted.await(5, TimeUnit.SECONDS)).isTrue();
-
         try {
+            assertThat(cancelStarted.await(5, TimeUnit.SECONDS)).isTrue();
+
             // When
             long start = System.nanoTime();
-            boolean reusable = cancel.stop();
+            CompletableFuture<Boolean> stop = CompletableFuture.supplyAsync(cancel::stop);
 
-            // Then: stop gives up after its wait, and the connection is not reused.
-            assertThat(reusable).isFalse();
+            // Then: stop gives up after its wait while the cancel is still stuck, well before the mock's 30-second
+            // backstop, and the connection is not reused.
+            assertThat(stop.get(MssqlExecuteUtils.DeadlineCancel.STOP_WAIT_MILLIS + 3_000, TimeUnit.MILLISECONDS))
+                    .isFalse();
+            assertThat(releaseCancel.getCount()).as("the cancel is still stuck").isEqualTo(1);
             assertThat(Duration.ofNanos(System.nanoTime() - start))
                     .isGreaterThanOrEqualTo(Duration.ofMillis(MssqlExecuteUtils.DeadlineCancel.STOP_WAIT_MILLIS - 100));
         } finally {
@@ -231,28 +236,32 @@ class MssqlExecuteUtilsTest {
     }
 
     @Test
-    void should_removeTheConnectionFromThePool_when_itIsNotReusable() throws Exception {
+    void should_removeTheConnectionAndEndItsSession_when_itIsNotReusable() throws Exception {
         // Given
         Statement statement = Mockito.mock(Statement.class);
         Connection connection = Mockito.mock(Connection.class);
+        Connection sqlServerConnection = Mockito.mock(Connection.class);
+        when(connection.unwrap(Connection.class)).thenReturn(sqlServerConnection);
         HikariDataSource pool = Mockito.mock(HikariDataSource.class);
 
         // When
         MssqlExecuteUtils.closeConnectionPostExecution(null, statement, null, connection, pool, false);
 
-        // Then: removed first, so closing the statement cannot wait on a server that stopped answering.
-        InOrder order = inOrder(pool, statement);
+        // Then: removed from the pool, and its session ended, before the statement is closed. Closing the statement
+        // first could wait on a server that stopped answering, and Hikari's own close runs later on another thread.
+        InOrder order = inOrder(pool, sqlServerConnection, statement);
         order.verify(pool).evictConnection(connection);
+        order.verify(sqlServerConnection).abort(Mockito.any());
         order.verify(statement).close();
         verify(connection, never()).close();
     }
 
     @Test
-    void should_closeTheConnectionToSqlServer_when_thePoolCannotRemoveIt() throws Exception {
+    void should_endTheSessionAndReturnItClosed_when_thePoolCannotRemoveIt() throws Exception {
         // Given
         Connection connection = Mockito.mock(Connection.class);
-        Connection physicalConnection = Mockito.mock(Connection.class);
-        when(connection.unwrap(Connection.class)).thenReturn(physicalConnection);
+        Connection sqlServerConnection = Mockito.mock(Connection.class);
+        when(connection.unwrap(Connection.class)).thenReturn(sqlServerConnection);
         HikariDataSource pool = Mockito.mock(HikariDataSource.class);
         Mockito.doThrow(new IllegalStateException("pool error")).when(pool).evictConnection(connection);
 
@@ -260,15 +269,17 @@ class MssqlExecuteUtilsTest {
         MssqlExecuteUtils.closeConnectionPostExecution(null, null, null, connection, pool, false);
 
         // Then: the session on SQL Server ends before the connection goes back to the pool.
-        InOrder order = inOrder(physicalConnection, connection);
-        order.verify(physicalConnection).close();
+        InOrder order = inOrder(sqlServerConnection, connection);
+        order.verify(sqlServerConnection).abort(Mockito.any());
         order.verify(connection).close();
     }
 
     @Test
-    void should_closeTheConnection_when_itIsNotReusableAndThePoolIsClosed() throws Exception {
+    void should_endTheSession_when_itIsNotReusableAndThePoolIsClosed() throws Exception {
         // Given: Hikari ignores an eviction once the pool is closed.
         Connection connection = Mockito.mock(Connection.class);
+        Connection sqlServerConnection = Mockito.mock(Connection.class);
+        when(connection.unwrap(Connection.class)).thenReturn(sqlServerConnection);
         HikariDataSource pool = Mockito.mock(HikariDataSource.class);
         when(pool.isClosed()).thenReturn(true);
 
@@ -276,8 +287,29 @@ class MssqlExecuteUtilsTest {
         MssqlExecuteUtils.closeConnectionPostExecution(null, null, null, connection, pool, false);
 
         // Then
-        verify(connection).close();
+        InOrder order = inOrder(sqlServerConnection, connection);
+        order.verify(sqlServerConnection).abort(Mockito.any());
+        order.verify(connection).close();
         verify(pool, never()).evictConnection(Mockito.any());
+    }
+
+    @Test
+    void should_closeTheSession_when_abortFails() throws Exception {
+        // Given
+        Connection connection = Mockito.mock(Connection.class);
+        Connection sqlServerConnection = Mockito.mock(Connection.class);
+        when(connection.unwrap(Connection.class)).thenReturn(sqlServerConnection);
+        Mockito.doThrow(new SQLException("abort not allowed"))
+                .when(sqlServerConnection)
+                .abort(Mockito.any());
+        HikariDataSource pool = Mockito.mock(HikariDataSource.class);
+
+        // When
+        MssqlExecuteUtils.closeConnectionPostExecution(null, null, null, connection, pool, false);
+
+        // Then
+        verify(sqlServerConnection).close();
+        verify(pool).evictConnection(connection);
     }
 
     @Test

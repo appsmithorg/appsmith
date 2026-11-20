@@ -85,9 +85,15 @@ public class MssqlExecuteUtils {
     }
 
     /**
-     * Like {@link #closeConnectionPostExecution}, but when {@code reusable} is false, the connection is removed from the
-     * pool and closed instead of going back to it. A cancel sent to SQL Server for this connection may still be on its
-     * way, and must not stop the next query that would use it.
+     * Like {@link #closeConnectionPostExecution}, but when {@code reusable} is false, the connection never serves
+     * another query. A cancel sent to SQL Server for this connection may still be on its way, and must not stop the
+     * next query that would use it. In that case:
+     *
+     * <ul>
+     *   <li>the connection is removed from the pool;
+     *   <li>its session on SQL Server ends at once, before the statements are closed;
+     *   <li>if the pool cannot remove it, it goes back closed, so the next borrower gets a connection error.
+     * </ul>
      */
     public static void closeConnectionPostExecution(
             ResultSet resultSet,
@@ -100,32 +106,61 @@ public class MssqlExecuteUtils {
             closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
             return;
         }
-        if (pool == null || pool.isClosed()) {
-            // Nothing to remove it from. A closed pool aborts its connections anyway.
-            log.warn("A Mssql connection that a cancel may still reach was closed without removing it from a pool.");
-            closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
+
+        // Taken while the pool's wrapper still holds it.
+        Connection sqlServerConnection = physicalConnection(connectionFromPool);
+        boolean removed = false;
+        if (pool != null && !pool.isClosed()) {
+            log.info(
+                    "Removing a Mssql connection from pool {}: a cancel at the query's timeout ran or may still be sent.",
+                    pool.getPoolName());
+            try {
+                // While the wrapper is still open, so Hikari removes it at once and never lends it again.
+                pool.evictConnection(connectionFromPool);
+                removed = true;
+            } catch (RuntimeException e) {
+                log.warn("Could not remove a Mssql connection from the pool after a query cancel.", e);
+            }
+        } else {
+            log.warn("A Mssql connection that a cancel may still reach is closed without removing it from a pool.");
+        }
+
+        // End the session on SQL Server now, without reading what is left on it. Hikari closes the connection later
+        // on its own thread, and may skip that close while the pool shuts down. Closing the statements first could
+        // also make the driver wait for the rest of the response from a server that stopped answering.
+        // When the driver's connection cannot be reached, the pool's wrapper passes the abort on to it.
+        abortQuietly(sqlServerConnection != null ? sqlServerConnection : connectionFromPool);
+
+        // The statements now close at once, because their connection is closed. When the pool could not remove the
+        // wrapper, it goes back closed: the next borrower gets a connection error, never this session.
+        closeConnectionPostExecution(resultSet, statement, preparedQuery, removed ? null : connectionFromPool);
+    }
+
+    /** Returns the driver's own connection inside the pool's wrapper, or null when it cannot be reached. */
+    private static Connection physicalConnection(Connection connectionFromPool) {
+        try {
+            return connectionFromPool.unwrap(Connection.class);
+        } catch (SQLException e) {
+            log.warn("Could not reach the Mssql connection inside the pool's wrapper.", e);
+            return null;
+        }
+    }
+
+    /** Ends the connection's session on SQL Server at once. {@link Connection#abort} does not wait for the server. */
+    private static void abortQuietly(Connection connection) {
+        if (connection == null) {
             return;
         }
-        log.info(
-                "Removing a Mssql connection from pool {}: a cancel at the query's timeout ran or may still be sent.",
-                pool.getPoolName());
         try {
-            // Removed first, while the connection is still open, so Hikari closes it at once and never lends it again.
-            // Closing the statements afterwards cannot then wait on a server that stopped answering.
-            pool.evictConnection(connectionFromPool);
-        } catch (RuntimeException e) {
-            log.warn("Could not remove a Mssql connection from the pool after a query cancel.", e);
-            // Close the connection to SQL Server first. The pool may still lend it again, but a late cancel then
-            // has no session to reach, and the next borrower gets a connection error instead.
+            connection.abort(Runnable::run);
+        } catch (SQLException | RuntimeException e) {
+            log.warn("Could not abort a Mssql connection after a query cancel. Closing it instead.", e);
             try {
-                connectionFromPool.unwrap(Connection.class).close();
+                connection.close();
             } catch (SQLException closeError) {
                 log.warn("Could not close a Mssql connection after a query cancel.", closeError);
             }
-            closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
-            return;
         }
-        closeConnectionPostExecution(resultSet, statement, preparedQuery, null);
     }
 
     public static void populateRowsAndColumns(
@@ -294,6 +329,11 @@ public class MssqlExecuteUtils {
         /** The lock that the cancel and {@link #stop()} share. For tests. */
         ReentrantLock lockForTests() {
             return lock;
+        }
+
+        /** Starts the cancel now, as the timer does at the deadline. For tests that control when it starts. */
+        void startCancelForTests() {
+            CANCEL_THREADS.start(this::run);
         }
 
         /**
