@@ -5,14 +5,22 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
+import com.appsmith.server.domains.AIAssistantConfig;
+import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.McpConfig;
+import com.appsmith.server.domains.McpKey;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.McpKeyRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
@@ -39,6 +47,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
@@ -46,10 +55,13 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
- * Seeds Mongo with names, Git details, query text and datasource secrets that all contain {@code zzseed}, collects
- * each PR 2a section through the HTTP endpoint as a super user, and checks that no seeded value or seeded ObjectId
- * reaches the response. The test makes the seeded {@code api_user} an instance administrator when it is not one yet,
- * and demotes it afterwards only in that case.
+ * Seeds Mongo with names, Git details, query text, datasource secrets, AI provider credentials and URLs, an MCP key
+ * and a user, all containing {@code zzseed}. It collects every section except {@code WORKFLOWS} through the HTTP
+ * endpoint as a super user, and checks that no seeded value or seeded ObjectId reaches the response.
+ * {@code WORKFLOWS} is left out because this class also runs in EE, where that section needs EE flags; an EE-only
+ * test covers it. The test makes the seeded {@code api_user} an instance
+ * administrator when it is not one yet, and demotes it afterwards only in that case. It restores the organization
+ * configuration it changes.
  */
 @SpringBootTest
 class SupportDiagnosticsNoSecretsTest {
@@ -67,13 +79,22 @@ class SupportDiagnosticsNoSecretsTest {
     private UserRepository userRepository;
 
     @Autowired
+    private McpKeyRepository mcpKeyRepository;
+
+    @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private OrganizationService organizationService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private SeededDocuments seeds;
     private WebTestClient client;
     private User superUser;
     private boolean promotedSuperUser;
+    private SavedConfiguration savedConfiguration;
+    private long usersBefore;
+    private long mcpKeysBefore;
 
     @BeforeEach
     void setUp(ReactiveWebApplicationContext context) {
@@ -87,6 +108,11 @@ class SupportDiagnosticsNoSecretsTest {
         client = superUserClient(context, superUser);
         seeds = new SeededDocuments(mongoOperations);
         seedCoreValues(seeds);
+        usersBefore = userRepository.countForDiagnostics().block();
+        mcpKeysBefore = mcpKeyRepository.countActiveForDiagnostics().block();
+        seedUserAndMcpKey(seeds);
+        savedConfiguration = seedOrganizationConfiguration(
+                organizationService, superUser.getOrganizationId(), SupportDiagnosticsNoSecretsTest::seedAiAndMcp);
     }
 
     @AfterEach
@@ -95,6 +121,15 @@ class SupportDiagnosticsNoSecretsTest {
                 () -> {
                     if (seeds != null) {
                         seeds.removeAll();
+                    }
+                },
+                () -> {
+                    try {
+                        if (savedConfiguration != null) {
+                            savedConfiguration.restore(organizationService);
+                        }
+                    } finally {
+                        savedConfiguration = null;
                     }
                 },
                 () -> {
@@ -136,9 +171,7 @@ class SupportDiagnosticsNoSecretsTest {
     }
 
     @ParameterizedTest
-    @EnumSource(
-            value = DiagnosticsSectionId.class,
-            names = {"FEATURE_FLAGS", "APPLICATIONS", "DATASOURCES", "HEALTH"})
+    @EnumSource(value = DiagnosticsSectionId.class, mode = EnumSource.Mode.EXCLUDE, names = "WORKFLOWS")
     void should_notExportSeededValues_when_superUserCollectsSection(DiagnosticsSectionId sectionId) throws Exception {
         // Given
         // setUp seeded the values and signed in the super user.
@@ -153,6 +186,45 @@ class SupportDiagnosticsNoSecretsTest {
             assertThat(body).doesNotContainIgnoringCase(seededId);
         }
         assertThat(objectMapper.readTree(body).at("/data/status").asText()).isEqualTo("OK");
+    }
+
+    @Test
+    void should_reportSeededAiAndMcpState_when_superUserCollectsAiMcp() throws Exception {
+        // Given
+        // setUp seeded a Claude configuration with every provider field filled, MCP on, and one unrevoked MCP key.
+
+        // When
+        JsonNode data = objectMapper
+                .readTree(collect(client, DiagnosticsSectionId.AI_MCP))
+                .at("/data/data");
+
+        // Then
+        assertThat(data.at("/aiAssistantEnabled").isBoolean()).isTrue();
+        assertThat(data.at("/aiAssistantEnabled").asBoolean()).isTrue();
+        assertThat(data.at("/aiAssistantProvider").asText()).isEqualTo(AIProvider.CLAUDE.name());
+        assertThat(data.at("/aiAssistantCredentialPresent").isBoolean()).isTrue();
+        assertThat(data.at("/aiAssistantCredentialPresent").asBoolean()).isTrue();
+        assertThat(data.at("/aiAssistantCustomBaseUrl").isBoolean()).isTrue();
+        assertThat(data.at("/aiAssistantCustomBaseUrl").asBoolean()).isTrue();
+        assertThat(data.at("/mcpEnabled").isBoolean()).isTrue();
+        assertThat(data.at("/mcpEnabled").asBoolean()).isTrue();
+        assertThat(data.at("/mcpUnrevokedKeys").isNumber()).isTrue();
+        assertThat(data.at("/mcpUnrevokedKeys").asLong() - mcpKeysBefore).isEqualTo(1);
+    }
+
+    @Test
+    void should_countSeededUser_when_superUserCollectsIdentity() throws Exception {
+        // Given
+        // setUp seeded one user after counting the users already stored.
+
+        // When
+        JsonNode users = objectMapper
+                .readTree(collect(client, DiagnosticsSectionId.IDENTITY))
+                .at("/data/data/users");
+
+        // Then
+        assertThat(users.isNumber()).as("users = " + users).isTrue();
+        assertThat(users.asLong() - usersBefore).isEqualTo(1);
     }
 
     @Test
@@ -299,6 +371,87 @@ class SupportDiagnosticsNoSecretsTest {
                         .append("publishedAction", action));
     }
 
+    /**
+     * Seeds one user, whose email contains {@code zzseed}, and one unrevoked MCP key of that user, whose name contains
+     * {@code zzseed}. Each call adds exactly one user and one unrevoked key to the diagnostics counts.
+     */
+    static void seedUserAndMcpKey(SeededDocuments seeds) {
+        String unique = new ObjectId().toHexString();
+        ObjectId userId = seeds.insert(
+                User.class,
+                new Document("email", "zzseed-user-" + unique + "@example.com")
+                        .append("name", "ZZSeed User")
+                        .append("isEnabled", true));
+        seeds.insert(
+                McpKey.class,
+                new Document("userId", userId.toHexString())
+                        .append("name", "zzSeed MCP Key")
+                        .append("keySpanDays", 30));
+    }
+
+    /**
+     * Selects and enables Claude, fills every key, endpoint, deployment, model and base URL field of every provider,
+     * and turns MCP on.
+     */
+    static void seedAiAndMcp(OrganizationConfiguration configuration) {
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setAiProvider(AIProvider.CLAUDE);
+        aiConfig.setIsAIAssistantEnabled(true);
+        aiConfig.setClaudeApiKey("ZZSEED-claude-key");
+        aiConfig.setClaudeModel("zzseed-claude-model");
+        aiConfig.setClaudeBaseUrl("https://zzseed-claude.example.com");
+        aiConfig.setOpenaiApiKey("ZZSEED-openai-key");
+        aiConfig.setOpenaiModel("zzseed-openai-model");
+        aiConfig.setOpenaiBaseUrl("https://zzseed-openai.example.com");
+        aiConfig.setAzureOpenaiApiKey("ZZSEED-azure-key");
+        aiConfig.setAzureOpenaiEndpoint("https://zzseed-azure.example.com");
+        aiConfig.setAzureOpenaiDeploymentName("zzseed-azure-deployment");
+        aiConfig.setAzureOpenaiApiVersion("zzseed-azure-version");
+        aiConfig.setCopilotApiKey("ZZSEED-copilot-key");
+        aiConfig.setCopilotEndpoint("https://zzseed-copilot.example.com");
+        aiConfig.setLocalLlmUrl("https://zzseed-local-llm.example.com");
+        aiConfig.setLocalLlmModel("zzseed-local-model");
+        configuration.setAiAssistantConfig(aiConfig);
+
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setEnabled(true);
+        configuration.setMcpConfig(mcpConfig);
+    }
+
+    /**
+     * Keeps the current configuration of the organization, then saves a copy changed by {@code seeder}.
+     *
+     * @return the configuration to restore in tearDown
+     */
+    static SavedConfiguration seedOrganizationConfiguration(
+            OrganizationService organizationService,
+            String organizationId,
+            Consumer<OrganizationConfiguration> seeder) {
+        SavedConfiguration saved = new SavedConfiguration(
+                organizationId,
+                organizationService.retrieveById(organizationId).block().getOrganizationConfiguration());
+        Organization organization =
+                organizationService.retrieveById(organizationId).block();
+        OrganizationConfiguration configuration = organization.getOrganizationConfiguration() == null
+                ? new OrganizationConfiguration()
+                : organization.getOrganizationConfiguration();
+        seeder.accept(configuration);
+        organization.setOrganizationConfiguration(configuration);
+        organizationService.save(organization).block();
+        return saved;
+    }
+
+    /** The organization configuration as it was before the test changed it. */
+    record SavedConfiguration(String organizationId, OrganizationConfiguration configuration) {
+
+        void restore(OrganizationService organizationService) {
+            Organization organization =
+                    organizationService.retrieveById(organizationId).block();
+            organization.setOrganizationConfiguration(configuration);
+            organizationService.save(organization).block();
+        }
+    }
+
     /** Raw documents the test inserts, removed by ID afterwards. */
     static final class SeededDocuments {
 
@@ -320,7 +473,7 @@ class SupportDiagnosticsNoSecretsTest {
             return id;
         }
 
-        /** The hex string of every seeded ID: workspace, application, page, plugin, datasource, storage and action. */
+        /** The hex string of every seeded ID, such as the workspace, datasource, user and MCP key IDs. */
         List<String> hexIds() {
             return idsByCollection.values().stream()
                     .flatMap(List::stream)

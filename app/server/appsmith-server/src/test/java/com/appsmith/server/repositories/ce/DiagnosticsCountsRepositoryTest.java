@@ -3,15 +3,19 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.McpKey;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationDiagnosticsCounts;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.McpKeyRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -61,6 +65,12 @@ class DiagnosticsCountsRepositoryTest {
 
     @Autowired
     private DatasourceRepository datasourceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private McpKeyRepository mcpKeyRepository;
 
     private final Map<String, List<ObjectId>> seeded = new HashMap<>();
 
@@ -314,6 +324,53 @@ class DiagnosticsCountsRepositoryTest {
 
         // Then
         assertThat(counts).isEmpty();
+    }
+
+    @Test
+    void should_countUsersExcludingSystemAndDeleted_when_seeded() {
+        // Given
+        long before = userRepository.countForDiagnostics().as(DiagnosticsCountsRepositoryTest::verified);
+        seed(User.class, user());
+        seed(User.class, user().append("isSystemGenerated", false));
+        seed(User.class, user().append("isSystemGenerated", true));
+        seed(User.class, user().append("deletedAt", new Date()));
+        seed(User.class, user().append("deleted", true));
+
+        // When
+        long after = userRepository.countForDiagnostics().as(DiagnosticsCountsRepositoryTest::verified);
+
+        // Then
+        assertThat(after - before).isEqualTo(2);
+    }
+
+    @Test
+    void should_countUnrevokedKeys_when_someRevokedOrDeleted() {
+        // Given
+        long before = mcpKeyRepository.countActiveForDiagnostics().as(DiagnosticsCountsRepositoryTest::verified);
+        seed(McpKey.class, mcpKey());
+        seed(McpKey.class, mcpKey());
+        seed(McpKey.class, mcpKey().append("revokedAt", null));
+        seed(McpKey.class, mcpKey().append("revokedAt", new Date()));
+        seed(McpKey.class, mcpKey().append("deletedAt", new Date()));
+        seed(McpKey.class, mcpKey().append("deleted", true));
+
+        // When
+        long after = mcpKeyRepository.countActiveForDiagnostics().as(DiagnosticsCountsRepositoryTest::verified);
+
+        // Then
+        assertThat(after - before).isEqualTo(3);
+    }
+
+    private static Document mcpKey() {
+        return new Document("userId", new ObjectId().toHexString())
+                .append("name", "diagnostics-test-" + new ObjectId())
+                .append("keySpanDays", 30);
+    }
+
+    /** A unique email and organization keep the seeded documents clear of the unique index on users. */
+    private static Document user() {
+        return new Document("email", "diagnostics-test-" + new ObjectId() + "@example.com")
+                .append("organizationId", new ObjectId().toHexString());
     }
 
     /** A unique workspace and name keep the seeded documents clear of the unique index on datasources. */
