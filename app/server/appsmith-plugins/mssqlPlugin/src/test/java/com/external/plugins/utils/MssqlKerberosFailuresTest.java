@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,6 +24,70 @@ class MssqlKerberosFailuresTest {
 
         // Then
         assertThat(waitSeconds).isEqualTo(expectedWaitSeconds);
+    }
+
+    @Test
+    void should_giveTheSameLock_when_theKeyIsTheSame() {
+        // Given: two pools build the key from the same account and password.
+        MssqlKerberosFailures failures = new MssqlKerberosFailures();
+        String key = MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray());
+        String sameKey = MssqlKerberosFailures.key("SVC@REALM", "pw".toCharArray());
+
+        // When / Then
+        assertThat(failures.lockFor(sameKey)).isSameAs(failures.lockFor(key));
+    }
+
+    @Test
+    void should_keepTheSameLock_when_theGarbageCollectorRunsWhileAPoolHoldsIt() {
+        // Given: a pool holds the lock for its key.
+        MssqlKerberosFailures failures = new MssqlKerberosFailures();
+        String key = MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray());
+        Object heldLock = failures.lockFor(key);
+        WeakReference<Object> canary = new WeakReference<>(new Object());
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (canary.get() != null && System.nanoTime() < deadline) {
+            System.gc();
+        }
+        assertThat(canary.get()).as("a garbage collection ran").isNull();
+
+        // When: a new pool with the same account and password asks for its lock.
+        Object newPoolsLock = failures.lockFor(key);
+
+        // Then
+        assertThat(newPoolsLock).isSameAs(heldLock);
+    }
+
+    @Test
+    void should_dropALock_when_noPoolHoldsItAnyMore() {
+        // Given: a pool took a lock and was then closed, so nothing holds the lock.
+        MssqlKerberosFailures failures = new MssqlKerberosFailures();
+        failures.lockFor(MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray()));
+        WeakReference<Object> canary = new WeakReference<>(new Object());
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (canary.get() != null && System.nanoTime() < deadline) {
+            System.gc();
+        }
+        assertThat(canary.get()).as("a garbage collection ran").isNull();
+
+        // When: the next pool asks for a lock.
+        Object held = failures.lockFor(MssqlKerberosFailures.key("other@REALM", "pw".toCharArray()));
+
+        // Then: only the new pool's lock is left.
+        assertThat(held).isNotNull();
+        assertThat(failures.lockCount()).isEqualTo(1);
+    }
+
+    @Test
+    void should_giveADifferentLock_when_thePasswordIsDifferent() {
+        // Given
+        MssqlKerberosFailures failures = new MssqlKerberosFailures();
+        Object lock = failures.lockFor(MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray()));
+
+        // When
+        Object otherLock = failures.lockFor(MssqlKerberosFailures.key("svc@REALM", "other".toCharArray()));
+
+        // Then
+        assertThat(otherLock).isNotSameAs(lock);
     }
 
     @Test

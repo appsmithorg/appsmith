@@ -9,13 +9,20 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +71,18 @@ class MssqlKerberosDataSourceTest {
         return counting((principal, password) -> {
             throw REFUSED;
         });
+    }
+
+    /** Returns true when the thread is waiting to enter this object's monitor, not just any monitor. */
+    private static boolean isBlockedOn(Thread thread, Object lock) {
+        if (thread == null) {
+            return false;
+        }
+        ThreadInfo info = ManagementFactory.getThreadMXBean().getThreadInfo(thread.threadId());
+        return info != null
+                && info.getThreadState() == Thread.State.BLOCKED
+                && info.getLockInfo() != null
+                && info.getLockInfo().getIdentityHashCode() == System.identityHashCode(lock);
     }
 
     private void advanceSeconds(long seconds) {
@@ -177,6 +196,86 @@ class MssqlKerberosDataSourceTest {
         // When / Then
         assertThatThrownBy(newPool::currentCredential).hasMessageContaining("waits 60 seconds");
         assertThat(logins).hasValue(1);
+    }
+
+    @Test
+    void should_sendThePasswordOnce_when_twoPoolsLogInAtTheSameTime() throws Exception {
+        // Given: the first pool's login is held at the domain controller until the second pool is waiting.
+        CountDownLatch firstLoginStarted = new CountDownLatch(1);
+        CountDownLatch releaseFirstLogin = new CountDownLatch(1);
+        MssqlKerberosDataSource.CredentialSource slowRefusal = counting((p, pw) -> {
+            firstLoginStarted.countDown();
+            try {
+                releaseFirstLogin.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            throw REFUSED;
+        });
+        MssqlKerberosDataSource firstPool = dataSource("wrong", slowRefusal);
+        MssqlKerberosDataSource secondPool = dataSource("wrong", slowRefusal);
+        ExecutorService threads = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> first = threads.submit(() -> firstPool.currentCredential());
+            assertThat(firstLoginStarted.await(10, TimeUnit.SECONDS)).isTrue();
+            AtomicReference<Thread> secondThread = new AtomicReference<>();
+            Future<?> second = threads.submit(() -> {
+                secondThread.set(Thread.currentThread());
+                return secondPool.currentCredential();
+            });
+
+            // When: the second pool is waiting for the shared lock, or has sent the password itself.
+            Object sharedLock = failures.lockFor(MssqlKerberosFailures.key(ACCOUNT, "wrong".toCharArray()));
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+            while (System.nanoTime() < deadline && logins.get() < 2 && !isBlockedOn(secondThread.get(), sharedLock)) {
+                Thread.onSpinWait();
+            }
+            releaseFirstLogin.countDown();
+
+            // Then
+            assertThatThrownBy(() -> first.get(10, TimeUnit.SECONDS))
+                    .hasCauseInstanceOf(SQLException.class)
+                    .hasMessageContaining("Check the username and password");
+            assertThatThrownBy(() -> second.get(10, TimeUnit.SECONDS))
+                    .hasCauseInstanceOf(SQLException.class)
+                    .hasMessageContaining("waits 60 seconds");
+            assertThat(logins).hasValue(1);
+        } finally {
+            releaseFirstLogin.countDown();
+            threads.shutdownNow();
+        }
+    }
+
+    @Test
+    void should_notWait_when_anotherAccountsLoginIsStuck() throws Exception {
+        // Given: a login for one account hangs, for example at a domain controller that does not answer.
+        CountDownLatch stuckLoginStarted = new CountDownLatch(1);
+        CountDownLatch releaseStuckLogin = new CountDownLatch(1);
+        MssqlKerberosDataSource stuckPool = dataSource("stuck", (p, pw) -> {
+            stuckLoginStarted.countDown();
+            try {
+                releaseStuckLogin.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            throw REFUSED;
+        });
+        MssqlKerberosDataSource otherPool = new MssqlKerberosDataSource(
+                URL, "other@REALM", "pw", null, 30_000, (p, pw) -> longLivedCredential, failures, nowNanos::get);
+        ExecutorService threads = Executors.newFixedThreadPool(2);
+        try {
+            threads.submit(() -> stuckPool.currentCredential());
+            assertThat(stuckLoginStarted.await(10, TimeUnit.SECONDS)).isTrue();
+
+            // When
+            Future<GSSCredential> other = threads.submit(otherPool::currentCredential);
+
+            // Then
+            assertThat(other.get(5, TimeUnit.SECONDS)).isSameAs(longLivedCredential);
+        } finally {
+            releaseStuckLogin.countDown();
+            threads.shutdownNow();
+        }
     }
 
     @Test

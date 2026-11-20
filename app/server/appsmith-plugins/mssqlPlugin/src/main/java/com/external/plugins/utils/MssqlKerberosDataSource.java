@@ -68,6 +68,12 @@ public class MssqlKerberosDataSource implements DataSource {
     private final MssqlKerberosFailures failures;
     private final LongSupplier clockNanos;
 
+    /**
+     * The lock that every pool with this account and password shares. Kept in a field, because {@link
+     * MssqlKerberosFailures} drops a lock once no pool holds it.
+     */
+    private final Object loginLock;
+
     private GSSCredential credential;
     private int loginTimeoutSeconds;
 
@@ -116,6 +122,7 @@ public class MssqlKerberosDataSource implements DataSource {
         this.socketTimeoutMs = socketTimeoutMs;
         this.credentialSource = credentialSource;
         this.failures = failures;
+        this.loginLock = failures.lockFor(failureKey);
         this.clockNanos = clockNanos;
     }
 
@@ -141,38 +148,48 @@ public class MssqlKerberosDataSource implements DataSource {
      * Returns the kept credential, or logs in again when there is none or it is about to expire. Synchronized, so
      * connections opened at the same time share one login. While a refusal for this account and password is still
      * waiting, returns that error without contacting the domain controller.
+     *
+     * <p>The check for a refusal, the login and the recording of its result happen under one lock that every pool with
+     * the same account and password shares. So a second pool waits for the first pool's login, then sees its refusal
+     * and does not send the password again. Pools with other accounts or passwords have their own lock and never wait
+     * for this one.
      */
     synchronized GSSCredential currentCredential() throws SQLException {
         if (hasTimeLeft(credential)) {
             return credential;
         }
 
-        MssqlKerberosFailures.Failure refused = failures.get(failureKey);
-        if (refused != null && refused.stillWaiting(clockNanos.getAsLong())) {
-            throw new SQLException(
-                    String.format(
-                            MssqlErrorMessages.KERBEROS_RETRY_WAIT_ERROR_MSG, refused.message(), refused.waitSeconds()),
-                    refused.sqlState());
-        }
-
-        try {
-            credential = credentialSource.login(principal, password);
-            failures.clear(failureKey);
-            log.debug(
-                    "Kerberos login for {} worked. The credential is valid for {} seconds.",
-                    principal,
-                    credential.getRemainingLifetime());
-            return credential;
-        } catch (LoginException | GSSException e) {
-            credential = null;
-            // The full error is only in the server log, at debug level. It never contains the password.
-            log.debug("Kerberos login for {} failed: {}", principal, e.toString());
-            // SQL state 28000: invalid authorization.
-            SQLException error = new SQLException(MssqlKerberosErrors.loginFailure(principal, e), "28000", e);
-            if (MssqlKerberosErrors.isAccountRefused(e)) {
-                failures.recordRefusal(failureKey, error.getMessage(), error.getSQLState(), clockNanos.getAsLong());
+        // Always taken after this datasource's own lock, and never the other way round, so the two cannot deadlock.
+        synchronized (loginLock) {
+            MssqlKerberosFailures.Failure refused = failures.get(failureKey);
+            if (refused != null && refused.stillWaiting(clockNanos.getAsLong())) {
+                throw new SQLException(
+                        String.format(
+                                MssqlErrorMessages.KERBEROS_RETRY_WAIT_ERROR_MSG,
+                                refused.message(),
+                                refused.waitSeconds()),
+                        refused.sqlState());
             }
-            throw error;
+
+            try {
+                credential = credentialSource.login(principal, password);
+                failures.clear(failureKey);
+                log.debug(
+                        "Kerberos login for {} worked. The credential is valid for {} seconds.",
+                        principal,
+                        credential.getRemainingLifetime());
+                return credential;
+            } catch (LoginException | GSSException e) {
+                credential = null;
+                // The full error is only in the server log, at debug level. It never contains the password.
+                log.debug("Kerberos login for {} failed: {}", principal, e.toString());
+                // SQL state 28000: invalid authorization.
+                SQLException error = new SQLException(MssqlKerberosErrors.loginFailure(principal, e), "28000", e);
+                if (MssqlKerberosErrors.isAccountRefused(e)) {
+                    failures.recordRefusal(failureKey, error.getMessage(), error.getSQLState(), clockNanos.getAsLong());
+                }
+                throw error;
+            }
         }
     }
 

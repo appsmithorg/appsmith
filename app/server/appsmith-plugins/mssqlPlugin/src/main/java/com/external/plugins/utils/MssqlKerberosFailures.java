@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -52,6 +53,12 @@ final class MssqlKerberosFailures {
     private final Map<String, Failure> failures = new ConcurrentHashMap<>();
 
     /**
+     * One lock for each key. Each value is a weak reference to the lock itself: a lock stays while a pool holds it, and
+     * is dropped after no pool uses that key, so the map cannot grow without limit.
+     */
+    private final Map<String, WeakReference<Object>> locks = new ConcurrentHashMap<>();
+
+    /**
      * The last refusal for one account and password, and how many refusals came in a row. Holds only the message
      * shown to the user and its SQL state, never the domain controller's own error.
      */
@@ -86,6 +93,32 @@ final class MssqlKerberosFailures {
         }
     }
 
+    /**
+     * Returns the lock that every pool holds while it checks for a refusal, logs in and records the result for this
+     * key. Without it, two pools with the same account and password could both find no refusal and both send the
+     * password, even after the first one was refused.
+     *
+     * <p>Each key has its own lock, so a slow login for one account never holds up another account. A caller must keep
+     * the returned lock for as long as it may log in, because the lock is dropped once no caller holds it.
+     */
+    Object lockFor(String key) {
+        // Drop the entries whose lock no pool holds any more. Only an entry that still holds that same cleared
+        // reference is removed, so a live lock is never dropped.
+        locks.values().removeIf(reference -> reference.get() == null);
+        // The holder keeps the lock reachable from here until the caller has it.
+        Object[] holder = new Object[1];
+        locks.compute(key, (k, reference) -> {
+            Object lock = reference == null ? null : reference.get();
+            if (lock == null) {
+                lock = new Object();
+                reference = new WeakReference<>(lock);
+            }
+            holder[0] = lock;
+            return reference;
+        });
+        return holder[0];
+    }
+
     /** Returns the last refusal for this key, or null. */
     Failure get(String key) {
         return failures.get(key);
@@ -107,6 +140,11 @@ final class MssqlKerberosFailures {
 
     int size() {
         return failures.size();
+    }
+
+    /** The number of locks in the map, including any whose pools are gone but that were not dropped yet. */
+    int lockCount() {
+        return locks.size();
     }
 
     /** Forgets the refusals for this key, after a login worked. */

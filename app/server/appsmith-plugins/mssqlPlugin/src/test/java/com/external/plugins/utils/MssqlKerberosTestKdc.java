@@ -47,7 +47,15 @@ public final class MssqlKerberosTestKdc implements AutoCloseable {
             System.setProperty(KRB5_CONF_PROPERTY, new File(dir, "krb5.conf").getAbsolutePath());
             return new MssqlKerberosTestKdc(server, previousKrb5Conf);
         } catch (Exception e) {
-            restore(previousKrb5Conf);
+            // The caller never gets the fixture, so it cannot stop the server. Stop it here. If it did not start,
+            // stop() fails, and that failure is kept with the original one.
+            try {
+                server.stop();
+            } catch (Exception stopFailure) {
+                e.addSuppressed(stopFailure);
+            } finally {
+                restore(previousKrb5Conf);
+            }
             throw e;
         }
     }
