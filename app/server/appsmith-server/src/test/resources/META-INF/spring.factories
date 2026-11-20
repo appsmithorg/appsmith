@@ -1,0 +1,2 @@
+org.springframework.test.context.ContextCustomizerFactory=\
+com.appsmith.server.testhelpers.cloudservices.FakeCloudServicesContextCustomizerFactory
