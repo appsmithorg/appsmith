@@ -57,6 +57,14 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
                 .isEqualTo("https://absolute.path.com/test/newRepo");
 
+        // Single-character SSH usernames:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("a@example.com:team/repo.git"))
+                .isEqualTo("https://example.com/team/repo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://a@example.com/team/repo.git"))
+                .isEqualTo("https://example.com/team/repo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://a@example.com:2222/team/repo.git"))
+                .isEqualTo("https://example.com/team/repo");
+
         // Custom SSH port:
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "ssh://git@example.test.net:1234/user/test/tests/testRepo.git"))
