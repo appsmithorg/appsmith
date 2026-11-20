@@ -1,8 +1,11 @@
 import fsPromises from "fs/promises";
+import path from "path";
+import os from "os";
 import readlineSync from "readline-sync";
 import * as utils from "./utils";
 import {
   checkRestoreVersionCompatability,
+  createRestoreTempDirectory,
   decryptArchive,
   ensureEncryptionKeysPresent,
   getBackupFileName,
@@ -206,3 +209,23 @@ describe("checkRestoreVersionCompatability in non-interactive mode", () => {
     expect(readlineSync.question).not.toHaveBeenCalled();
   });
 });
+
+describe("createRestoreTempDirectory", () => {
+  it("creates temporary extraction directory inside the temp directory, not beside it", async () => {
+    const tempDir = await fsPromises.mkdtemp(
+      path.join(os.tmpdir(), "test-restore-temp-"),
+    );
+
+    try {
+      const restoreRoot = await createRestoreTempDirectory(tempDir);
+
+      expect(path.dirname(restoreRoot)).toBe(tempDir);
+      expect(path.basename(restoreRoot)).toMatch(/^appsmithctl-restore-/);
+
+      await fsPromises.rm(restoreRoot, { recursive: true, force: true });
+    } finally {
+      await fsPromises.rm(tempDir, { recursive: true, force: true });
+    }
+  });
+});
+
