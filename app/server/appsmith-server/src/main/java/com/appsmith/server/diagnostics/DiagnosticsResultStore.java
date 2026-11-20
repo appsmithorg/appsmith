@@ -68,6 +68,16 @@ public class DiagnosticsResultStore {
                 });
     }
 
+    public Mono<Void> delete(String organizationId, DiagnosticsSectionId sectionId) {
+        return Mono.defer(() -> redisOperations.opsForValue().delete(resultKey(organizationId, sectionId)))
+                .timeout(REDIS_TIMEOUT)
+                .then()
+                .onErrorResume(error -> {
+                    logFailure("delete", sectionId, error);
+                    return Mono.empty();
+                });
+    }
+
     public Mono<DiagnosticsLockOutcome> tryLock(String organizationId, DiagnosticsSectionId sectionId) {
         return Mono.defer(() -> redisOperations
                         .opsForValue()

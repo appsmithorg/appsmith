@@ -78,6 +78,13 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<Long> countByDeletedAtNull();
 
+    /**
+     * Counts pages that are not deleted in edit mode, for support diagnostics.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<Long> countEditableForDiagnostics();
+
     Mono<NewPage> findByUniquePageSlug(
             String applicationId, String uniquePageName, AclPermission permission, boolean viewMode);
 

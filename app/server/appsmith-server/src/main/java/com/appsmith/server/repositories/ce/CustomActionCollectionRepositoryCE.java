@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,4 +43,11 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             String pageId, boolean viewMode, AclPermission permission);
 
     Flux<ActionCollection> findByApplicationId(String applicationId);
+
+    /**
+     * Counts action collections that are not deleted in edit mode, for support diagnostics.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<Long> countEditableForDiagnostics();
 }
