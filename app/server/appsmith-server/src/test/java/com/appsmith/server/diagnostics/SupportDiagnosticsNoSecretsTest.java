@@ -111,7 +111,8 @@ class SupportDiagnosticsNoSecretsTest {
         usersBefore = userRepository.countForDiagnostics().block();
         mcpKeysBefore = mcpKeyRepository.countActiveForDiagnostics().block();
         seedUserAndMcpKey(seeds);
-        savedConfiguration = seedOrganizationConfiguration(
+        savedConfiguration = SavedConfiguration.capture(organizationService, superUser.getOrganizationId());
+        seedOrganizationConfiguration(
                 organizationService, superUser.getOrganizationId(), SupportDiagnosticsNoSecretsTest::seedAiAndMcp);
     }
 
@@ -419,17 +420,13 @@ class SupportDiagnosticsNoSecretsTest {
     }
 
     /**
-     * Keeps the current configuration of the organization, then saves a copy changed by {@code seeder}.
-     *
-     * @return the configuration to restore in tearDown
+     * Saves the organization configuration changed by {@code seeder}. Capture a {@link SavedConfiguration} first, so
+     * tearDown can restore it even when this save fails part way.
      */
-    static SavedConfiguration seedOrganizationConfiguration(
+    static void seedOrganizationConfiguration(
             OrganizationService organizationService,
             String organizationId,
             Consumer<OrganizationConfiguration> seeder) {
-        SavedConfiguration saved = new SavedConfiguration(
-                organizationId,
-                organizationService.retrieveById(organizationId).block().getOrganizationConfiguration());
         Organization organization =
                 organizationService.retrieveById(organizationId).block();
         OrganizationConfiguration configuration = organization.getOrganizationConfiguration() == null
@@ -438,11 +435,16 @@ class SupportDiagnosticsNoSecretsTest {
         seeder.accept(configuration);
         organization.setOrganizationConfiguration(configuration);
         organizationService.save(organization).block();
-        return saved;
     }
 
     /** The organization configuration as it was before the test changed it. */
     record SavedConfiguration(String organizationId, OrganizationConfiguration configuration) {
+
+        static SavedConfiguration capture(OrganizationService organizationService, String organizationId) {
+            return new SavedConfiguration(
+                    organizationId,
+                    organizationService.retrieveById(organizationId).block().getOrganizationConfiguration());
+        }
 
         void restore(OrganizationService organizationService) {
             Organization organization =

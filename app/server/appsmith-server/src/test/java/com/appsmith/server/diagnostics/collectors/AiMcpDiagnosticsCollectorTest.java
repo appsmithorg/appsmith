@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -279,6 +280,35 @@ class AiMcpDiagnosticsCollectorTest {
         assertThat(data)
                 .containsEntry("aiAssistantProvider", provider.name())
                 .containsEntry("aiAssistantCustomBaseUrl", true);
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+            delimiter = '|',
+            value = {
+                "CLAUDE | https://api.anthropic.com",
+                "CLAUDE | https://api.anthropic.com/",
+                "CLAUDE | ' HTTPS://API.ANTHROPIC.COM '",
+                "OPENAI | https://api.openai.com",
+                "OPENAI | https://api.openai.com//",
+                "OPENAI | ' https://API.openai.com '"
+            })
+    void should_reportNoCustomBaseUrl_when_providerDefaultStored(AIProvider provider, String baseUrl) {
+        // Given
+        AIAssistantConfig aiConfig = givenAiConfig(provider);
+        if (provider == AIProvider.CLAUDE) {
+            aiConfig.setClaudeBaseUrl(baseUrl);
+        } else {
+            aiConfig.setOpenaiBaseUrl(baseUrl);
+        }
+
+        // When
+        Map<String, Object> data = collected(collector());
+
+        // Then
+        assertThat(data)
+                .containsEntry("aiAssistantProvider", provider.name())
+                .containsEntry("aiAssistantCustomBaseUrl", false);
     }
 
     @Test

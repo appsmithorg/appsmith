@@ -2,6 +2,7 @@ package com.appsmith.server.diagnostics.collectors;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.AIConstants;
 import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
 import com.appsmith.server.domains.AIAssistantConfig;
@@ -191,13 +192,25 @@ public class AiMcpDiagnosticsCollectorCE implements DiagnosticsCollector {
         };
     }
 
-    /** Whether Claude or OpenAI has a custom base URL. Other providers have none, so they give NOT_APPLICABLE. */
+    /**
+     * Whether Claude or OpenAI has a custom base URL. A stored provider default is not custom. Other providers have
+     * none, so they give NOT_APPLICABLE.
+     */
     private static Object customBaseUrl(AIAssistantConfig aiConfig) {
         return switch (aiConfig.getAiProvider()) {
-            case CLAUDE -> StringUtils.hasText(aiConfig.getClaudeBaseUrl());
-            case OPENAI -> StringUtils.hasText(aiConfig.getOpenaiBaseUrl());
+            case CLAUDE -> isCustomBaseUrl(aiConfig.getClaudeBaseUrl(), AIConstants.DEFAULT_CLAUDE_BASE_URL);
+            case OPENAI -> isCustomBaseUrl(aiConfig.getOpenaiBaseUrl(), AIConstants.DEFAULT_OPENAI_BASE_URL);
             default -> DiagnosticsValues.NOT_APPLICABLE;
         };
+    }
+
+    /** Compares without surrounding spaces, trailing slashes, or case, so a stored default is not custom. */
+    private static boolean isCustomBaseUrl(String baseUrl, String defaultBaseUrl) {
+        if (!StringUtils.hasText(baseUrl)) {
+            return false;
+        }
+        String normalized = baseUrl.trim().replaceAll("/+$", "");
+        return !normalized.equalsIgnoreCase(defaultBaseUrl);
     }
 
     private static boolean mcpEnabled(McpConfig mcpConfig) {
