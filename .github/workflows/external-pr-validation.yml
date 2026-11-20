@@ -159,8 +159,6 @@ jobs:
       - name: Run unit tests with local services
         env:
           ACTIVE_PROFILE: test
-          APPSMITH_CLOUD_SERVICES_BASE_URL: http://127.0.0.1:8090
-          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: external-ci-dummy
           APPSMITH_REDIS_URL: redis://127.0.0.1:6379
           APPSMITH_DB_URL: mongodb://127.0.0.1:27017/appsmith_external_ci
           APPSMITH_ENCRYPTION_PASSWORD: password
