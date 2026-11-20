@@ -82,6 +82,13 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://domain.xy:/path/path.git"))
                 .isEqualTo("https://domain.xy/path/path");
 
+        // single-character usernames are valid
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("a@example.com:test/testRepo.git"))
+                .isEqualTo("https://example.com/test/testRepo");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://a@example.com/test/testRepo.git"))
+                .isEqualTo("https://example.com/test/testRepo");
+
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://user@domain.com/repopath.git"))
                 .isEqualTo("https://domain.com/repopath");
 
