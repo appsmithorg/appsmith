@@ -63,13 +63,7 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
     public Mono<DiagnosticsSectionsResponse> listSections() {
         return checkAccessAndGetOrganizationId().flatMap(organizationId -> Flux.fromArray(DiagnosticsSectionId.values())
                 .flatMapSequential(sectionId -> collectors.containsKey(sectionId)
-                        ? resultStore
-                                .get(organizationId, sectionId)
-                                .filter(result -> result.status() != DiagnosticsStatus.NOT_SUPPORTED)
-                                .flatMap(stored ->
-                                        returnStoredIfLicensed(organizationId, collectors.get(sectionId), stored))
-                                .switchIfEmpty(
-                                        Mono.fromSupplier(() -> DiagnosticsSectionResult.notCollected(sectionId)))
+                        ? listLicensedSection(organizationId, collectors.get(sectionId))
                         : Mono.just(DiagnosticsSectionResult.notSupported(sectionId)))
                 .collectList()
                 .map(sections -> new DiagnosticsSectionsResponse(COLLECTOR_VERSION, sections)));
@@ -129,11 +123,11 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
     }
 
     /**
-     * Returns the stored result only while the section is licensed. An unknown license state hides the stored data.
+     * An unlicensed section lists as NOT_LICENSED without reading the store. A licensed section lists its stored
+     * result, or NOT_COLLECTED when there is none. An unknown license state lists as NOT_COLLECTED.
      */
-    private Mono<DiagnosticsSectionResult> returnStoredIfLicensed(
-            String organizationId, DiagnosticsCollector collector, DiagnosticsSectionResult stored) {
-        DiagnosticsSectionId sectionId = stored.sectionId();
+    private Mono<DiagnosticsSectionResult> listLicensedSection(String organizationId, DiagnosticsCollector collector) {
+        DiagnosticsSectionId sectionId = collector.sectionId();
         return Mono.defer(() -> collector.isLicensed(organizationId))
                 .timeout(COLLECT_TIMEOUT)
                 .onErrorResume(error -> {
@@ -143,8 +137,12 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
                             error.getClass().getName());
                     return Mono.empty();
                 })
-                .map(licensed ->
-                        Boolean.TRUE.equals(licensed) ? stored : DiagnosticsSectionResult.notLicensed(sectionId));
+                .flatMap(licensed -> Boolean.TRUE.equals(licensed)
+                        ? resultStore
+                                .get(organizationId, sectionId)
+                                .filter(result -> result.status() != DiagnosticsStatus.NOT_SUPPORTED)
+                        : Mono.just(DiagnosticsSectionResult.notLicensed(sectionId)))
+                .switchIfEmpty(Mono.fromSupplier(() -> DiagnosticsSectionResult.notCollected(sectionId)));
     }
 
     private Mono<DiagnosticsSectionResult> runCollector(String organizationId, DiagnosticsCollector collector) {
