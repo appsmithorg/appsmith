@@ -1,10 +1,13 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Application.Fields;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationDiagnosticsCounts;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
@@ -14,12 +17,17 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +39,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
+
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     @Override
     public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
@@ -357,5 +368,62 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         final BridgeQuery<Application> criteria = Bridge.equal(Fields.staticUrlSettings_uniqueSlug, uniqueAppName);
 
         return queryBuilder().criteria(criteria).permission(aclPermission).all();
+    }
+
+    @Override
+    public Mono<ApplicationDiagnosticsCounts> countForDiagnostics() {
+        // A default-branch document has equal defaultBranchName and branchName. Both fields are missing for an app
+        // without Git, so they are equal too.
+        // A tag document is not a branch. A missing refType counts as a branch, because $ne is true for a missing
+        // field.
+        Document isBranchRef = new Document("$ne", List.of("$gitApplicationMetadata.refType", RefType.tag.name()));
+        Document isDefaultBranch = and(
+                isBranchRef,
+                new Document(
+                        "$eq",
+                        List.of("$gitApplicationMetadata.defaultBranchName", "$gitApplicationMetadata.branchName")));
+        Document group = new Document("_id", null)
+                .append("applications", countIf(isDefaultBranch))
+                .append("published", countIf(and(isDefaultBranch, isPresent("$" + Fields.lastDeployedAt))))
+                .append(
+                        "gitConnected",
+                        countIf(and(isDefaultBranch, isPresent("$" + Fields.gitApplicationMetadata_gitAuth))))
+                .append(
+                        "gitBranchDocuments",
+                        countIf(and(isBranchRef, isPresent("$" + Fields.gitApplicationMetadata_branchName))));
+        Aggregation aggregation = Aggregation.newAggregation(
+                        Aggregation.match(notDeleted()), context -> new Document("$group", group))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        return mongoOperations
+                .aggregate(aggregation, mongoOperations.getCollectionName(Application.class), Document.class)
+                .next()
+                .map(document -> {
+                    long applications = longValue(document, "applications");
+                    long published = longValue(document, "published");
+                    return new ApplicationDiagnosticsCounts(
+                            applications,
+                            published,
+                            applications - published,
+                            longValue(document, "gitConnected"),
+                            longValue(document, "gitBranchDocuments"));
+                })
+                .defaultIfEmpty(ApplicationDiagnosticsCounts.EMPTY);
+    }
+
+    private static Document countIf(Document condition) {
+        return new Document("$sum", new Document("$cond", List.of(condition, 1, 0)));
+    }
+
+    private static Document and(Document left, Document right) {
+        return new Document("$and", List.of(left, right));
+    }
+
+    /** True when the field exists and is not null. Missing and null both sort below every other value. */
+    private static Document isPresent(String fieldPath) {
+        return new Document("$gt", Arrays.asList(fieldPath, null));
+    }
+
+    private static long longValue(Document document, String key) {
+        return ((Number) document.get(key)).longValue();
     }
 }

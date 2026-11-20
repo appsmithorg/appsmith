@@ -2,6 +2,7 @@ package com.appsmith.server.diagnostics.collectors;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsField;
 import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,8 +23,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class DeploymentDiagnosticsCollector implements DiagnosticsCollector {
 
-    private static final String AVAILABLE = "available";
-    private static final String OTHER = "other";
+    private static final String AVAILABLE = DiagnosticsField.AVAILABILITY_AVAILABLE;
+    private static final String OTHER = DiagnosticsValues.OTHER;
 
     // Values that deploy/docker/fs/opt/appsmith/generate-infra-details.sh writes to infra.json, with the confidence
     // of each.
@@ -42,8 +44,15 @@ public class DeploymentDiagnosticsCollector implements DiagnosticsCollector {
     private static final Map<String, String> KNOWN_EFS_VALUES =
             Map.of("present", DiagnosticsField.CONFIDENCE_INFERRED, "absent", DiagnosticsField.CONFIDENCE_INFERRED);
 
-    private static final Set<String> ALLOWED_KEYS =
-            Set.of("tool", "cloudProvider", "efs", "appsmithCloud", "cpuCount", "maxMemoryBytes", "replicas");
+    private static final DiagnosticsSchema SCHEMA = DiagnosticsSchema.builder()
+            .field("tool", withOther(KNOWN_TOOLS))
+            .field("cloudProvider", withOther(KNOWN_CLOUD_PROVIDERS))
+            .field("efs", withOther(KNOWN_EFS_VALUES))
+            .field("appsmithCloud")
+            .field("cpuCount")
+            .field("maxMemoryBytes")
+            .field("replicas")
+            .build();
 
     private final DeploymentProperties deploymentProperties;
     private final CommonConfig commonConfig;
@@ -54,12 +63,12 @@ public class DeploymentDiagnosticsCollector implements DiagnosticsCollector {
     }
 
     @Override
-    public Set<String> allowedKeys() {
-        return ALLOWED_KEYS;
+    public DiagnosticsSchema schema() {
+        return SCHEMA;
     }
 
     @Override
-    public Mono<Map<String, Object>> collect() {
+    public Mono<Map<String, Object>> collect(String organizationId) {
         return Mono.fromSupplier(() -> {
             Map<String, Object> data = new LinkedHashMap<>();
             data.put("tool", runtimeField(deploymentProperties.getTool(), KNOWN_TOOLS));
@@ -81,6 +90,12 @@ public class DeploymentDiagnosticsCollector implements DiagnosticsCollector {
             data.put("replicas", DiagnosticsField.unknown(DiagnosticsField.SOURCE_ORCHESTRATOR));
             return data;
         });
+    }
+
+    private static String[] withOther(Map<String, String> knownValues) {
+        Set<String> values = new HashSet<>(knownValues.keySet());
+        values.add(OTHER);
+        return values.toArray(new String[0]);
     }
 
     /**
