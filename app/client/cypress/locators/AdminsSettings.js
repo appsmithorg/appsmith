@@ -12,7 +12,7 @@ export default {
   formloginButton: ".t--settings-sub-category-form-login",
   readMoreLink: ".t--read-more-link",
   subTextLink: ".t--sub-text-link",
-  versionTab: ".t--settings-category-version",
+  versionTab: ".t--settings-category-admin-central",
   backButton: ".t--admin-settings-back-button",
   saveButton: ".t--admin-settings-save-button",
   resetButton: ".t--admin-settings-reset-button",
