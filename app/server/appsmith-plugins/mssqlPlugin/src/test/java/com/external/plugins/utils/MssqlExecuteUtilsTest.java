@@ -247,11 +247,11 @@ class MssqlExecuteUtilsTest {
         // When
         MssqlExecuteUtils.closeConnectionPostExecution(null, statement, null, connection, pool, false);
 
-        // Then: removed from the pool, and its session ended, before the statement is closed. Closing the statement
-        // first could wait on a server that stopped answering, and Hikari's own close runs later on another thread.
-        InOrder order = inOrder(pool, sqlServerConnection, statement);
-        order.verify(pool).evictConnection(connection);
+        // Then: the session ends before the removal, so it never runs at the same time as Hikari's own close on its
+        // thread. Both happen before the statement is closed, which could wait on a server that stopped answering.
+        InOrder order = inOrder(sqlServerConnection, pool, statement);
         order.verify(sqlServerConnection).abort(Mockito.any());
+        order.verify(pool).evictConnection(connection);
         order.verify(statement).close();
         verify(connection, never()).close();
     }
@@ -291,6 +291,22 @@ class MssqlExecuteUtilsTest {
         order.verify(sqlServerConnection).abort(Mockito.any());
         order.verify(connection).close();
         verify(pool, never()).evictConnection(Mockito.any());
+    }
+
+    @Test
+    void should_abortThroughThePoolsWrapperAfterTheRemoval_when_theDriversConnectionCannotBeReached() throws Exception {
+        // Given
+        Connection connection = Mockito.mock(Connection.class);
+        when(connection.unwrap(Connection.class)).thenThrow(new SQLException("not a wrapper"));
+        HikariDataSource pool = Mockito.mock(HikariDataSource.class);
+
+        // When
+        MssqlExecuteUtils.closeConnectionPostExecution(null, null, null, connection, pool, false);
+
+        // Then: an aborted wrapper would no longer be removed at once, so the removal comes first.
+        InOrder order = inOrder(pool, connection);
+        order.verify(pool).evictConnection(connection);
+        order.verify(connection).abort(Mockito.any());
     }
 
     @Test

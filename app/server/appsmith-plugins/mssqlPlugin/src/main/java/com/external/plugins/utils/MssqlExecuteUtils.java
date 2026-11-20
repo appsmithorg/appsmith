@@ -107,8 +107,16 @@ public class MssqlExecuteUtils {
             return;
         }
 
-        // Taken while the pool's wrapper still holds it.
+        // End the session on SQL Server now, without reading what is left on it, while the connection is still checked
+        // out. Hikari closes the connection again on its own thread after it is removed, and may skip that close while
+        // the pool shuts down. Aborting first means the two closes never run at the same time: the driver's cleanup is
+        // not safe to run twice at once, and could shut down a timer that other connections share. Closing the
+        // statements first could also make the driver wait for the rest of the response.
         Connection sqlServerConnection = physicalConnection(connectionFromPool);
+        if (sqlServerConnection != null) {
+            abortQuietly(sqlServerConnection);
+        }
+
         boolean removed = false;
         if (pool != null && !pool.isClosed()) {
             log.info(
@@ -125,11 +133,11 @@ public class MssqlExecuteUtils {
             log.warn("A Mssql connection that a cancel may still reach is closed without removing it from a pool.");
         }
 
-        // End the session on SQL Server now, without reading what is left on it. Hikari closes the connection later
-        // on its own thread, and may skip that close while the pool shuts down. Closing the statements first could
-        // also make the driver wait for the rest of the response from a server that stopped answering.
-        // When the driver's connection cannot be reached, the pool's wrapper passes the abort on to it.
-        abortQuietly(sqlServerConnection != null ? sqlServerConnection : connectionFromPool);
+        if (sqlServerConnection == null) {
+            // The driver's connection could not be reached. The pool's wrapper passes the abort on to it. This runs
+            // after the removal, because an aborted wrapper would no longer be removed from the pool at once.
+            abortQuietly(connectionFromPool);
+        }
 
         // The statements now close at once, because their connection is closed. When the pool could not remove the
         // wrapper, it goes back closed: the next borrower gets a connection error, never this session.
