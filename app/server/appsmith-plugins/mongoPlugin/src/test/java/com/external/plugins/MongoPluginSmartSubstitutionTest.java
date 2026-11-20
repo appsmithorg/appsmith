@@ -8,21 +8,39 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import io.micrometer.observation.ObservationRegistry;
+import org.bson.BsonTimestamp;
+import org.bson.Document;
+import org.bson.types.Decimal128;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
+import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
@@ -34,8 +52,314 @@ class MongoPluginSmartSubstitutionTest {
     private final MongoPlugin.MongoPluginExecutor pluginExecutor =
             new MongoPlugin.MongoPluginExecutor(ObservationRegistry.NOOP);
 
+    private static final String OBJECT_ID = "507f1f77bcf86cd799439011";
+
+    /**
+     * Runs smart substitution for one binding in the value position of a find filter and returns the filter that
+     * the plugin would send. No Mongo client is needed: the null client fails with StaleConnectionException after
+     * substitution, and the substituted query is read back from the form data.
+     */
+    private Document substituteIntoFilter(String value, ClientDataType clientDataType) {
+        return substituteIntoFilter("{ \"name\": {{Input1.text}} }", value, clientDataType);
+    }
+
+    private Document substituteIntoFilter(String filter, String value, ClientDataType clientDataType) {
+        Param param = new Param("Input1.text", value);
+        param.setClientDataType(clientDataType);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(formData, COMMAND, "RAW");
+        setDataValueSafelyInFormData(formData, BODY, "{ \"find\": \"users\", \"filter\": " + filter + " }");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                .expectError(StaleConnectionException.class)
+                .verify();
+
+        String substitutedQuery = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
+        assertThatCode(() -> Document.parse(substitutedQuery))
+                .as("substituted query parses: %s", substitutedQuery)
+                .doesNotThrowAnyException();
+        Document command = Document.parse(substitutedQuery);
+        assertThat(command.keySet()).containsExactly("find", "filter");
+        return command.get("filter", Document.class);
+    }
+
+    static Stream<String> stringsThatContainSpecialTypeText() {
+        return Stream.of(
+                "note \"ObjectId('" + OBJECT_ID + "')\" end",
+                "\"ObjectId('" + OBJECT_ID + "')\" trailing text",
+                "leading text \"ObjectId('" + OBJECT_ID + "')\"",
+                "leading text \"ObjectId(" + OBJECT_ID + ")",
+                "note \"ISODate('1970-01-01T00:00:00.000Z')\" end",
+                "note \"NumberLong(9000000000000000000)\" end",
+                "note \"NumberDecimal('123456.789012')\" end",
+                "note \"Timestamp(1421006159, 4)\" end",
+                "leading text \\\"Timestamp(1421006159, 4)",
+                "ObjectId(" + OBJECT_ID + ") trailing text",
+                "leading text ObjectId(" + OBJECT_ID + ")");
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringsThatContainSpecialTypeText")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_itContainsSpecialTypeText(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepStringMemberAsString_when_memberIsNotACompleteLiteral() {
+        // Given
+        String endsWithLiteral = "leading text \"ObjectId('" + OBJECT_ID + "')";
+        String containsLiteral = "note \"ObjectId('" + OBJECT_ID + "')\" end";
+        String array = "[\"plain\", \"leading text \\\"ObjectId('" + OBJECT_ID + "')\", \"note \\\"ObjectId('"
+                + OBJECT_ID + "')\\\" end\"]";
+        String object = "{\"first\": \"leading text \\\"ObjectId('" + OBJECT_ID + "')\", \"second\": \"plain\"}";
+
+        // When
+        Document arrayFilter = substituteIntoFilter(array, ClientDataType.ARRAY);
+        Document objectFilter = substituteIntoFilter(object, ClientDataType.OBJECT);
+
+        // Then
+        assertThat(arrayFilter.getList("name", Object.class))
+                .containsExactly("plain", endsWithLiteral, containsLiteral);
+        Document boundObject = objectFilter.get("name", Document.class);
+        assertThat(boundObject.keySet()).containsExactlyInAnyOrder("first", "second");
+        assertThat(boundObject.get("first")).isEqualTo(endsWithLiteral);
+        assertThat(boundObject.get("second")).isEqualTo("plain");
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepTimestampTextAsString_when_argumentIsNotTwoIntegers() {
+        // Given
+        String value = "Timestamp(first, second)";
+
+        // When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_itContainsRegexOperatorText() {
+        // Given
+        String value = "see { $regex: 5 } for details";
+
+        // When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    static Stream<String> stringsThatContainRegexOperatorText() {
+        return Stream.of(
+                "{ $regex: 5 }",
+                "{ $regex: 5 } at the start",
+                "at the end { $regex: 5 }",
+                "after a backslash \\{ $regex: 5 }",
+                "after a quote \"{ $regex: 5 }",
+                "{ $regex: 5, $options: 7 }");
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringsThatContainRegexOperatorText")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringUnchanged_when_queryAlsoHasRegexArgument(String value) {
+        // Given
+        String filter = "{ \"code\": { $regex: 5 }, \"name\": {{Input1.text}} }";
+
+        // When
+        Document substituted = substituteIntoFilter(filter, value, ClientDataType.STRING);
+
+        // Then
+        assertThat(substituted.keySet()).containsExactly("code", "name");
+        assertThat(substituted.get("code", Document.class).get("$regex")).isEqualTo("5");
+        assertThat(substituted.get("name")).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/O'Reilly/", "/say \"hi/", "/a\\/b'c/i"})
+    void should_quoteRegexArgument_when_queryHasQuoteInsideRegexLiteral(String regexLiteral) {
+        // Given
+        String filter = "{ \"owner\": " + regexLiteral + ", \"code\": { $regex: 5 }, \"name\": {{Input1.text}} }";
+        String value = "see { $regex: 5 } for details";
+
+        // When
+        Document substituted = substituteIntoFilter(filter, value, ClientDataType.STRING);
+
+        // Then
+        assertThat(substituted.keySet()).containsExactly("owner", "code", "name");
+        assertThat(substituted.get("code", Document.class).get("$regex")).isEqualTo("5");
+        assertThat(substituted.get("name")).isEqualTo(value);
+    }
+
+    static Stream<String> stringsThatLookLikeArraysOrObjects() {
+        return Stream.of(
+                "[\"first\", \"second\"]",
+                "{\"first\": \"second\"}",
+                "[\"ObjectId('" + OBJECT_ID + "')\"]",
+                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"}");
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringsThatLookLikeArraysOrObjects")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_itLooksLikeAnArrayOrObject(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_convertOnlyCompleteLiterals_when_objectHasNestedMembers() {
+        // Given
+        String incomplete = "leading text \"ObjectId('" + OBJECT_ID + "')";
+        String object =
+                "{\"outer\": {\"id\": \"ObjectId('" + OBJECT_ID + "')\", \"note\": \"leading text \\\"ObjectId('"
+                        + OBJECT_ID + "')\", \"count\": 3, \"missing\": null}}";
+
+        // When
+        Document filter = substituteIntoFilter(object, ClientDataType.OBJECT);
+
+        // Then
+        Document outer = filter.get("name", Document.class).get("outer", Document.class);
+        assertThat(outer.keySet()).containsExactlyInAnyOrder("id", "note", "count", "missing");
+        assertThat(outer.get("id")).isEqualTo(new ObjectId(OBJECT_ID));
+        assertThat(outer.get("note")).isEqualTo(incomplete);
+        assertThat(outer.get("count")).isEqualTo(3);
+        assertThat(outer.get("missing")).isNull();
+    }
+
+    static Stream<String> untypedValuesWithTextAfterArrayOrObject() {
+        return Stream.of(
+                "[\"ObjectId('" + OBJECT_ID + "')\"] trailing text []",
+                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"} trailing text {}",
+                "[\"ObjectId('" + OBJECT_ID + "')\"]\u001A trailing text []");
+    }
+
+    @ParameterizedTest
+    @MethodSource("untypedValuesWithTextAfterArrayOrObject")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_untypedValueHasTextAfterArrayOrObject(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, null);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {"Timestamp(4294967296, 1)", "Timestamp(1, 4294967296)", "Timestamp(99999999999999999999, 1)"})
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepTimestampTextAsString_when_argumentIsOutOfRange(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    void should_writeTimestamp_when_argumentIsAtTheUpperBound() {
+        // Given / When
+        Document filter = substituteIntoFilter("Timestamp(2147483647, 2147483647)", ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(new BsonTimestamp(2147483647, 2147483647));
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_commandIsAFormFind() {
+        // Given
+        String value = "note \"ObjectId('" + OBJECT_ID + "')\" end";
+        Param param = new Param("Input1.text", value);
+        param.setClientDataType(ClientDataType.STRING);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(formData, COMMAND, "FIND");
+        setDataValueSafelyInFormData(formData, COLLECTION, "users");
+        setDataValueSafelyInFormData(formData, FIND_QUERY, "{ \"name\": \"{{Input1.text}}\" }");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        // When
+        StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                .expectError(StaleConnectionException.class)
+                .verify();
+
+        // Then
+        Document command = Document.parse(getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE));
+        Document filter = command.get("filter", Document.class);
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    static Stream<Arguments> completeSpecialTypeLiterals() {
+        return Stream.of(
+                Arguments.of("ObjectId('" + OBJECT_ID + "')", new ObjectId(OBJECT_ID)),
+                Arguments.of("ObjectId(\"" + OBJECT_ID + "\")", new ObjectId(OBJECT_ID)),
+                Arguments.of("\"ObjectId('" + OBJECT_ID + "')\"", new ObjectId(OBJECT_ID)),
+                Arguments.of("ISODate('1970-01-01T00:00:00.000Z')", new Date(0)),
+                Arguments.of("\"NumberLong(9000000000000000000)\"", 9000000000000000000L),
+                Arguments.of("NumberDecimal('123456.789012')", Decimal128.parse("123456.789012")),
+                Arguments.of("\"Timestamp(1421006159, 4)\"", new BsonTimestamp(1421006159, 4)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("completeSpecialTypeLiterals")
+    void should_writeSpecialType_when_completeBoundValueIsOneLiteral(String value, Object expected) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(expected);
+    }
+
+    @Test
+    void should_writeSpecialTypeMembers_when_arrayMembersAreCompleteLiterals() {
+        // Given
+        String array = "[\"ObjectId('" + OBJECT_ID + "')\", \"plain\", \"Timestamp(1421006159, 4)\"]";
+
+        // When
+        Document withDataType = substituteIntoFilter(array, ClientDataType.ARRAY);
+        Document withoutDataType = substituteIntoFilter(array, null);
+
+        // Then
+        assertThat(withDataType.getList("name", Object.class))
+                .containsExactly(new ObjectId(OBJECT_ID), "plain", new BsonTimestamp(1421006159, 4));
+        assertThat(withoutDataType.getList("name", Object.class))
+                .containsExactly(new ObjectId(OBJECT_ID), "plain", new BsonTimestamp(1421006159, 4));
+    }
+
     private String sanitize(String value) {
-        return pluginExecutor.sanitizeReplacement(value, DataType.BSON_SPECIAL_DATA_TYPES);
+        return pluginExecutor.sanitizeReplacement(value, DataType.BSON);
     }
 
     @Test
@@ -141,6 +465,35 @@ class MongoPluginSmartSubstitutionTest {
 
         // Then
         assertThat(result).isEqualTo(unterminated);
+    }
+
+    @Test
+    void should_finishQuickly_when_queryHasUnclosedRegexLiteral() {
+        // Given
+        String unclosedRegexLiteral = "/" + "\\/".repeat(300_000);
+        String body =
+                "{ \"find\": \"users\", \"filter\": { \"code\": { $regex: 5 }, \"name\": {{Input1.text}}, \"note\": "
+                        + unclosedRegexLiteral + " } }";
+        Param param = new Param("Input1.text", "plain");
+        param.setClientDataType(ClientDataType.STRING);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, body);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // When / Then
+        // The null client fails with StaleConnectionException after smart substitution, so the exception shows that
+        // substitution completed; the timeout bounds it.
+        assertTimeoutPreemptively(
+                Duration.ofSeconds(5), () -> StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                                null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                        .expectError(StaleConnectionException.class)
+                        .verify());
     }
 
     @Test
