@@ -1,6 +1,8 @@
 package com.external.plugins.utils;
 
 import com.external.plugins.exceptions.MssqlErrorMessages;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import microsoft.sql.DateTimeOffset;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -23,11 +25,13 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static java.lang.Boolean.FALSE;
 
+@Slf4j
 public class MssqlExecuteUtils {
 
     // 0x followed by upper-case hex digits, the way SQL Server shows binary values.
@@ -78,6 +82,50 @@ public class MssqlExecuteUtils {
                 MessageFormat.format(
                         "{0}: Execute Error returning " + "Oracle connection to pool",
                         Thread.currentThread().getName()));
+    }
+
+    /**
+     * Like {@link #closeConnectionPostExecution}, but when {@code reusable} is false, the connection is removed from the
+     * pool and closed instead of going back to it. A cancel sent to SQL Server for this connection may still be on its
+     * way, and must not stop the next query that would use it.
+     */
+    public static void closeConnectionPostExecution(
+            ResultSet resultSet,
+            Statement statement,
+            PreparedStatement preparedQuery,
+            Connection connectionFromPool,
+            HikariDataSource pool,
+            boolean reusable) {
+        if (reusable || connectionFromPool == null) {
+            closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
+            return;
+        }
+        if (pool == null || pool.isClosed()) {
+            // Nothing to remove it from. A closed pool aborts its connections anyway.
+            log.warn("A Mssql connection that a cancel may still reach was closed without removing it from a pool.");
+            closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
+            return;
+        }
+        log.info(
+                "Removing a Mssql connection from pool {}: a cancel at the query's timeout ran or may still be sent.",
+                pool.getPoolName());
+        try {
+            // Removed first, while the connection is still open, so Hikari closes it at once and never lends it again.
+            // Closing the statements afterwards cannot then wait on a server that stopped answering.
+            pool.evictConnection(connectionFromPool);
+        } catch (RuntimeException e) {
+            log.warn("Could not remove a Mssql connection from the pool after a query cancel.", e);
+            // Close the connection to SQL Server first. The pool may still lend it again, but a late cancel then
+            // has no session to reach, and the next borrower gets a connection error instead.
+            try {
+                connectionFromPool.unwrap(Connection.class).close();
+            } catch (SQLException closeError) {
+                log.warn("Could not close a Mssql connection after a query cancel.", closeError);
+            }
+            closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
+            return;
+        }
+        closeConnectionPostExecution(resultSet, statement, preparedQuery, null);
     }
 
     public static void populateRowsAndColumns(
@@ -184,25 +232,98 @@ public class MssqlExecuteUtils {
      * timeout no longer runs once the first response has arrived. The checks between reads cannot interrupt such a
      * read. Cancelling ends it with an error.
      *
-     * <p>The caller must cancel the returned task before it closes the statement and returns the connection to the
-     * pool.
+     * <p>The caller must call {@link DeadlineCancel#stop()} before it closes the statement, and must not return the
+     * connection to the pool when {@code stop()} returns false.
      */
-    public static ScheduledFuture<?> cancelAtDeadline(Statement statement, long deadlineNanos) {
+    public static DeadlineCancel cancelAtDeadline(Statement statement, long deadlineNanos) {
+        DeadlineCancel cancel = new DeadlineCancel(statement);
         long delayNanos = Math.max(0, deadlineNanos - System.nanoTime());
         // The timer thread only starts the cancel. Sending it to a stalled server can block, and that must not
         // delay the cancels of other queries.
-        return CANCEL_TIMER.schedule(
-                () -> CANCEL_THREADS.start(() -> {
-                    try {
-                        if (!statement.isClosed()) {
-                            statement.cancel();
-                        }
-                    } catch (SQLException e) {
-                        // The statement finished or was closed meanwhile. Nothing is left to cancel.
-                    }
-                }),
-                delayNanos,
-                TimeUnit.NANOSECONDS);
+        cancel.timer = CANCEL_TIMER.schedule(() -> CANCEL_THREADS.start(cancel::run), delayNanos, TimeUnit.NANOSECONDS);
+        return cancel;
+    }
+
+    /**
+     * The cancel of one query at its deadline.
+     *
+     * <p>Stopping the timer cannot stop a cancel that has already started on its own thread. Without more, that cancel
+     * could reach SQL Server after the connection went back to the pool, and stop another query on the same
+     * connection. So the cancel and {@link #stop()} share a lock:
+     *
+     * <ul>
+     *   <li>A cancel that has not started yet never runs after {@code stop()}.
+     *   <li>{@code stop()} waits for a cancel that is running, up to {@link #STOP_WAIT_MILLIS}.
+     *   <li>When a cancel has run, or is still running after that wait, {@code stop()} returns false. The connection
+     *       must then be removed from the pool, not reused.
+     * </ul>
+     */
+    public static final class DeadlineCancel {
+
+        /** How long {@link #stop()} waits for a running cancel before giving up on the connection. */
+        static final long STOP_WAIT_MILLIS = 5_000;
+
+        private final Statement statement;
+        private final ReentrantLock lock = new ReentrantLock();
+        private ScheduledFuture<?> timer;
+        // Set before stop() waits for the lock, so a cancel that has not started yet never starts, even when stop()
+        // gives up waiting or is interrupted.
+        private volatile boolean stopped;
+        // Read and written only while holding the lock.
+        private boolean started;
+
+        private DeadlineCancel(Statement statement) {
+            this.statement = statement;
+        }
+
+        private void run() {
+            lock.lock();
+            try {
+                if (stopped || statement.isClosed()) {
+                    return;
+                }
+                started = true;
+                statement.cancel();
+            } catch (SQLException e) {
+                // The statement finished or was closed meanwhile. Nothing is left to cancel.
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        /** The lock that the cancel and {@link #stop()} share. For tests. */
+        ReentrantLock lockForTests() {
+            return lock;
+        }
+
+        /**
+         * Stops the cancel. After this returns, no cancel for this query starts.
+         *
+         * @return true when no cancel ran, so the connection can go back to the pool. False when a cancel ran or may
+         *     still be running: the connection must be removed from the pool.
+         */
+        public boolean stop() {
+            stopped = true;
+            if (timer != null) {
+                timer.cancel(false);
+            }
+            boolean locked;
+            try {
+                locked = lock.tryLock(STOP_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                locked = false;
+            }
+            if (!locked) {
+                // A cancel is still sending. It may reach SQL Server later.
+                return false;
+            }
+            try {
+                return !started;
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     /**
