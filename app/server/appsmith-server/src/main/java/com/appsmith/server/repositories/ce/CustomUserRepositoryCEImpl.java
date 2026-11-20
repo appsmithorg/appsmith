@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -56,6 +57,36 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .all(IdOnly.class)
                 .count()
                 .map(count -> count == 0);
+    }
+
+    /**
+     * An account counts as a person's active account unless it is system generated or its enabled flag is false.
+     *
+     * @return true when no person has an active account yet.
+     */
+    @Override
+    public Mono<Boolean> hasNoActivatedUser() {
+        return queryBuilder()
+                .criteria(Bridge.or(Bridge.isNull(User.Fields.isEnabled), Bridge.isTrue(User.Fields.isEnabled)))
+                .criteria(Bridge.or(
+                        Bridge.isNull(User.Fields.isSystemGenerated), Bridge.isFalse(User.Fields.isSystemGenerated)))
+                .limit(1)
+                .all(IdOnly.class)
+                .count()
+                .map(count -> count == 0);
+    }
+
+    @Override
+    public Mono<Boolean> activatePendingAccount(String id, String encodedPassword, LoginSource source) {
+        return queryBuilder()
+                .byId(id)
+                .criteria(Bridge.isFalse(User.Fields.isEnabled))
+                .updateFirst(Bridge.update()
+                        .set(User.Fields.isEnabled, true)
+                        .set(User.Fields.password, encodedPassword)
+                        .set(User.Fields.source, source)
+                        .set(User.Fields.updatedAt, Instant.now()))
+                .map(updatedCount -> updatedCount == 1);
     }
 
     /**
