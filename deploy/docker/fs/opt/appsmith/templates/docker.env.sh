@@ -66,6 +66,17 @@ APPSMITH_MONGODB_PASSWORD=$DB_PASSWORD
 APPSMITH_REDIS_URL=redis://:$REDIS_PASSWORD@127.0.0.1:6379
 APPSMITH_REDIS_PASSWORD=$REDIS_PASSWORD
 
+# Instead of supplying a full APPSMITH_REDIS_URL, you can point Appsmith at an
+# external Redis using its discrete connection components. This is convenient when
+# the values come from a secret store such as AWS Secrets Manager (ElastiCache),
+# which exposes host/port/password separately. When APPSMITH_REDIS_URL is not set
+# but APPSMITH_REDIS_HOST is, the entrypoint composes the URL from these values:
+#   APPSMITH_REDIS_HOST=master.redis-prd-appsmith.lbfmiu.euc1.cache.amazonaws.com
+#   APPSMITH_REDIS_PORT=6379          # optional, defaults to 6379
+#   APPSMITH_REDIS_PASSWORD=<password> # optional; omit for a passwordless Redis
+#   APPSMITH_REDIS_TLS=true           # optional; set to use the rediss:// (TLS) scheme
+# An explicitly set APPSMITH_REDIS_URL always takes precedence over these.
+
 APPSMITH_ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
 APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT
 
