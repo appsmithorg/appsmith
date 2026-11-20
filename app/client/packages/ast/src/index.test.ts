@@ -304,6 +304,51 @@ describe("getAllIdentifiers", () => {
         }()`,
         expectedResults: ["appsmith.user"],
       },
+      // Issue #10606: Local variable with same name as dependency should not shadow references before declaration
+      {
+        script: `function() {
+          let temp = Input1.text;
+          var Input1 = {abc: temp};
+          return Input1.abc === 123;
+        }()`,
+        expectedResults: ["Input1.text"],
+      },
+      // Self-referencing RHS declaration should retain dependency reference
+      {
+        script: `function() {
+          const Api1 = Api1.data;
+          return Api1;
+        }()`,
+        expectedResults: ["Api1.data"],
+      },
+      // Function parameter in nested function should not shadow outer references
+      {
+        script: `function() {
+          const helper = (Input1) => {
+            return Input1.value;
+          };
+          return Input1.text;
+        }()`,
+        expectedResults: ["Input1.text"],
+      },
+      // Array callback parameter should not shadow outer references
+      {
+        script: `function() {
+          const list = users.map((Api1) => Api1.name);
+          return Api1.data;
+        }()`,
+        expectedResults: ["users.map", "Api1.data"],
+      },
+      // Sibling block scope should not shadow outer reference
+      {
+        script: `function() {
+          {
+            const Input1 = 10;
+          }
+          return Input1.text;
+        }()`,
+        expectedResults: ["Input1.text"],
+      },
     ];
 
     // commenting to trigger test shared workflow action
@@ -871,5 +916,28 @@ describe("entityRefactorFromCode", () => {
 
     expect(wrapped).toContain("return");
     expect(wrapped).toContain(code);
+  });
+
+  it("should refactor entity even when a local variable with same name is declared after the reference", () => {
+    const script = `function() {
+      let temp = Input1.text;
+      var Input1 = {abc: temp};
+      return Input1.abc === 123;
+    }()`;
+    const result = entityRefactorFromCode(
+      script,
+      "Input1",
+      "NewInput",
+      false,
+      2,
+    );
+
+    expect(result.isSuccess).toBe(true);
+    const body = result.body as { script: string; refactorCount: number };
+
+    expect(body.script).toContain("let temp = NewInput.text;");
+    expect(body.script).toContain("var Input1 = {abc: temp};");
+    expect(body.script).toContain("return Input1.abc === 123;");
+    expect(body.refactorCount).toBe(1);
   });
 });
