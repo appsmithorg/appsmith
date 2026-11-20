@@ -14,17 +14,20 @@
       APPSMITH_DB_URL: |
         mongodb+srv://root:password@appsmith-mongodb.NAMESPACE.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
       APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+      APPSMITH_ENABLE_OTEL: "false"
       APPSMITH_KEYCLOAK_DB_DRIVER: postgresql
       APPSMITH_KEYCLOAK_DB_PASSWORD: password
       APPSMITH_KEYCLOAK_DB_URL: RELEASE-NAME-postgresql.NAMESPACE.svc.cluster.local:5432/keycloak
       APPSMITH_KEYCLOAK_DB_USERNAME: root
+      APPSMITH_OTEL_TRACING_SAMPLING_PROBABILITY: "1"
+      APPSMITH_SAML_ENGINE: keycloak
     kind: ConfigMap
     metadata:
       labels:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
   3: |
@@ -35,7 +38,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -157,7 +160,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith-headless
       namespace: NAMESPACE
     spec:
@@ -188,7 +191,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
   6: |
@@ -203,7 +206,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     rules:
@@ -233,7 +236,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     roleRef:
@@ -256,7 +259,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     spec:
@@ -267,7 +270,7 @@
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: appsmith
-            appsmith.sh/chart: appsmith-3.9.2
+            appsmith.sh/chart: appsmith-3.9.4
         spec:
           containers:
             - command:
@@ -320,7 +323,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -341,7 +344,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.2
+        appsmith.sh/chart: appsmith-3.9.4
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     secrets:
