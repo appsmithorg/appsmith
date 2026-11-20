@@ -22,7 +22,8 @@ on:
 
 jobs:
   build-docker:
-    runs-on: ubuntu-latest
+    # RUNNER_BUILD overrides ubuntu-latest, which has 2 vCPU in a private repository.
+    runs-on: ${{ vars.RUNNER_BUILD || 'ubuntu-latest' }}
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
