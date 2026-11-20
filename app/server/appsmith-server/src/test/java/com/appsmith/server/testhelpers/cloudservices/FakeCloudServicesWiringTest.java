@@ -10,8 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Fails if {@link FakeCloudServicesContextCustomizerFactory} drops out of {@code META-INF/spring.factories}, for
  * example in a CE to EE merge. Without it, the suite silently calls the production cloud-services.
+ *
+ * <p>Both URLs start with non-empty values, as if the environment set them. So each assertion fails when the
+ * customizer stops overriding that URL.
  */
-@SpringBootTest
+@SpringBootTest(
+        properties = {
+            "appsmith.cloud_services.base_url=http://cloud-services-from-env.invalid",
+            "appsmith.cloud_services.signature_base_url=http://signature-cloud-services-from-env.invalid"
+        })
 class FakeCloudServicesWiringTest {
 
     @Autowired
