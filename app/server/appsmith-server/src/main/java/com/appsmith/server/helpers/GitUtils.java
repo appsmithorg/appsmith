@@ -39,8 +39,8 @@ public class GitUtils {
      * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
      * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
      */
-    public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
-            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
+        public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
+            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+)(:(?<port>\\d+))?(:|/+)+/*(?<path>.+?)(\\.git)?$");
 
     /**
      * Sample repo urls :
