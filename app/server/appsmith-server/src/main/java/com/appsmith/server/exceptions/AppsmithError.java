@@ -285,7 +285,8 @@ public enum AppsmithError {
     USER_ALREADY_EXISTS_SIGNUP(
             409,
             AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(),
-            "There is already an account registered with this email {0}. Please sign in instead.",
+            "There is already an account registered with this email {0}. Please sign in instead, or use \"Forgot"
+                    + " password\" to set a password.",
             AppsmithErrorAction.DEFAULT,
             "Account already exists with this email",
             ErrorType.BAD_REQUEST,

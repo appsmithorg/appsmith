@@ -1,5 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -10,10 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -193,5 +199,69 @@ public class CustomUserRepositoryCEImplTest {
         } catch (Exception e) {
             // Collection may not exist, that's fine
         }
+    }
+
+    @Test
+    void should_reportAnActiveAccount_when_enabledPersonAccountExists() {
+        // Given
+        User person = new User();
+        person.setEmail("active-person@test.com");
+        person.setIsEnabled(true);
+        savedUsers.add(userRepository.save(person).block());
+
+        // When
+        Mono<Boolean> hasNoActivatedUser = userRepository.hasNoActivatedUser();
+
+        // Then
+        StepVerifier.create(hasNoActivatedUser).expectNext(false).verifyComplete();
+    }
+
+    @Test
+    void should_enableAccountWithGivenPassword_when_accountIsPending() {
+        // Given
+        User pending = new User();
+        pending.setEmail("pending-activation@test.com");
+        pending.setIsEnabled(false);
+        pending.setSource(LoginSource.GOOGLE);
+        User saved = userRepository.save(pending).block();
+        savedUsers.add(saved);
+        Instant updatedBeforeActivation = Instant.parse("2020-01-01T00:00:00Z");
+        long matchedAccounts = reactiveMongoOperations
+                .updateFirst(
+                        Query.query(Criteria.where(BaseDomain.Fields.id).is(saved.getId())),
+                        Update.update(BaseDomain.Fields.updatedAt, updatedBeforeActivation),
+                        User.class)
+                .block()
+                .getMatchedCount();
+        assertThat(matchedAccounts).isEqualTo(1);
+
+        // When
+        Mono<Boolean> activated = userRepository.activatePendingAccount(saved.getId(), "encoded", LoginSource.FORM);
+
+        // Then
+        StepVerifier.create(activated).expectNext(true).verifyComplete();
+        User afterActivation = userRepository.findById(saved.getId()).block();
+        assertThat(afterActivation.getIsEnabled()).isTrue();
+        assertThat(afterActivation.getPassword()).isEqualTo("encoded");
+        assertThat(afterActivation.getSource()).isEqualTo(LoginSource.FORM);
+        assertThat(afterActivation.getUpdatedAt()).isAfter(updatedBeforeActivation);
+    }
+
+    @Test
+    void should_leaveAccountUnchanged_when_accountIsAlreadyEnabled() {
+        // Given
+        User enabled = new User();
+        enabled.setEmail("already-enabled@test.com");
+        enabled.setIsEnabled(true);
+        enabled.setPassword("original");
+        User saved = userRepository.save(enabled).block();
+        savedUsers.add(saved);
+
+        // When
+        Mono<Boolean> activated = userRepository.activatePendingAccount(saved.getId(), "replacement", LoginSource.FORM);
+
+        // Then
+        StepVerifier.create(activated).expectNext(false).verifyComplete();
+        assertThat(userRepository.findById(saved.getId()).block().getPassword()).isEqualTo("original");
     }
 }

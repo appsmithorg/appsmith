@@ -38,9 +38,12 @@ describe(
       cy.LogOut();
       cy.SignupFromAPI(emailFour, tempPassword);
       cy.LogOut();
+      // The account exists before its email is added as an admin email.
+      cy.SignupFromAPI(fromEmail, tempPassword);
+      homePage.LogOutviaAPI();
     });
 
-    it("1. Verify adding new admin user and sign up process", () => {
+    it("1. Verify adding an existing user as admin and login", () => {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       agHelper.AssertElementVisibility(AdminsSettings.LeftPaneBrandingLink);
@@ -60,8 +63,7 @@ describe(
         "exist",
         formWidgetsPage.dropdownInput,
       );
-      cy.SignupFromAPI(fromEmail, "testPassword");
-      cy.LoginFromAPI(fromEmail, "testPassword");
+      cy.LoginFromAPI(fromEmail, tempPassword);
     });
 
     it("2. Verify admin setup smtp and test email works", () => {

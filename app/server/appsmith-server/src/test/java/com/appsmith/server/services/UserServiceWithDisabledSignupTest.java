@@ -186,12 +186,14 @@ public class UserServiceWithDisabledSignupTest {
 
         Mono<User> userMono = userService.create(signupUser);
 
+        // Signup does not activate the invited account
         StepVerifier.create(userMono)
-                .assertNext(user -> {
-                    assertThat(user.getEmail()).isEqualTo(newUser.getEmail());
-                    assertThat(user.getSource()).isEqualTo(LoginSource.FORM);
-                    assertThat(user.getIsEnabled()).isTrue();
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && AppsmithError.USER_ALREADY_EXISTS_SIGNUP.equals(((AppsmithException) throwable).getError()))
+                .verify();
+
+        User invitedUser = userRepository.findByEmail(newUser.getEmail()).block();
+        assertThat(invitedUser.getIsEnabled()).isFalse();
+        assertThat(invitedUser.getPassword()).isNull();
     }
 }

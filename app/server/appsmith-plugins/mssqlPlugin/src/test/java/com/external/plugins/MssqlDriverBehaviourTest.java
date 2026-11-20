@@ -23,10 +23,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -36,6 +38,8 @@ import java.util.stream.Stream;
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -493,6 +497,76 @@ public class MssqlDriverBehaviourTest {
             assertTrue(
                     connectionPool.getJdbcUrl().contains("vectorTypeSupport=off;"),
                     () -> "JDBC URL should turn off the native vector type: " + connectionPool.getJdbcUrl());
+        } finally {
+            connectionPool.close();
+        }
+    }
+
+    private static Stream<Arguments> endlessLaterResults() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        // Endless result sets after the first.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; WHILE 1 = 1 SELECT 1 AS later_result",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms"),
+                        // Endless update counts after the first.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; WHILE 1 = 1 UPDATE driver_dml SET name = name",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms"),
+                        // One statement that runs longer than the timeout. The driver's query timeout, or the timer,
+                        // stops it.
+                        Arguments.of("WAITFOR DELAY '00:00:20'", prepared, "ran longer than its timeout of 3000 ms"),
+                        // A later statement that waits, after a first result the server sends at once. The wait
+                        // happens inside a read of the later results.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; RAISERROR('flush', 0, 1) WITH NOWAIT;"
+                                        + " WAITFOR DELAY '00:00:20'; SELECT 2 AS later_result",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms")));
+    }
+
+    // AIP-FD-38: a query that runs past its timeout must not hold a pooled connection and a worker thread. The
+    // reactive timeout cannot interrupt the blocking JDBC call, so before the fix such a query ran on: the endless
+    // ones forever, because the plugin reads the later results to find errors (APP-16536).
+    @ParameterizedTest(name = "{0}, prepared statement {1}")
+    @MethodSource("endlessLaterResults")
+    void should_failAndFreeTheConnection_when_theQueryRunsPastItsTimeout(
+            String sql, boolean preparedStatement, String expectedError) {
+        // Given
+        HikariDataSource connectionPool = mssqlPluginExecutor
+                .datasourceCreate(createDatasourceConfiguration(container))
+                .block();
+        assertThat(connectionPool).isNotNull();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(sql);
+        actionConfiguration.setTimeoutInMillisecond("3000");
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+        try {
+            // When
+            // Before the fix, this call never returned: the reactive timeout cannot interrupt the blocking read.
+            Duration took = StepVerifier.create(mssqlPluginExecutor.executeParameterized(
+                            connectionPool,
+                            new ExecuteActionDTO(),
+                            createDatasourceConfiguration(container),
+                            actionConfiguration))
+                    // Then
+                    .assertNext(result -> {
+                        assertThat(result.getIsExecutionSuccess()).isFalse();
+                        assertThat(String.valueOf(result.getBody())).contains(expectedError);
+                    })
+                    .expectComplete()
+                    .verify(Duration.ofSeconds(30));
+            assertThat(took).isLessThan(Duration.ofSeconds(10));
+
+            // The connection goes back to the pool shortly after the timeout.
+            await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(
+                            connectionPool.getHikariPoolMXBean().getActiveConnections())
+                    .as("connections the query still holds after its timeout")
+                    .isZero());
         } finally {
             connectionPool.close();
         }
