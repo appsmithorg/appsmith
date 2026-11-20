@@ -16,7 +16,8 @@ import java.net.InetAddress;
  * at it. No server test reaches a live cloud-services, in CI or on a developer machine.
  *
  * <p>Responses come from {@link FakeCloudServicesRoutes}. A request with no route gets a 404 and an error log
- * that names the path, so a new cloud-services call fails loudly instead of reaching the internet.
+ * that names the path. The call never leaves the machine, but a caller that swallows errors still passes, so
+ * search the test log for "no route for" after adding a cloud-services call.
  */
 @Slf4j
 public final class FakeCloudServices {
