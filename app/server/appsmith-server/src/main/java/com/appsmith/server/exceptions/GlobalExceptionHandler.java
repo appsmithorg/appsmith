@@ -113,8 +113,9 @@ public class GlobalExceptionHandler {
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
+        final Throwable cause = e.getCause();
         String conflictingObjectName = DuplicateKeyExceptionUtils.extractConflictingObjectName(
-                e.getCause().getMessage());
+                cause != null ? cause.getMessage() : e.getMessage());
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
                 appsmithError.getHttpErrorCode(),
                 new ErrorDTO(
