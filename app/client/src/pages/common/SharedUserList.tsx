@@ -32,7 +32,7 @@ export default function SharedUserList() {
 
       return {
         label:
-          user.username +
+          (user.username || name) +
           (user.username === currentUser?.username ? " (You)" : ""),
         image: user.photoId
           ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
