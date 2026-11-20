@@ -205,10 +205,16 @@ class MssqlKerberosDataSourceTest {
         CountDownLatch releaseFirstLogin = new CountDownLatch(1);
         MssqlKerberosDataSource.CredentialSource slowRefusal = counting((p, pw) -> {
             firstLoginStarted.countDown();
+            boolean released;
             try {
-                releaseFirstLogin.await(10, TimeUnit.SECONDS);
+                released = releaseFirstLogin.await(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                released = false;
+            }
+            if (!released) {
+                // Fails the test: the login must end because the test released it, not because time ran out.
+                throw new IllegalStateException("The test did not release the first login in time.");
             }
             throw REFUSED;
         });
@@ -230,6 +236,12 @@ class MssqlKerberosDataSourceTest {
             while (System.nanoTime() < deadline && logins.get() < 2 && !isBlockedOn(secondThread.get(), sharedLock)) {
                 Thread.onSpinWait();
             }
+            // The two logins must really overlap: the second pool waits on the shared lock while the first login is
+            // still running. This fails if the second pool sent its own login or the wait ran out.
+            assertThat(logins).as("only the first pool has sent the password").hasValue(1);
+            assertThat(isBlockedOn(secondThread.get(), sharedLock))
+                    .as("the second pool waits on the shared lock")
+                    .isTrue();
             releaseFirstLogin.countDown();
 
             // Then

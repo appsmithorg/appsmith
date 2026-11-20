@@ -8,10 +8,23 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class MssqlKerberosFailuresTest {
 
     private static final String REFUSED = "Kerberos login failed for svc@REALM.";
+
+    /**
+     * Asks for garbage collection until the object is collected, for up to 10 seconds. Returns false when it was not,
+     * because Java does not promise to collect it. A test then skips its check instead of failing.
+     */
+    private static boolean collected(WeakReference<Object> reference) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (reference.get() != null && System.nanoTime() < deadline) {
+            System.gc();
+        }
+        return reference.get() == null;
+    }
 
     @ParameterizedTest
     @CsvSource({"1, 60", "2, 120", "3, 240", "4, 480", "5, 900", "6, 900", "40, 900"})
@@ -43,12 +56,10 @@ class MssqlKerberosFailuresTest {
         MssqlKerberosFailures failures = new MssqlKerberosFailures();
         String key = MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray());
         Object heldLock = failures.lockFor(key);
-        WeakReference<Object> canary = new WeakReference<>(new Object());
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
-        while (canary.get() != null && System.nanoTime() < deadline) {
-            System.gc();
-        }
-        assertThat(canary.get()).as("a garbage collection ran").isNull();
+        // A lock that nothing holds, to show that a collection ran.
+        WeakReference<Object> unheldLock =
+                new WeakReference<>(failures.lockFor(MssqlKerberosFailures.key("other@REALM", "pw".toCharArray())));
+        assumeTrue(collected(unheldLock), "No garbage collection ran within 10 seconds, so this test cannot check.");
 
         // When: a new pool with the same account and password asks for its lock.
         Object newPoolsLock = failures.lockFor(key);
@@ -61,13 +72,18 @@ class MssqlKerberosFailuresTest {
     void should_dropALock_when_noPoolHoldsItAnyMore() {
         // Given: a pool took a lock and was then closed, so nothing holds the lock.
         MssqlKerberosFailures failures = new MssqlKerberosFailures();
-        failures.lockFor(MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray()));
+        WeakReference<Object> closedPoolsLock =
+                new WeakReference<>(failures.lockFor(MssqlKerberosFailures.key("svc@REALM", "pw".toCharArray())));
+        // The skip depends on a separate object, so a lock that is wrongly held strongly fails the test, not skips it.
         WeakReference<Object> canary = new WeakReference<>(new Object());
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
-        while (canary.get() != null && System.nanoTime() < deadline) {
+        while ((canary.get() != null || closedPoolsLock.get() != null) && System.nanoTime() < deadline) {
             System.gc();
         }
-        assertThat(canary.get()).as("a garbage collection ran").isNull();
+        assumeTrue(canary.get() == null, "No garbage collection ran within 10 seconds, so this test cannot check.");
+        assertThat(closedPoolsLock.get())
+                .as("the closed pool's lock was collected")
+                .isNull();
 
         // When: the next pool asks for a lock.
         Object held = failures.lockFor(MssqlKerberosFailures.key("other@REALM", "pw".toCharArray()));
