@@ -293,7 +293,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
-        return queryBuilder().criteria(q).updateFirst(update);
+        return queryBuilder().criteria(q).permission(AclPermission.MANAGE_PAGES).updateFirst(update);
     }
 
     @Override

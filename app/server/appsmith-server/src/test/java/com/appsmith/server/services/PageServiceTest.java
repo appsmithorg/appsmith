@@ -51,6 +51,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -479,6 +480,37 @@ public class PageServiceTest {
                     assertThat(page.getPolicies())
                             .contains(managePagePolicy, readPagePolicy, deletePagePolicy, createPageActionsPolicy);
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectRenameAndKeepPageName_when_newNameIsNotValidPageName() {
+        // Given
+        setupTestApplication();
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Page Before Rename");
+        testPage.setApplicationId(application.getId());
+        PageDTO createdPage = applicationPageService.createPage(testPage).block();
+        PageDTO rename = new PageDTO();
+        rename.setName("..");
+
+        // When
+        Mono<PageDTO> result = newPageService.updatePage(createdPage.getId(), rename);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(
+                        error -> assertThat(error)
+                                .isInstanceOf(AppsmithException.class)
+                                .hasMessage(
+                                        AppsmithError.GENERIC_BAD_REQUEST.getMessage(
+                                                "The page name is not valid. "
+                                                        + "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, cannot start or end with a dot, cannot be longer than 255 characters, and cannot be a reserved device name such as CON or NUL.")))
+                .verify();
+        StepVerifier.create(newPageService.findPageById(createdPage.getId(), READ_PAGES, false))
+                .assertNext(page -> assertThat(page.getName()).isEqualTo("Page Before Rename"))
                 .verifyComplete();
     }
 

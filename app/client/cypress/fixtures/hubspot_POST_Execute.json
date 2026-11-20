@@ -1,0 +1,47 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "statusCode": "200 OK",
+    "headers": {},
+    "body": {
+      "id": "5749322",
+      "name": "appsmith1",
+      "label": "appsmith1",
+      "published": true,
+      "columnCount": 1,
+      "rowCount": 1,
+      "columns": [
+        {
+          "id": "1",
+          "name": "name",
+          "label": "Name",
+          "type": "TEXT"
+        }
+      ],
+      "allowPublicApiAccess": false,
+      "useForPages": false,
+      "enableChildTablePages": false,
+      "allowChildTables": false,
+      "dynamicMetaTags": {},
+      "createdAt": "2025-02-20T10:00:00.000Z",
+      "updatedAt": "2025-02-20T10:00:00.000Z",
+      "publishedAt": "2025-02-20T10:00:00.000Z"
+    },
+    "isExecutionSuccess": true,
+    "messages": [],
+    "request": {
+      "requestParams": {}
+    },
+    "dataTypes": [
+      {
+        "dataType": "JSON"
+      },
+      {
+        "dataType": "RAW"
+      }
+    ]
+  }
+}
