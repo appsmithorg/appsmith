@@ -282,7 +282,6 @@ interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 interface State {
   isFocused: boolean;
   isOpened: boolean;
-  autoCompleteVisible: boolean;
   hinterOpen: boolean;
   ctrlPressed: boolean;
   peekOverlayProps:
@@ -329,7 +328,6 @@ class CodeEditor extends Component<Props, State> {
       isDynamic: false,
       isFocused: false,
       isOpened: false,
-      autoCompleteVisible: false,
       hinterOpen: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,

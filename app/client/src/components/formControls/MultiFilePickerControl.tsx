@@ -287,13 +287,6 @@ function FilePicker(props: FilePickerProps) {
 }
 
 class MultipleFilePickerControl extends BaseControl<MultipleFilePickerControlProps> {
-  constructor(props: MultipleFilePickerControlProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
-
   render() {
     const { configProperty, disabled } = this.props;
 
@@ -310,10 +303,6 @@ class MultipleFilePickerControl extends BaseControl<MultipleFilePickerControlPro
   getControlType(): ControlType {
     return "MULTIPLE_FILE_PICKER";
   }
-}
-
-export interface FilePickerComponentState {
-  isOpen: boolean;
 }
 
 const mapStateToProps = (
