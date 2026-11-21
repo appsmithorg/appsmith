@@ -326,6 +326,8 @@ class DatePickerComponent extends React.Component<
       }
     };
     const initialMonth = getInitialMonth();
+    const canClearSelection =
+      this.props.canClearSelection ?? !this.props.isRequired;
 
     return (
       <StyledControlGroup
@@ -371,6 +373,7 @@ class DatePickerComponent extends React.Component<
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
           >
             <DateInput
+              canClearSelection={canClearSelection}
               className={this.props.isLoading ? "bp3-skeleton" : ""}
               closeOnSelection={this.props.closeOnSelection}
               dayPickerProps={{
@@ -395,6 +398,9 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                popoverClassName: !canClearSelection
+                  ? `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}-required`
+                  : undefined,
                 onClose: this.props.onPopoverClosed,
                 /*
                   Conditional popover props are the popover props that should not be sent to
@@ -418,6 +424,7 @@ class DatePickerComponent extends React.Component<
         <PopoverStyles
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
+          hideClearButton={!canClearSelection}
           portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
         />
       </StyledControlGroup>
@@ -536,6 +543,7 @@ interface DatePickerComponentProps extends ComponentProps {
   isPopoverOpen?: boolean;
   onDateOutOfRange?: () => void;
   isRequired?: boolean;
+  canClearSelection?: boolean;
 }
 
 interface DatePickerComponentState {
