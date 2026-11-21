@@ -49,6 +49,14 @@
             </exclusions>
         </dependency>
 
+        <!-- An in-process Kerberos server (KDC) for the Kerberos login tests. -->
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-simplekdc</artifactId>
+            <version>2.1.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
