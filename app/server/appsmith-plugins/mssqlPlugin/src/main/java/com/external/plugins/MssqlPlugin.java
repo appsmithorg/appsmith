@@ -69,7 +69,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -278,7 +277,7 @@ public class MssqlPlugin extends BasePlugin {
                         final int timeoutMillis = actionConfiguration.getTimeoutInMillisecond();
                         final int queryTimeoutSeconds = MssqlExecuteUtils.queryTimeoutSeconds(timeoutMillis);
                         final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
-                        ScheduledFuture<?> cancelAtDeadline = null;
+                        MssqlExecuteUtils.DeadlineCancel cancelAtDeadline = null;
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
@@ -332,18 +331,26 @@ public class MssqlPlugin extends BasePlugin {
                                     "SQLSTATE: " + e.getSQLState()));
 
                         } finally {
-                            // Stop the timer before the connection goes back to the pool, so that it never cancels
-                            // a statement on a connection another query is using.
-                            if (cancelAtDeadline != null) {
-                                cancelAtDeadline.cancel(false);
-                            }
+                            // Stop the cancel before the connection goes back to the pool, so that it never cancels
+                            // a query that another action runs on the same connection. The connection is removed
+                            // from the pool instead when:
+                            // - the timer's cancel ran, or may still be on its way;
+                            // - the deadline passed, because this thread may then have cancelled the query itself.
+                            boolean cancelStopped = cancelAtDeadline == null || cancelAtDeadline.stop();
+                            boolean reusable = cancelStopped && !MssqlExecuteUtils.isPastDeadline(deadlineNanos);
 
                             // Log HikariCP status
                             logHikariCPStatus(
                                     MessageFormat.format("After executing Mssql query [{0}]", query),
                                     hikariDSConnection);
 
-                            closeConnectionPostExecution(resultSet, statement, preparedQuery, sqlConnectionFromPool);
+                            closeConnectionPostExecution(
+                                    resultSet,
+                                    statement,
+                                    preparedQuery,
+                                    sqlConnectionFromPool,
+                                    hikariDSConnection,
+                                    reusable);
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
