@@ -46,6 +46,15 @@ public final class DiagnosticsValues {
     /** The time limit of a collector's EE stage. It expires before the 10-second section timeout, so CE values survive. */
     public static final Duration EE_FIELDS_TIMEOUT = Duration.ofSeconds(8);
 
+    /**
+     * The time limit of one independent collector read, CE or EE. It stays below {@link #EE_FIELDS_TIMEOUT}, so a slow
+     * read reports {@code UNKNOWN} for its own keys before the EE stage or the section times out.
+     */
+    public static final Duration EE_READ_TIMEOUT = Duration.ofSeconds(6);
+
+    /** The time limit of a collector's flags read. A flag-gated read gets what is left of {@link #EE_READ_TIMEOUT}. */
+    public static final Duration FLAGS_READ_TIMEOUT = Duration.ofSeconds(2);
+
     private DiagnosticsValues() {}
 
     /** @return a map that reports {@link #NOT_SUPPORTED} for each of {@code keys}, in iteration order. */

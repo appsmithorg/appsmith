@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +21,6 @@ import java.util.Set;
  * Reports instance-wide counts of datasources, in total and by plugin, and of the datasources that a live action
  * references. Plugins are reported by package name from a fixed list, so a remote plugin lands in {@code other}.
  */
-@Slf4j
 public class DatasourcesDiagnosticsCollectorCE implements DiagnosticsCollector {
 
     protected static final List<String> EE_KEYS = List.of("environmentsByType");
@@ -83,10 +81,7 @@ public class DatasourcesDiagnosticsCollectorCE implements DiagnosticsCollector {
                 }));
 
         // The EE stage starts with the CE queries, so both share the section time limit.
-        return Mono.zip(ceData, eeFieldsOrUnknown(organizationId)).map(parts -> {
-            parts.getT1().putAll(parts.getT2());
-            return parts.getT1();
-        });
+        return DiagnosticsEeFields.merge(ceData, () -> eeFields(organizationId), EE_KEYS, "datasources");
     }
 
     /**
@@ -94,22 +89,6 @@ public class DatasourcesDiagnosticsCollectorCE implements DiagnosticsCollector {
      */
     protected Mono<Map<String, Object>> eeFields(String organizationId) {
         return Mono.just(DiagnosticsValues.allNotSupported(EE_KEYS));
-    }
-
-    /**
-     * Calls {@link #eeFields(String)}. An error, a timeout or an empty result reports {@code UNKNOWN} for every EE key
-     * and keeps the section.
-     */
-    private Mono<Map<String, Object>> eeFieldsOrUnknown(String organizationId) {
-        return Mono.defer(() -> eeFields(organizationId))
-                .timeout(DiagnosticsValues.EE_FIELDS_TIMEOUT)
-                .onErrorResume(error -> {
-                    log.debug(
-                            "Support diagnostics datasources EE fields failed with {}",
-                            error.getClass().getName());
-                    return Mono.just(DiagnosticsValues.allWith(EE_KEYS, DiagnosticsValues.UNKNOWN));
-                })
-                .switchIfEmpty(Mono.fromSupplier(() -> DiagnosticsValues.allWith(EE_KEYS, DiagnosticsValues.UNKNOWN)));
     }
 
     /** Looks up the package name of every plugin in either map with one query. An empty union makes no query. */
