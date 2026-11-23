@@ -3,8 +3,8 @@ import { isNil, isNumber } from "lodash";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
-  INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
-  INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+  WDS_INPUT_MAX_NUM_ERROR,
+  WDS_INPUT_MIN_NUM_ERROR,
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
@@ -98,18 +98,17 @@ export const validateInput = (props: InputWidgetProps): Validation => {
     }
 
     if (rawText !== "" && isNumber(text)) {
-      // check the default text is neither greater than max nor less than min value.
       if (!isNil(minNum) && minNum > text) {
         return {
           validationStatus: "invalid",
-          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MIN_NUM_ERROR),
+          errorMessage: createMessage(WDS_INPUT_MIN_NUM_ERROR, minNum),
         };
       }
 
       if (!isNil(maxNum) && maxNum < text) {
         return {
           validationStatus: "invalid",
-          errorMessage: createMessage(INPUT_DEFAULT_TEXT_MAX_NUM_ERROR),
+          errorMessage: createMessage(WDS_INPUT_MAX_NUM_ERROR, maxNum),
         };
       }
     }

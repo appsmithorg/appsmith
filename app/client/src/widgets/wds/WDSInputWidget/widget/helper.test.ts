@@ -1,5 +1,6 @@
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { parseText } from "./helper";
+import { parseText, validateInput } from "./helper";
+import type { InputWidgetProps } from "./types";
 
 describe("getParsedText", () => {
   it("should test with all possible values", () => {
@@ -31,5 +32,66 @@ describe("getParsedText", () => {
 
     text = parseText("1.00", InputTypes.NUMBER);
     expect(text).toBe(1);
+  });
+});
+
+describe("validateInput", () => {
+  const props = {
+    inputType: InputTypes.NUMBER,
+    isDirty: true,
+    isRequired: false,
+    minNum: 0,
+    maxNum: 10,
+  } as InputWidgetProps;
+
+  it.each([
+    [-1, "Value must be greater than or equal to 0"],
+    [11, "Value must be less than or equal to 10"],
+  ])("shows a runtime range error for %s", (text, errorMessage) => {
+    expect(
+      validateInput({
+        ...props,
+        text: text as unknown as string,
+        rawText: String(text),
+      }),
+    ).toEqual({
+      validationStatus: "invalid",
+      errorMessage,
+    });
+  });
+
+  it("shows a sentence case type mismatch error for letters", () => {
+    expect(
+      validateInput({
+        ...props,
+        text: null as unknown as string,
+        rawText: "abc",
+      }),
+    ).toEqual({
+      validationStatus: "invalid",
+      errorMessage: "Type mismatch. Please enter a valid value",
+    });
+  });
+
+  it.each([0, 5, 10])("accepts an in-range value of %s", (text) => {
+    expect(
+      validateInput({
+        ...props,
+        text: text as unknown as string,
+        rawText: String(text),
+      }),
+    ).toEqual({
+      validationStatus: "valid",
+      errorMessage: "",
+    });
+  });
+
+  it("accepts an empty optional number", () => {
+    expect(
+      validateInput({ ...props, text: null as unknown as string, rawText: "" }),
+    ).toEqual({
+      validationStatus: "valid",
+      errorMessage: "",
+    });
   });
 });
