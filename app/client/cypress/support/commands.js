@@ -180,6 +180,14 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword, redirectUrl) => {
+  // Unload the open app page first. Its requests get a 401 after the logout,
+  // and the client answers a 401 with its own logout, which can arrive after
+  // the login below and end the new session. cy.visit resolves "about:blank"
+  // against baseUrl and loads the app again, so navigate the window instead.
+  cy.window({ log: false }).then((win) => {
+    win.location.href = "about:blank";
+  });
+  cy.location("href").should("eq", "about:blank");
   homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
@@ -1037,6 +1045,17 @@ Cypress.Commands.add("createSuperUser", () => {
 });
 
 Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
+  // Unload the open app page first. Its requests get a 401 after the logout
+  // that comes before a signup, and the client answers a 401 with its own
+  // logout. That logout can end the session this request runs in, and the
+  // server then answers the signup with a 500. cy.visit resolves "about:blank"
+  // against baseUrl and loads the app again, so navigate the window instead.
+  cy.window({ log: false }).then((win) => {
+    win.location.href = "about:blank";
+  });
+  cy.location("href").should("eq", "about:blank");
+  // Drop the logged-out session cookie so the signup starts a new session.
+  cy.clearCookie("SESSION");
   cy.request({
     method: "POST",
     url: "api/v1/users",

@@ -7,6 +7,7 @@ import workspaceSagas from "ee/sagas/WorkspaceSagas";
 import favoritesSagasListener from "sagas/FavoritesSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import { watchActionSagas } from "sagas/ActionSagas";
+import watchDeleteHiddenPluginActionsSaga from "sagas/DeleteHiddenPluginActionsSaga";
 import apiPaneSagas from "sagas/ApiPaneSagas";
 import applicationSagas from "ee/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
@@ -66,6 +67,7 @@ export const sagas = [
   initSagas,
   pageSagas,
   watchActionSagas,
+  watchDeleteHiddenPluginActionsSaga,
   watchJSActionSagas,
   watchActionExecutionSagas,
   watchPluginActionExecutionSagas,

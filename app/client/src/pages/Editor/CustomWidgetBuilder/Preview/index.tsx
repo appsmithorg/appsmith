@@ -11,6 +11,7 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { ThemeProvider, useTheme } from "@appsmith/wds-theming";
 import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
+import { useWDSThemeProps } from "ee/hooks/useWDSThemeProps";
 
 import styles from "./styles.module.css";
 
@@ -32,13 +33,7 @@ export default function Preview({
   } = useContext(CustomWidgetBuilderContext);
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
-  const wdsThemeProps = {
-    borderRadius: themeSetting.borderRadius,
-    seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase(),
-    userSizing: themeSetting.sizing,
-    userDensity: themeSetting.density,
-  } as Parameters<typeof useTheme>[0];
+  const wdsThemeProps = useWDSThemeProps(themeSetting);
   const { theme: anvilTheme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
   const [dimensions, setDimensions] = useState({

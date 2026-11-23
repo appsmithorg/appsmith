@@ -1,5 +1,7 @@
 package com.appsmith.util;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import io.netty.util.NetUtil;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,11 @@ import java.util.Set;
  *     {@link #firstAllowedResolvedAddress(String, InetAddress[])}.</li>
  *     <li>The SMTP test-email admin path in {@code EnvManagerCEImpl}, through
  *     {@link #resolveIfAllowed(String)}.</li>
+ *     <li>The Amazon S3 and DynamoDB datasource plugins: a create-time check of the custom
+ *     endpoint's host through {@link #assertHostAllowed(String)}, and a connect-time check of
+ *     every address through {@link #resolveAllIfAllowed(String)}, installed as the AWS SDK
+ *     Apache HTTP client's DNS resolver. The operator's configured proxy host is resolved
+ *     without the check.</li>
  * </ul>
  *
  * <p>Not applied to the JDBC plugins (Postgres, MySQL, MSSQL, Oracle, Redshift, Snowflake,
@@ -437,6 +444,26 @@ public final class RestrictedHostFilter {
     }
 
     /**
+     * Create-time check for a datasource plugin's {@code datasourceCreate}: throws when
+     * {@link #isHostBlocked(String)} says the host is disallowed, with the message every
+     * plugin surfaces for this case ({@link #HOST_NOT_ALLOWED}). Resolves DNS, so call it from
+     * a path that tolerates blocking I/O (the plugin scheduler). The block is logged here as the
+     * primary observability signal; the connect-time hooks log the rarer rebinding case.
+     *
+     * @throws AppsmithPluginException with {@link #HOST_NOT_ALLOWED} when the host is blocked
+     */
+    public static void assertHostAllowed(String host) throws AppsmithPluginException {
+        if (!isHostBlocked(host)) {
+            return;
+        }
+        log.warn(
+                "Blocked a datasource pointed at disallowed host '{}' (resolves to [{}]) — restricted-host policy.",
+                host,
+                describeResolvedAddresses(host));
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, HOST_NOT_ALLOWED);
+    }
+
+    /**
      * Returns {@code true} if {@code host} is definitively in the disallowed set: either the
      * literal/canonical host string is on the static denylist, the literal is a non-routable
      * address class (loopback, any-local, link-local, multicast, IPv6 ULA), the host matches
@@ -605,6 +632,26 @@ public final class RestrictedHostFilter {
         }
 
         return Optional.of(resolvedAddresses[0]);
+    }
+
+    /**
+     * Connection-time DNS resolution for HTTP clients that take a resolver, such as the Apache
+     * HTTP client of the AWS SDK. Resolves {@code host} once and returns every address it
+     * resolves to, so the client can still fail over between them, when the policy of
+     * {@link #firstAllowedResolvedAddress(String, InetAddress[])} allows the host and all of its
+     * addresses. Honors the {@code APPSMITH_DISABLE_SSRF_FILTER} kill-switch and the test
+     * allowlist the same way.
+     *
+     * @throws UnknownHostException when the host does not resolve, or with
+     *     {@link #HOST_NOT_ALLOWED} when the policy blocks the host or any of its addresses
+     */
+    public static InetAddress[] resolveAllIfAllowed(String host) throws UnknownHostException {
+        final InetAddress[] resolvedAddresses = InetAddress.getAllByName(host);
+        if (firstAllowedResolvedAddress(host, resolvedAddresses).isEmpty()) {
+            log.warn("Refused a connection to disallowed host '{}' at connect time — restricted-host policy.", host);
+            throw new UnknownHostException(HOST_NOT_ALLOWED);
+        }
+        return resolvedAddresses;
     }
 
     /**

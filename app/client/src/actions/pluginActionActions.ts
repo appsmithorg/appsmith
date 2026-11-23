@@ -195,6 +195,25 @@ export const deleteAction = (payload: {
   };
 };
 
+export interface DeleteHiddenPluginActionsPayload {
+  actions: Array<{ id: string; name: string }>;
+  // Datasources the deleted queries used. Each is deleted only if no other
+  // query in the workspace uses it (the server enforces this).
+  datasourceIds: string[];
+  onComplete?: (removedCount: number) => void;
+}
+
+// Deletes the queries of hidden plugins (see isHiddenPlugin), such as
+// Appsmith AI, from the editor banner.
+export const deleteHiddenPluginActions = (
+  payload: DeleteHiddenPluginActionsPayload,
+) => {
+  return {
+    type: ReduxActionTypes.DELETE_HIDDEN_PLUGIN_ACTIONS_INIT,
+    payload,
+  };
+};
+
 export const deleteActionSuccess = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_SUCCESS,

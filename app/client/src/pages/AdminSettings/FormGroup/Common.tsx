@@ -75,7 +75,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             className="admin-settings-form-group-label"
             color="var(--ads-v2-color-fg)"
             data-testid="admin-settings-form-group-label"
-            kind="body-m"
+            kind={setting.labelKind ?? "body-m"}
             renderAs="label"
           >
             {setting.label || ""}

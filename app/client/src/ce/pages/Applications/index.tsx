@@ -693,7 +693,7 @@ export function ApplicationsSection(props: any) {
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
-  const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.license_anvil_enabled);
+  const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);

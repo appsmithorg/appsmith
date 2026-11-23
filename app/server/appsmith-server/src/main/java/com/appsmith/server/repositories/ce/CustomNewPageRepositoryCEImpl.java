@@ -4,6 +4,7 @@ import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
@@ -14,7 +15,10 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
@@ -42,6 +46,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     private final MongoTemplate mongoTemplate;
     private final ObservationRegistry observationRegistry;
+
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     @Override
     public Mono<NewPage> findById(String id, AclPermission permission, List<String> projectedFields) {
@@ -293,7 +300,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
-        return queryBuilder().criteria(q).updateFirst(update);
+        return queryBuilder().criteria(q).permission(AclPermission.MANAGE_PAGES).updateFirst(update);
     }
 
     @Override
@@ -333,6 +340,23 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<Long> countByDeletedAtNull() {
         final BridgeQuery<NewPage> q = Bridge.notExists(NewPage.Fields.deletedAt);
         return queryBuilder().criteria(q).count();
+    }
+
+    @Override
+    public Mono<Long> countEditableForDiagnostics() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                        Aggregation.match(new Criteria()
+                                .andOperator(
+                                        notDeleted(),
+                                        where(NewPage.Fields.unpublishedPage_deletedAt)
+                                                .isNull())),
+                        Aggregation.count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        return mongoOperations
+                .aggregate(aggregation, mongoOperations.getCollectionName(NewPage.class), Document.class)
+                .next()
+                .map(document -> ((Number) document.get("count")).longValue())
+                .defaultIfEmpty(0L);
     }
 
     @Override

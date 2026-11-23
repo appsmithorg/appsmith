@@ -1,0 +1,27 @@
+import {
+  CompactModeTypes,
+  TABLE_CELL_ACTION_ICON_SIZE,
+  TABLE_CELL_ACTION_VERTICAL_PADDING,
+  getTableCellActionIconSize,
+} from "../Constants";
+
+describe("getTableCellActionIconSize", () => {
+  it("returns 24 for SHORT compact mode", () => {
+    expect(getTableCellActionIconSize(CompactModeTypes.SHORT)).toBe(24);
+  });
+
+  it("returns 30 for DEFAULT and TALL", () => {
+    expect(getTableCellActionIconSize(CompactModeTypes.DEFAULT)).toBe(30);
+    expect(getTableCellActionIconSize(CompactModeTypes.TALL)).toBe(30);
+    expect(getTableCellActionIconSize(undefined)).toBe(30);
+  });
+
+  it("fits DEFAULT size when action-cell vertical padding is 0", () => {
+    const contentBudget = 40 - TABLE_CELL_ACTION_VERTICAL_PADDING * 2;
+
+    expect(TABLE_CELL_ACTION_VERTICAL_PADDING).toBe(0);
+    expect(TABLE_CELL_ACTION_ICON_SIZE.DEFAULT).toBeLessThanOrEqual(
+      contentBudget,
+    );
+  });
+});

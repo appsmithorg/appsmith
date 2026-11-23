@@ -259,6 +259,8 @@ export class staticSplit {
     } catch (err) {
       // Returning without a config would let Cypress start with no specs and
       // report a pass. Let the plugin load fail and the shard go red.
+      // ci-test-custom-script.yml greps for this exact line to run the full
+      // shard on the next attempt. Update it there if you reword it.
       console.log("Spec allocation failed for this runner.", err);
       throw err;
     } finally {

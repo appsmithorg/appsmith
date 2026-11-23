@@ -155,6 +155,14 @@ export const CurrencyTypeOptions = [
     symbol_native: "BYR",
   },
   {
+    code: "BY",
+    currency: "BYN",
+    currency_name: "Belarusian Ruble",
+    label: "Belarus",
+    phone: "375",
+    symbol_native: "Br",
+  },
+  {
     code: "BZ",
     currency: "BZD",
     currency_name: "Belize Dollar",
@@ -923,6 +931,14 @@ export const CurrencyTypeOptions = [
     symbol_native: "Bs.F.",
   },
   {
+    code: "VE",
+    currency: "VES",
+    currency_name: "Venezuelan Bolívar Soberano",
+    label: "Venezuela",
+    phone: "58",
+    symbol_native: "Bs.S.",
+  },
+  {
     code: "VN",
     currency: "VND",
     currency_name: "Vietnamese Dong",
@@ -957,6 +973,14 @@ export const CurrencyTypeOptions = [
   {
     code: "ZM",
     currency: "ZMK",
+    currency_name: "Zambian Kwacha",
+    label: "Zambia",
+    phone: "260",
+    symbol_native: "ZK",
+  },
+  {
+    code: "ZM",
+    currency: "ZMW",
     currency_name: "Zambian Kwacha",
     label: "Zambia",
     phone: "260",

@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.RunBehaviourEnum;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -13,6 +14,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -27,6 +29,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -498,5 +501,35 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(Bridge.exists(NewAction.Fields.deletedAt))
                 .count();
+    }
+
+    @Override
+    public Flux<Document> countEditableByPluginTypeForDiagnostics() {
+        MatchOperation editable = match(new Criteria()
+                .andOperator(
+                        notDeleted(),
+                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull()));
+        Aggregation aggregation = newAggregation(
+                        editable, group(NewAction.Fields.pluginType).count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        // The collection name, not the domain class, keeps _id as the stored string.
+        return mongoOperations.aggregate(
+                aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class);
+    }
+
+    @Override
+    public Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics() {
+        String datasourceId = NewAction.Fields.unpublishedAction + ".datasource._id";
+        MatchOperation referencing = match(new Criteria()
+                .andOperator(
+                        notDeleted(),
+                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull(),
+                        where(datasourceId).ne(null)));
+        Aggregation aggregation =
+                newAggregation(referencing, group(datasourceId)).withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        // The collection name, not the domain class, keeps _id as the stored value.
+        return mongoOperations
+                .aggregate(aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class)
+                .collect(HashSet::new, (ids, group) -> ids.add(group.get("_id").toString()));
     }
 }

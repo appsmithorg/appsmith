@@ -228,15 +228,9 @@ public class UserSignupCEImpl implements UserSignupCE {
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
-                    if (formData.containsKey("source")) {
-                        user.setSource(LoginSource.valueOf(formData.getFirst("source")));
-                    }
-                    if (formData.containsKey("state")) {
-                        user.setState(UserState.valueOf(formData.getFirst("state")));
-                    }
-                    if (formData.containsKey("isEnabled")) {
-                        user.setIsEnabled(Boolean.valueOf(formData.getFirst("isEnabled")));
-                    }
+                    // The form supplies the email, the password and the name. The server sets the sign-in source
+                    // and the enabled flag, and it does not read the state from the form.
+                    user.setSource(LoginSource.FORM);
                     return user;
                 })
                 .flatMap(user -> signupAndLogin(user, exchange))
