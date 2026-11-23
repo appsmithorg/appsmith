@@ -43,4 +43,11 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
     Flux<String> getSystemGeneratedUserEmails(String organizationId);
 
     Mono<Integer> updateById(String id, UpdateDefinition updateObj);
+
+    /**
+     * Counts users that are not deleted and not system generated, for support diagnostics.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<Long> countForDiagnostics();
 }

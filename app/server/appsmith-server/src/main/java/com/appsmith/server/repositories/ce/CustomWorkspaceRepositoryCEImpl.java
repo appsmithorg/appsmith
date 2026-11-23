@@ -1,13 +1,18 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +24,9 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomWorkspaceRepositoryCE {
 
     private final SessionUserService sessionUserService;
+
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     @Override
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
@@ -45,5 +53,17 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.equal(Workspace.Fields.organizationId, user.getOrganizationId()))
                 .permission(permission)
                 .all());
+    }
+
+    @Override
+    public Mono<Long> countForDiagnostics() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                        Aggregation.match(notDeleted()), Aggregation.count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        return mongoOperations
+                .aggregate(aggregation, mongoOperations.getCollectionName(Workspace.class), Document.class)
+                .next()
+                .map(document -> ((Number) document.get("count")).longValue())
+                .defaultIfEmpty(0L);
     }
 }
