@@ -139,12 +139,16 @@ describe(
       agHelper.GetNClick(AdminsSettings.supportDiagnosticsClearAll);
 
       cy.get(AdminsSettings.supportDiagnosticsDownload).should("be.disabled");
-      cy.get(AdminsSettings.supportDiagnosticsDownloadReason).should(($el) => {
-        expect($el).to.be.visible;
-        expect($el.text()).to.eq(
-          createMessage(SUPPORT_DIAGNOSTICS.noneSelected),
-        );
-      });
+      // The nine cards push the download panel below the fold of the
+      // fixed-position settings area, so scroll it into view first.
+      cy.get(AdminsSettings.supportDiagnosticsDownloadReason)
+        .scrollIntoView()
+        .should(($el) => {
+          expect($el).to.be.visible;
+          expect($el.text()).to.eq(
+            createMessage(SUPPORT_DIAGNOSTICS.noneSelected),
+          );
+        });
     });
   },
 );
