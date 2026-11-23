@@ -121,6 +121,7 @@ export function SettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const BottomComponent = details?.bottomComponent;
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
   const isMultiOrgEnabled = useIsCloudBillingEnabled();
@@ -352,6 +353,7 @@ export function SettingsForm(
           settings={settingsDetails}
           subCategory={subCategory}
         />
+        {BottomComponent ? <BottomComponent /> : null}
         {isSavable && (
           <SaveAdminSettings
             isOnlyOrganizationConfig={isOnlyOrganizationConfig}
