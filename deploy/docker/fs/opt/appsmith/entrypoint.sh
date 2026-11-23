@@ -75,6 +75,11 @@ compose_redis_url_from_parts() {
   local host="$APPSMITH_REDIS_HOST"
   local port="${APPSMITH_REDIS_PORT:-6379}"
   local password="$explicit_password"
+  # The embedded Redis (localhost) is started with the generated password, so a
+  # localhost host must use it. Remote hosts never receive the generated password.
+  if [[ -z "$password" && ( "$host" == *localhost* || "$host" == *127.0.0.1* ) ]]; then
+    password="${APPSMITH_REDIS_PASSWORD:-}"
+  fi
 
   local scheme="redis"
   if [[ "${APPSMITH_REDIS_TLS:-}" == "true" || "${APPSMITH_REDIS_SSL:-}" == "true" ]]; then

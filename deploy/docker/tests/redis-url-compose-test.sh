@@ -129,6 +129,12 @@ assert_url "external password is used with generated defaults present" \
   APPSMITH_REDIS_URL_EXTERNAL= APPSMITH_REDIS_PASSWORD_EXTERNAL=ext \
   APPSMITH_REDIS_HOST=redis.example.com
 
+# 12. A localhost host falls back to the generated embedded-Redis password.
+assert_url "localhost host uses the generated embedded Redis password" \
+  "redis://:generated@127.0.0.1:6379" \
+  APPSMITH_REDIS_PASSWORD=generated APPSMITH_REDIS_URL_EXTERNAL= \
+  APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=127.0.0.1
+
 if [[ $fail -eq 0 ]]; then
   echo "SUCCEEDED!!!"
   exit 0
