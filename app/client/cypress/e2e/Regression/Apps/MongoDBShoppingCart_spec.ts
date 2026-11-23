@@ -110,6 +110,36 @@ describe(
       });
 
       agHelper.AssertAutoSave();
+
+      // Productnames lives in the shared test Mongo, so a retry of this spec
+      // sees the rows that an earlier attempt inserted. Remove them before the
+      // app loads its data, so test 2 starts from the same rows every time.
+      dataSources.CreateQueryFromOverlay(datasourceName, "", "ResetProducts");
+      dataSources.ValidateNSelectDropdown(
+        "Command",
+        "Find document(s)",
+        "Delete document(s)",
+      );
+      dataSources.EnterJSContext({
+        fieldLabel: "Collection",
+        fieldValue: "Productnames",
+      });
+      agHelper.EnterValue(
+        '{"title": {"$in": ["Atomic habits", "A man called ove"]}}',
+        {
+          propFieldName: "",
+          directInput: false,
+          inputFieldName: "Query",
+        },
+      );
+      dataSources.ValidateNSelectDropdown(
+        "Limit",
+        "Single document",
+        "All matching documents",
+      );
+      agHelper.AssertAutoSave();
+      dataSources.RunQuery();
+
       deployMode.DeployApp(appPage.bookname);
     });
 
