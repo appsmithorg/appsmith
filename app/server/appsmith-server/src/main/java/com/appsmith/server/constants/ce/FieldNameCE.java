@@ -142,6 +142,12 @@ public class FieldNameCE {
     public static final String DEFAULT_PERMISSION_GROUPS = "defaultPermissionGroups";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
     public static final String EVENT_DATA = "eventData";
+    public static final String PARTIAL_RESOURCE_COUNTS = "partialResourceCounts";
+    public static final String ACTION_COUNT = "actionCount";
+    public static final String ACTION_COLLECTION_COUNT = "actionCollectionCount";
+    public static final String DATASOURCE_COUNT = "datasourceCount";
+    public static final String JS_LIB_COUNT = "jsLibCount";
+    public static final String HAS_WIDGETS = "hasWidgets";
     public static final String CLOUD_HOSTED_EXTRA_PROPS = "cloudHostedExtraProps";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";

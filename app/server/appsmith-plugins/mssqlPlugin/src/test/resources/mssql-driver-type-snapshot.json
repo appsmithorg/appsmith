@@ -1,0 +1,20 @@
+{
+  "c_int": 2147483647,
+  "c_bigint": 9223372036854775807,
+  "c_decimal": 12345.67,
+  "c_money": 922337203685477.5807,
+  "c_bit": true,
+  "c_float": 1.5,
+  "c_nvarchar": "héllo wörld",
+  "c_varbinary": "3q2+7w==",
+  "c_uniqueidentifier": "6F9619FF-8B86-D011-B42D-00C04FC964FF",
+  "c_date": "2024-02-29",
+  "c_time": "13:45:30.1234567",
+  "c_datetime": "2024-02-29T13:45:30.123",
+  "c_datetime2": "2024-02-29T13:45:30.123",
+  "c_smalldatetime": "2024-02-29T13:45",
+  "c_datetimeoffset": "2024-02-29T13:45:30.1234567+05:30",
+  "c_xml": "<a b=\"1\">text</a>",
+  "c_rowversion": "0x<rowversion>",
+  "c_sql_variant": 42
+}

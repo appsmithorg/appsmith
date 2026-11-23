@@ -134,11 +134,18 @@ reload-caddy
 run-hurl common/*.hurl
 
 
-new-spec "Spec 8: Frame ancestors value with extra CSP directives"
+new-spec "Spec 8: Frame ancestors value that is not a list of CSP sources uses the default"
 export APPSMITH_ALLOWED_FRAME_ANCESTORS="something.com; script-src something more not allowed"
 node /caddy-reconfigure.mjs
 reload-caddy
-run-hurl --variable frame_ancestors="something.com" \
+run-hurl common/*.hurl
+
+
+new-spec "Spec 8b: Frame ancestors with scheme, wildcard label, port, and path"
+export APPSMITH_ALLOWED_FRAME_ANCESTORS="https://*.something.com:8443/apps/ another.com"
+node /caddy-reconfigure.mjs
+reload-caddy
+run-hurl --variable "frame_ancestors=https://*.something.com:8443/apps/ another.com" \
   common/*.hurl
 
 

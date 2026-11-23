@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>11.2.4.jre11</version>
+            <version>13.6.2.jre11</version>
         </dependency>
 
         <dependency>
@@ -47,6 +47,20 @@
                     <artifactId>testcontainers</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- An in-process Kerberos server (KDC) for the Kerberos login tests. -->
+        <dependency>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-simplekdc</artifactId>
+            <version>2.1.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

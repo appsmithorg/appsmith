@@ -69,6 +69,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on if your team uses it, or use "Forgot password" to set a password.`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on to activate it.`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your account`;
@@ -1861,9 +1865,9 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+  `Uploaded file must be in .PNG or .JPG format`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `.SVG, .PNG, or .JPG only • Max 2MB`;
+  `.PNG or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
   "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
@@ -2125,7 +2129,7 @@ export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 export const GENERAL_SETTINGS_APP_LANGUAGE_LABEL = () => "HTML language";
 export const GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP = () =>
-  "Sets the lang attribute on the published app. This tells browsers what language your content is in and prevents unwanted auto-translation. Use a BCP 47 code (e.g. en, de, fr, ja).";
+  "Sets the lang attribute on the published app. This tells browsers what language your content is in, prevents unwanted auto-translation, and sets the FilePicker upload dialog language when a matching translation is available. Use a BCP 47 code (e.g. en, de, fr, ja).";
 export const GENERAL_SETTINGS_APP_LANGUAGE_INVALID = () =>
   "Enter a valid language code (e.g. en, de, fr-CA)";
 export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";

@@ -86,6 +86,8 @@ const FN_DESCRIPTIONS: Record<Fn, string> = {
     "whole calendar days from the first date to the second (negative when the second is earlier)",
   isoDate:
     "a date as local `YYYY-MM-DD` text, for display or a date column; null for a missing or invalid date",
+  formatDate:
+    'a date as display text from a literal pattern, in UTC unless a literal IANA time zone is given third (`"America/New_York"`). Tokens: `yyyy` `yy` (year), `MMMM` `MMM` `MM` `M` (month: November, Nov, 11, 11), `dd` `d` (day), `EEEE` `EEE` (weekday: Monday, Mon), `HH` `H` (24-hour), `hh` `h` (12-hour), `mm` (minutes), `ss` (seconds), `a` (AM or PM), `z` (zone name such as UTC or EST). Spaces and `, . : / ( ) -` print as they are; quote other text, as in `"MMM d, yyyy \'at\' h:mm a"`. `YYYY-MM-DD` text prints as that calendar day in any zone. Null for a missing or invalid date. Each call costs about 40 microseconds, so for a large table prefer the table column\'s own date format over formatDate inside map',
 };
 
 const OP_DESCRIPTIONS: Record<Op, string> = {
@@ -151,6 +153,7 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
       "startOfDay",
       "diffDays",
       "isoDate",
+      "formatDate",
     ],
   },
   {
@@ -715,6 +718,7 @@ export function renderJsObjectsGuide(): string {
     '| return | `{ "return": expr }` | return a value |',
     '| showAlert | `{ "showAlert": "message", "style": "info" }` | toast; style info (default), success, warning, or error; the message may also be an expression, rendered as text |',
     '| storeValue | `{ "storeValue": "key", "value": expr }` | write `appsmith.store.key` (session only) |',
+    '| log | `{ "log": expr }` | `console.log(value)`. The output is stored in a workflow\'s run history, and goes to the browser console for an app. The end user never sees it. Never log secrets, tokens or personal data |',
     '| resetWidget | `{ "resetWidget": "WidgetName" }` | reset a widget to its default |',
     '| showModal / closeModal | `{ "showModal": "mdlEdit" }`, `{ "closeModal": "mdlEdit" }` | open or close a modal by name |',
     '| navigate | `{ "navigate": "Order Details", "params": { "id": { "table": "tblOrders", "column": "order id" } } }` | go to a page of this app (same window); `params` (optional, up to 10) become URL query parameters, each value an expression |',
@@ -810,7 +814,7 @@ export function renderJsObjectsGuide(): string {
     '| `cond ? x : y` inside a value | `{ "if": cond, "then": x, "else": y }` |',
     '| `parseInt(Input1.text)` / `Number(x)` | `{ "fn": "number", "args": [x] }` (Number semantics: `"12px"` is NaN) |',
     '| `new Date(x)`, `new Date()` | `{ "fn": "date", "args": [x] }`, `{ "fn": "now", "args": [] }`; compare with `gt` / `lte` on the date values |',
-    '| `x.toISOString()` | `{ "fn": "isoString", "args": [x] }` (the only formatting available; `moment` is not) |',
+    '| `x.toISOString()` | `{ "fn": "isoString", "args": [x] }` (an ISO timestamp; for display text use `formatDate`. `moment` is not available) |',
     '| `user?.profile?.name` | `{ "fn": "get", "args": [{ "fn": "get", "args": [user, "profile"] }, "name"] }` |',
     '| `x ?? "Guest"` | `{ "fn": "coalesce", "args": [x, "Guest"] }` |',
     '| `arr.length === 0`, `value == null || value === ""` | `{ "fn": "isEmpty", "args": [arr] }` |',
@@ -832,7 +836,8 @@ export function renderJsObjectsGuide(): string {
     "  statements; `navigate` takes optional `params` for URL query parameters. Opening a new window is not supported.",
     '- `removeValue(key)`: not inside a function; use the `wire_event` action `{ "clearStoreKey": { "key": "…" } }`.',
     "- `clearStore`, `download`, `copyToClipboard`: not available through MCP; write the function in the editor.",
-    "- `setTimeout`, `setInterval`, `fetch`, `console.log`, regular expressions, `moment`, `_` (lodash), string",
+    "- `console.log`: use the `log` statement.",
+    "- `setTimeout`, `setInterval`, `fetch`, regular expressions, `moment`, `_` (lodash), string",
     "  formatting beyond the functions above, and any member access not listed: write that function in the",
     "  Appsmith editor. An event can still `call` it, and `read_js_object` lists it as editor-authored.",
     "",

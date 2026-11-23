@@ -4639,22 +4639,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kwsites/file-exists@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@kwsites/file-exists@npm:1.1.1"
-  dependencies:
-    debug: ^4.1.1
-  checksum: 4ff945de7293285133aeae759caddc71e73c4a44a12fac710fdd4f574cce2671a3f89d8165fdb03d383cfc97f3f96f677d8de3c95133da3d0e12a123a23109fe
-  languageName: node
-  linkType: hard
-
-"@kwsites/promise-deferred@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@kwsites/promise-deferred@npm:1.1.1"
-  checksum: 07455477a0123d9a38afb503739eeff2c5424afa8d3dbdcc7f9502f13604488a4b1d9742fc7288832a52a6422cf1e1c0a1d51f69a39052f14d27c9a0420b6629
-  languageName: node
-  linkType: hard
-
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -9464,22 +9448,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simple-git/args-pathspec@npm:1.0.4, @simple-git/args-pathspec@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "@simple-git/args-pathspec@npm:1.0.4"
-  checksum: 9d46cc712a7edd138a792be083e77c4843d8424165d02fddee2cdbb69d42b824f0a93fec5d0a37b2b78f6199f69e6686271fd9a5ae6dcb06df92588ff50ae659
-  languageName: node
-  linkType: hard
-
-"@simple-git/argv-parser@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@simple-git/argv-parser@npm:2.0.1"
-  dependencies:
-    "@simple-git/args-pathspec": ^1.0.4
-  checksum: 713fb4ca4b5385d054f4e0dd116dd6afdc4f5ed328ae8144e9bbd9dac754d8e421a529b90228588a968ad1ba65a23b440adcf23d33a31936c0d64e7103d02379
-  languageName: node
-  linkType: hard
-
 "@sinclair/typebox@npm:^0.23.3":
   version: 0.23.5
   resolution: "@sinclair/typebox@npm:0.23.5"
@@ -12903,6 +12871,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/locales@npm:1.22.0":
+  version: 1.22.0
+  resolution: "@uppy/locales@npm:1.22.0"
+  checksum: e481243f663130defcc1ee3c3385500ee210e5ced9b29192e4a3de94bb9c1e39287ce923c88347f296f0404d7148f3673e3f5cf0e21c229bf8c397fdf6ad38e7
+  languageName: node
+  linkType: hard
+
 "@uppy/onedrive@npm:^1.1.22":
   version: 1.1.22
   resolution: "@uppy/onedrive@npm:1.1.22"
@@ -13821,7 +13796,6 @@ __metadata:
     mongodb-connection-string-url: ^3.0.2
     nodemailer: ^10.0.9
     readline-sync: 1.4.10
-    simple-git: ^3.32.3
     supertest: ^6.3.3
     ts-jest: 29.1.0
     typescript: ^5.5.4
@@ -13943,6 +13917,7 @@ __metadata:
     "@uppy/dashboard": ^1.16.0
     "@uppy/google-drive": ^1.5.22
     "@uppy/image-editor": ^0.2.4
+    "@uppy/locales": 1.22.0
     "@uppy/onedrive": ^1.1.22
     "@uppy/react": ^1.11.2
     "@uppy/url": ^1.5.16
@@ -32196,19 +32171,6 @@ __metadata:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: e4132fd27cf7af230d853fa45c1b8ce900cb430dd0a3c6d3829649fe4f2b26574c803698076c4006450efb0fad2ba8c5455fbb5755d4b0a5ec42d4f12b31d27e
-  languageName: node
-  linkType: hard
-
-"simple-git@npm:4.0.1":
-  version: 4.0.1
-  resolution: "simple-git@npm:4.0.1"
-  dependencies:
-    "@kwsites/file-exists": ^1.1.1
-    "@kwsites/promise-deferred": ^1.1.1
-    "@simple-git/args-pathspec": 1.0.4
-    "@simple-git/argv-parser": 2.0.0
-    debug: ^4.4.0
-  checksum: a8e78513c1788d1d5b8940c618dc07b84de381e7c3a8c7796119febdb8ee1e3c500c6ecb8675edcbb484eb9c19ef4264558453b8d81876b76a9a346286ce8a4c
   languageName: node
   linkType: hard
 

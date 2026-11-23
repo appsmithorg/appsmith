@@ -210,7 +210,7 @@ export default [
       },
       {
         helpText:
-          "Bind the Table.pageNo property in your API and call it onPageChange",
+          "Bind the Table.pageNo property in your API and call it onPageChange. Turning this on turns off searching, filtering, sorting and adding a row. They stay off when you turn it off.",
         propertyName: "infiniteScrollEnabled",
         label: "Infinite scroll",
         controlType: "SWITCH",

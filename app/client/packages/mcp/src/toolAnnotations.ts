@@ -96,10 +96,13 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   create_redis_query: WRITE_IDEMPOTENT,
   create_ai_query: WRITE_IDEMPOTENT,
   create_s3_query: WRITE_IDEMPOTENT,
+  create_smtp_query: WRITE_IDEMPOTENT,
   create_graphql_query: WRITE_IDEMPOTENT,
   create_sheets_query: WRITE_IDEMPOTENT,
   update_action: WRITE,
   duplicate_action: WRITE,
+  // Idempotent by target page + name, like the create_*_query tools.
+  copy_action: WRITE_IDEMPOTENT,
   create_js_object: WRITE,
   update_js_object: WRITE,
   // Creating an agent branch pushes the ref to the customer's remote.

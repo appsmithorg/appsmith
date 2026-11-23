@@ -35,6 +35,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.meta.validations.FileNameValidator;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -544,6 +545,14 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 }
                             }
                             pageName = maxCount != 0 ? pageName + maxCount : pageName;
+                            if (!FileNameValidator.isValidFileName(pageName)) {
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GENERIC_BAD_REQUEST,
+                                        "The page name is taken from the table or sheet name, "
+                                                + "and that name is not a valid page name. "
+                                                + FileNameValidator.PAGE_NAME_RULE
+                                                + " Rename the table or sheet and try again."));
+                            }
                             PageDTO page = new PageDTO();
                             page.setApplicationId(applicationId);
                             page.setName(pageName);

@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.dtos.ApplicationDiagnosticsCounts;
 import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -97,4 +98,11 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Flux<Application> findByUniqueAppSlugRefName(String uniqueAppName, String refName, AclPermission aclPermission);
 
     Flux<Application> findByUniqueAppName(String uniqueAppName, AclPermission aclPermission);
+
+    /**
+     * Counts applications for support diagnostics in one aggregation. Empty data gives all zeros.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<ApplicationDiagnosticsCounts> countForDiagnostics();
 }

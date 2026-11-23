@@ -19,7 +19,7 @@ jest.mock("utils/hooks/useFeatureFlag", () => ({ useFeatureFlag: jest.fn() }));
 beforeEach(() => {
   jest
     .mocked(useFeatureFlag)
-    .mockImplementation((flag) => flag === FEATURE_FLAG.license_anvil_enabled);
+    .mockImplementation((flag) => flag === FEATURE_FLAG.license_gac_enabled);
   jest.mocked(getIsAiAgentFlowEnabled).mockReturnValue(true);
 });
 
@@ -171,7 +171,7 @@ describe("ApplicationsSection — responsive license gate", () => {
     jest
       .mocked(useFeatureFlag)
       .mockImplementation(
-        (flag) => flag === FEATURE_FLAG.license_anvil_enabled && licensed,
+        (flag) => flag === FEATURE_FLAG.license_gac_enabled && licensed,
       );
     jest.mocked(getIsAiAgentFlowEnabled).mockReturnValue(aiFlow);
     renderApplicationsSection([anvilApplication, classicApplication]);
