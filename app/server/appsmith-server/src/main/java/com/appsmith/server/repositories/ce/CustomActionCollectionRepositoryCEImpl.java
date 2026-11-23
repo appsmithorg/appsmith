@@ -3,18 +3,30 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
+
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     @Override
     @Deprecated
@@ -168,5 +180,22 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findByApplicationId(String applicationId) {
         final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
         return queryBuilder().criteria(q).all();
+    }
+
+    @Override
+    public Mono<Long> countEditableForDiagnostics() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                        Aggregation.match(new Criteria()
+                                .andOperator(
+                                        notDeleted(),
+                                        where(ActionCollection.Fields.unpublishedCollection_deletedAt)
+                                                .isNull())),
+                        Aggregation.count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        return mongoOperations
+                .aggregate(aggregation, mongoOperations.getCollectionName(ActionCollection.class), Document.class)
+                .next()
+                .map(document -> ((Number) document.get("count")).longValue())
+                .defaultIfEmpty(0L);
     }
 }

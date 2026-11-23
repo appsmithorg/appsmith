@@ -4,7 +4,6 @@ import com.appsmith.server.diagnostics.dtos.DiagnosticsSectionId;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Collects one support diagnostics section. Implementations are Spring beans, one per section. Two collectors for the
@@ -13,9 +12,9 @@ import java.util.Set;
  * <p>Every implementation must follow these rules:
  *
  * <ul>
- *   <li>Return aggregates only: counts, and values from fixed lists. The redaction guard rejects any key that
- *       {@link #allowedKeys()} does not declare.
- *   <li>Never throw from {@link #collect()}. Signal an error through the returned {@link Mono}.
+ *   <li>Return aggregates only: counts, and values from fixed lists. The redaction guard rejects any key or value
+ *       that {@link #schema()} does not declare.
+ *   <li>Never throw from {@link #collect(String)}. Signal an error through the returned {@link Mono}.
  *   <li>Never put a connection string, URL, hostname, or customer data in an exception message.
  *   <li>Stay fully reactive. Do not call {@code .block()}. Use bounded, indexed count queries. The service cancels a
  *       collection after 10 seconds, but cancellation cannot interrupt blocking work.
@@ -25,8 +24,25 @@ public interface DiagnosticsCollector {
 
     DiagnosticsSectionId sectionId();
 
-    /** Top-level keys this collector may return. The redaction guard rejects any other key. */
-    Set<String> allowedKeys();
+    /**
+     * Whether the license covers this section. When it returns {@code false}, the service reports the section as not
+     * licensed and does not call {@link #collect(String)}. An empty {@link Mono} means the license state is unknown.
+     */
+    default Mono<Boolean> isLicensed(String organizationId) {
+        return Mono.just(true);
+    }
 
-    Mono<Map<String, Object>> collect();
+    /** The keys this collector may return and the kind of value of each. The redaction guard enforces it. */
+    DiagnosticsSchema schema();
+
+    /**
+     * Collects the section data, keyed as {@link #schema()} declares.
+     *
+     * <ul>
+     *   <li>Every schema key should be present in the result.
+     *   <li>A {@code null} value fails the redaction guard.
+     *   <li>The {@code DiagnosticsValues} sentinels are accepted under any key.
+     * </ul>
+     */
+    Mono<Map<String, Object>> collect(String organizationId);
 }

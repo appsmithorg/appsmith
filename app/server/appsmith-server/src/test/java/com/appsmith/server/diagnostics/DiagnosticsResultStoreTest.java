@@ -191,6 +191,27 @@ class DiagnosticsResultStoreTest {
     }
 
     @Test
+    void should_deleteResultKey_when_deleteIsCalled() {
+        // Given
+        when(redisOperations.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.delete("support_diagnostics:org1:INSTANCE")).thenReturn(Mono.just(true));
+
+        // When / Then
+        StepVerifier.create(store.delete("org1", DiagnosticsSectionId.INSTANCE)).verifyComplete();
+        verify(valueOperations).delete("support_diagnostics:org1:INSTANCE");
+    }
+
+    @Test
+    void should_completeWithoutError_when_redisFailsOnDelete() {
+        // Given
+        when(redisOperations.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.delete(anyString())).thenReturn(Mono.error(new RedisConnectionFailureException("down")));
+
+        // When / Then
+        StepVerifier.create(store.delete("org1", DiagnosticsSectionId.INSTANCE)).verifyComplete();
+    }
+
+    @Test
     void should_completeEmptyAfterTwoSeconds_when_redisGetNeverAnswers() {
         // Given
         when(redisOperations.opsForValue()).thenReturn(valueOperations);
