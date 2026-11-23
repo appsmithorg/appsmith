@@ -359,6 +359,27 @@ describe("SupportDiagnosticsPage", () => {
       const live = screen.getByTestId("t--support-diagnostics-progress");
 
       expect(live).toHaveAttribute("aria-live", "polite");
+      // IDENTITY is UNKNOWN and AI_MCP is UNAVAILABLE in the default list.
+      expect(live).toHaveTextContent(
+        /^Collection finished\. 2 sections could not be collected\.$/,
+      );
+      expect(live).not.toHaveTextContent("All sections collected.");
+    });
+
+    it("should_countUnknownAsNotCollected_when_progressFinishes", async () => {
+      listWith(
+        SECTION_IDS.map((id) =>
+          id === "HEALTH"
+            ? section("HEALTH", "UNKNOWN")
+            : section(id, "OK", { ok: true }),
+        ),
+      );
+      renderPage();
+
+      await waitForReady();
+
+      const live = screen.getByTestId("t--support-diagnostics-progress");
+
       expect(live).toHaveTextContent(
         /^Collection finished\. 1 section could not be collected\.$/,
       );
@@ -366,7 +387,15 @@ describe("SupportDiagnosticsPage", () => {
     });
 
     it("should_announceAllCollected_when_noSectionFailed", async () => {
-      listWith(replaceSection(section("AI_MCP", "OK", { enabled: false })));
+      // NOT_SUPPORTED and NOT_LICENSED (in the default list) are expected
+      // outcomes, not failures.
+      listWith(
+        defaultSections().map((s) =>
+          s.sectionId === "AI_MCP" || s.sectionId === "IDENTITY"
+            ? section(s.sectionId, "OK", { ok: true })
+            : s,
+        ),
+      );
       renderPage();
 
       await waitForReady();

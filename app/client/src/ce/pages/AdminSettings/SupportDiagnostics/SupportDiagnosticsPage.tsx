@@ -57,9 +57,19 @@ function isPending(card: CardState): boolean {
   );
 }
 
+/**
+ * True when the card ended without a usable result: a failed or busy
+ * request, or an `UNAVAILABLE` or `UNKNOWN` status. `NOT_SUPPORTED` and
+ * `NOT_LICENSED` are expected outcomes, not failures.
+ */
 function isCollectionFailure(card: CardState): boolean {
+  const { status } = card.result;
+
   return (
-    card.requestFailed || card.busy || card.result.status === "UNAVAILABLE"
+    card.requestFailed ||
+    card.busy ||
+    status === "UNAVAILABLE" ||
+    status === "UNKNOWN"
   );
 }
 
