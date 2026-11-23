@@ -43,8 +43,9 @@ tlog "Running as: $(id)"
 # Precedence and rules:
 #   - An explicitly set APPSMITH_REDIS_URL always wins and is left untouched, so
 #     existing deployments keep working unchanged.
-#   - Composition only happens when APPSMITH_REDIS_HOST is set and
-#     APPSMITH_REDIS_URL is empty.
+#   - Composition only happens when APPSMITH_REDIS_HOST is set and no
+#     APPSMITH_REDIS_URL was supplied from outside. The localhost URL and generated
+#     password written to docker.env for the embedded Redis are ignored then.
 #   - APPSMITH_REDIS_PORT defaults to 6379 when not provided.
 #   - APPSMITH_REDIS_PASSWORD is optional; when empty, a passwordless URL is built.
 #   - APPSMITH_REDIS_TLS=true (or APPSMITH_REDIS_SSL=true) selects the `rediss://`
@@ -54,8 +55,15 @@ tlog "Running as: $(id)"
 # RTS/appsmithctl tooling, the MCP process, and this script's own embedded-vs-external
 # Redis detection) sees a single, consistent URL.
 compose_redis_url_from_parts() {
+  # Only values supplied from outside count as explicit. The URL and password that
+  # docker.env generates for the embedded Redis are defaults and must not block, or
+  # leak into, a host-based configuration. init_env_file records the external values
+  # before docker.env is loaded; fall back to the current values when it did not run.
+  local explicit_url="${APPSMITH_REDIS_URL_EXTERNAL-${APPSMITH_REDIS_URL:-}}"
+  local explicit_password="${APPSMITH_REDIS_PASSWORD_EXTERNAL-${APPSMITH_REDIS_PASSWORD:-}}"
+
   # Nothing to do if an explicit URL is already provided.
-  if [[ -n "${APPSMITH_REDIS_URL:-}" ]]; then
+  if [[ -n "$explicit_url" ]]; then
     return 0
   fi
 
@@ -66,7 +74,7 @@ compose_redis_url_from_parts() {
 
   local host="$APPSMITH_REDIS_HOST"
   local port="${APPSMITH_REDIS_PORT:-6379}"
-  local password="${APPSMITH_REDIS_PASSWORD:-}"
+  local password="$explicit_password"
 
   local scheme="redis"
   if [[ "${APPSMITH_REDIS_TLS:-}" == "true" || "${APPSMITH_REDIS_SSL:-}" == "true" ]]; then
@@ -137,6 +145,11 @@ init_env_file() {
 
   # Preserve externally supplied values verbatim, including embedded newlines.
   (umask 077; /usr/bin/python3 /opt/appsmith/env-file.py snapshot "$TMP/pre-define.json")
+
+  # Remember which Redis values were supplied from outside, before docker.env
+  # (with its generated embedded-Redis defaults) is loaded.
+  APPSMITH_REDIS_URL_EXTERNAL="${APPSMITH_REDIS_URL:-}"
+  APPSMITH_REDIS_PASSWORD_EXTERNAL="${APPSMITH_REDIS_PASSWORD:-}"
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then

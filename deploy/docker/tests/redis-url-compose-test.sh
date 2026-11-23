@@ -47,7 +47,8 @@ assert_url() {
 
   # Clear all inputs, then apply only what the case specifies.
   unset APPSMITH_REDIS_URL APPSMITH_REDIS_HOST APPSMITH_REDIS_PORT \
-        APPSMITH_REDIS_PASSWORD APPSMITH_REDIS_TLS APPSMITH_REDIS_SSL
+        APPSMITH_REDIS_PASSWORD APPSMITH_REDIS_TLS APPSMITH_REDIS_SSL \
+        APPSMITH_REDIS_URL_EXTERNAL APPSMITH_REDIS_PASSWORD_EXTERNAL
 
   local kv
   for kv in "$@"; do
@@ -112,6 +113,21 @@ assert_url "no host and no URL leaves APPSMITH_REDIS_URL empty" \
 assert_url "special characters in password are URL-encoded" \
   "redis://:p%40ss%2Fwo%3Ard%23@redis.example.com:6379" \
   APPSMITH_REDIS_HOST=redis.example.com 'APPSMITH_REDIS_PASSWORD=p@ss/wo:rd#'
+
+# 10. The generated embedded-Redis defaults from docker.env (URL + password) must not
+#     block composition nor leak their password into the external URL.
+assert_url "generated docker.env defaults are ignored when a host is set" \
+  "redis://redis.example.com:6379" \
+  APPSMITH_REDIS_URL=redis://:generated@127.0.0.1:6379 APPSMITH_REDIS_PASSWORD=generated \
+  APPSMITH_REDIS_URL_EXTERNAL= APPSMITH_REDIS_PASSWORD_EXTERNAL= \
+  APPSMITH_REDIS_HOST=redis.example.com
+
+# 11. An externally supplied password is used while the generated URL is ignored.
+assert_url "external password is used with generated defaults present" \
+  "redis://:ext@redis.example.com:6379" \
+  APPSMITH_REDIS_URL=redis://:generated@127.0.0.1:6379 APPSMITH_REDIS_PASSWORD=ext \
+  APPSMITH_REDIS_URL_EXTERNAL= APPSMITH_REDIS_PASSWORD_EXTERNAL=ext \
+  APPSMITH_REDIS_HOST=redis.example.com
 
 if [[ $fail -eq 0 ]]; then
   echo "SUCCEEDED!!!"

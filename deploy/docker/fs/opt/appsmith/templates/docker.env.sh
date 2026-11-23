@@ -75,7 +75,10 @@ APPSMITH_REDIS_PASSWORD=$REDIS_PASSWORD
 #   APPSMITH_REDIS_PORT=6379          # optional, defaults to 6379
 #   APPSMITH_REDIS_PASSWORD=<password> # optional; omit for a passwordless Redis
 #   APPSMITH_REDIS_TLS=true           # optional; set to use the rediss:// (TLS) scheme
-# An explicitly set APPSMITH_REDIS_URL always takes precedence over these.
+# Set these as container environment variables. The generated APPSMITH_REDIS_URL and
+# APPSMITH_REDIS_PASSWORD above are defaults for the embedded Redis and are ignored when
+# APPSMITH_REDIS_HOST is set. An APPSMITH_REDIS_URL supplied as container environment
+# variable always takes precedence over these.
 
 APPSMITH_ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
 APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT

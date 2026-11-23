@@ -724,8 +724,12 @@ externalSecrets:
   # @section -- External Secrets
   secretStoreRef:
     ## @param externalSecrets.secretStoreRef.name Name of the SecretStore/ClusterSecretStore
+    # -- Name of the SecretStore/ClusterSecretStore
+    # @section -- External Secrets
     name: secretstore
     ## @param externalSecrets.secretStoreRef.kind Kind of the store (SecretStore or ClusterSecretStore)
+    # -- Kind of the store (SecretStore or ClusterSecretStore)
+    # @section -- External Secrets
     kind: SecretStore
   ## @param externalSecrets.additionalSecrets Additional ExternalSecret resources with optional per-key mapping
   # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom.
