@@ -64,6 +64,8 @@ export type Setting = ControlType & {
   helpText?: string;
   helpTextLink?: string;
   label?: React.ReactNode;
+  // Overrides the form-group label size. Defaults to body-m.
+  labelKind?: "body-m" | "heading-m";
   name?: string;
   placeholder?: string;
   validate?: (value: string, setting?: Setting) => string | void;
@@ -126,6 +128,7 @@ export interface Category {
   categoryType: string;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
+  bottomComponent?: React.ElementType;
 }
 
 export const SettingCategories = {
@@ -145,7 +148,7 @@ export const SettingCategories = {
   CONFIGURATION: "configuration",
   MCP_KEYS: "mcp-keys",
   MCP_SERVER: "mcp-server",
-  VERSION: "version",
+  ADMIN_CENTRAL: "admin-central",
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",
   AI: "ai",
@@ -174,4 +177,6 @@ export interface AdminConfigType {
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
+  // Rendered under the category fields. Enterprise uses this to add sections to a Community page.
+  bottomComponent?: React.ElementType;
 }
