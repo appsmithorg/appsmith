@@ -5,19 +5,26 @@
 export region="ap-south-1"
 export cluster_name="uatx-cluster"
 
+# Previews of an edition run in namespaces named <edition><PR number>, for example ee1234.
+case "${EDITION:-}" in
+  ce | ee) ;;
+  *)
+    echo "EDITION must be ce or ee, got '${EDITION:-}'" >&2
+    exit 1
+    ;;
+esac
+
 # Update kubeconfig
 aws eks update-kubeconfig --region "$region" --name "$cluster_name"
 
-echo "Set the default namespace"
-kubectl config set-context --current --namespace=default
+### List the preview namespaces of this edition
+if ! namespaces="$(kubectl get namespaces --request-timeout=60s --no-headers -o custom-columns=NAME:.metadata.name)"; then
+  echo "Could not list namespaces" >&2
+  exit 1
+fi
+preview_namespaces="$(grep -E "^${EDITION}[0-9]+\$" <<< "$namespaces")"
 
-echo "Getting the pods"
-kubectl get pods
-
-### Get list of helm charts
-deployed_charts="$(helm ls -A --filter 'ce[0-9]+' --output json | jq -r '.[].namespace')"
-
-for i in $deployed_charts
+for i in $preview_namespaces
   do 
     pr=$(echo $i | cut -c 3-);
     pr_state="$(gh pr view "$pr" --json state --jq .state)"
