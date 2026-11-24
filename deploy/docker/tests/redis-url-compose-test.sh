@@ -142,9 +142,15 @@ assert_url "localhost hostname uses the generated embedded Redis password" \
   APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=localhost
 
 # 14. Bracketed IPv6 hosts are accepted as-is.
-assert_url "bracketed IPv6 host is accepted" \
-  "redis://[::1]:6379" \
-  APPSMITH_REDIS_HOST='[::1]'
+assert_url "remote bracketed IPv6 host is accepted" \
+  "redis://[2001:db8::1]:6379" \
+  APPSMITH_REDIS_HOST='[2001:db8::1]'
+
+# 14b. The IPv6 loopback is local and uses the generated embedded Redis password.
+assert_url "[::1] uses the generated embedded Redis password" \
+  "redis://:generated@[::1]:6379" \
+  APPSMITH_REDIS_PASSWORD=generated APPSMITH_REDIS_URL_EXTERNAL= \
+  APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST='[::1]'
 
 # 15. Hosts that would corrupt the URL authority are rejected.
 unset APPSMITH_REDIS_URL APPSMITH_REDIS_PASSWORD APPSMITH_REDIS_URL_EXTERNAL APPSMITH_REDIS_PASSWORD_EXTERNAL

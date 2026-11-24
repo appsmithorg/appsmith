@@ -83,7 +83,7 @@ compose_redis_url_from_parts() {
   local password="$explicit_password"
   # The embedded Redis (localhost) is started with the generated password, so a
   # localhost host must use it. Remote hosts never receive the generated password.
-  if [[ -z "$password" && ( "$host" == *localhost* || "$host" == *127.0.0.1* ) ]]; then
+  if [[ -z "$password" && ( "$host" == *localhost* || "$host" == *127.0.0.1* || "$host" == *"[::1]"* ) ]]; then
     password="${APPSMITH_REDIS_PASSWORD:-}"
   fi
 
@@ -588,7 +588,7 @@ configure_supervisord() {
     if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
-    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* || $APPSMITH_REDIS_URL == *"[::1]"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
       # Write Redis server config so the password is not visible in the process list.
