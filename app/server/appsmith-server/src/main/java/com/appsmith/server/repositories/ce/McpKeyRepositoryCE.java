@@ -2,10 +2,11 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.McpKey;
 import com.appsmith.server.repositories.BaseRepository;
+import com.appsmith.server.repositories.CustomMcpKeyRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface McpKeyRepositoryCE extends BaseRepository<McpKey, String> {
+public interface McpKeyRepositoryCE extends BaseRepository<McpKey, String>, CustomMcpKeyRepository {
 
     Mono<McpKey> findByIdAndUserIdAndRevokedAtIsNull(String id, String userId);
 
