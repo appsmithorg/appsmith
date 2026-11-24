@@ -82,12 +82,12 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
         }
 
         // Constant-time comparison so a caller cannot probe the secret byte-by-byte via response timing.
-        boolean digestEquals = MessageDigest.isEqual(
+        // Do not add String.equals as a fallback. It stops at the first differing character, so it would undo
+        // this protection, and it accepts nothing that this comparison rejects.
+        boolean equal = MessageDigest.isEqual(
                 secret.getBytes(StandardCharsets.UTF_8), provided.getBytes(StandardCharsets.UTF_8));
 
-        boolean compareEquals = secret.equals(provided);
-
-        return digestEquals || compareEquals ? InternalMarkerCheck.VALID : InternalMarkerCheck.MARKER_MISMATCH;
+        return equal ? InternalMarkerCheck.VALID : InternalMarkerCheck.MARKER_MISMATCH;
     }
 
     enum InternalMarkerCheck {

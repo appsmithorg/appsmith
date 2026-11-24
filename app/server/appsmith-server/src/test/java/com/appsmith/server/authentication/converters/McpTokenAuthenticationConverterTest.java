@@ -75,6 +75,19 @@ class McpTokenAuthenticationConverterTest {
     }
 
     @Test
+    void convert_rejectsMcpBearer_whenInternalMarkerDiffersOnlyInLengthOrLastCharacter() {
+        // The marker must match the whole secret. A prefix, a longer value, or a value of the same length that
+        // differs only in its last character is refused.
+        String sameLengthWrong = SECRET.substring(0, SECRET.length() - 1) + "X";
+        StepVerifier.create(converter.convert(exchangeWithBearer("mcp_token", sameLengthWrong)))
+                .verifyComplete();
+        StepVerifier.create(converter.convert(exchangeWithBearer("mcp_token", SECRET.substring(0, 5))))
+                .verifyComplete();
+        StepVerifier.create(converter.convert(exchangeWithBearer("mcp_token", SECRET + "x")))
+                .verifyComplete();
+    }
+
+    @Test
     void convert_failsClosed_whenInternalSecretUnset() {
         // Empty/unset APPSMITH_MCP_INTERNAL_SECRET must not authenticate any mcp_ token, even if the caller sends a
         // matching empty marker (mirrors the APPSMITH_INTERNAL_PASSWORD empty-string guard, GHSA-xfc5-796c-7hr9).
