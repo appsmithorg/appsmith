@@ -527,6 +527,57 @@ public class MssqlDriverBehaviourTest {
                                 "ran longer than its timeout of 3000 ms")));
     }
 
+    // AIP-FD-39: the cancel sent at the deadline can reach SQL Server late. So the connection of a query that was
+    // cancelled must be removed from the pool and closed, never lent to another query. The query records its own
+    // session, and the test checks on SQL Server that this session ends.
+    @ParameterizedTest(name = "prepared statement {0}")
+    @ValueSource(booleans = {true, false})
+    void should_closeTheConnection_when_theQueryIsCancelledAtItsTimeout(boolean preparedStatement) {
+        // Given
+        run(
+                "IF OBJECT_ID('driver_cancelled_sessions') IS NULL"
+                        + " CREATE TABLE driver_cancelled_sessions (spid int, login_time datetime);"
+                        + " DELETE FROM driver_cancelled_sessions",
+                false);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // The wait happens inside a read of the later results, so only the timer's cancel can end it.
+        actionConfiguration.setBody("INSERT INTO driver_cancelled_sessions"
+                + " SELECT session_id, login_time FROM sys.dm_exec_sessions WHERE session_id = @@SPID;"
+                + " RAISERROR('flush', 0, 1) WITH NOWAIT; WAITFOR DELAY '00:00:20'");
+        actionConfiguration.setTimeoutInMillisecond("3000");
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+        // When
+        StepVerifier.create(mssqlPluginExecutor.executeParameterized(
+                        pool, new ExecuteActionDTO(), createDatasourceConfiguration(container), actionConfiguration))
+                // The query must fail because of its timeout, not because the connection broke for another reason.
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isFalse();
+                    assertThat(String.valueOf(result.getBody())).contains("ran longer than its timeout of 3000 ms");
+                })
+                .expectComplete()
+                .verify(Duration.ofSeconds(30));
+
+        // Then
+        assertThat(firstValue(run("SELECT COUNT(*) AS n FROM driver_cancelled_sessions", false), "n"))
+                .as("the cancelled query recorded its session")
+                .isEqualTo(1);
+        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> assertThat(firstValue(
+                        run(
+                                "SELECT COUNT(*) AS n FROM sys.dm_exec_sessions s"
+                                        + " JOIN driver_cancelled_sessions c"
+                                        + " ON s.session_id = c.spid AND s.login_time = c.login_time",
+                                false),
+                        "n"))
+                .as("sessions of the cancelled query still open on SQL Server")
+                .isZero());
+    }
+
+    private static int firstValue(ActionExecutionResult result, String column) {
+        return ((ArrayNode) result.getBody()).get(0).get(column).asInt();
+    }
+
     // AIP-FD-38: a query that runs past its timeout must not hold a pooled connection and a worker thread. The
     // reactive timeout cannot interrupt the blocking JDBC call, so before the fix such a query ran on: the endless
     // ones forever, because the plugin reads the later results to find errors (APP-16536).
@@ -562,11 +613,31 @@ public class MssqlDriverBehaviourTest {
                     .verify(Duration.ofSeconds(30));
             assertThat(took).isLessThan(Duration.ofSeconds(10));
 
-            // The connection goes back to the pool shortly after the timeout.
+            // The connection goes back to the pool, or is removed from it, shortly after the timeout.
             await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(
                             connectionPool.getHikariPoolMXBean().getActiveConnections())
                     .as("connections the query still holds after its timeout")
                     .isZero());
+
+            // AIP-FD-39: the cancel sent at the deadline must not stop the next query on the pool.
+            ActionConfiguration nextQuery = new ActionConfiguration();
+            nextQuery.setBody("WAITFOR DELAY '00:00:01'; SELECT 42 AS answer");
+            nextQuery.setTimeoutInMillisecond("10000");
+            nextQuery.setPluginSpecifiedTemplates(
+                    List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+            StepVerifier.create(mssqlPluginExecutor.executeParameterized(
+                            connectionPool,
+                            new ExecuteActionDTO(),
+                            createDatasourceConfiguration(container),
+                            nextQuery))
+                    .assertNext(result -> {
+                        assertThat(result.getIsExecutionSuccess())
+                                .as("the next query on the pool: %s", result.getBody())
+                                .isTrue();
+                        assertThat(String.valueOf(result.getBody())).contains("42");
+                    })
+                    .expectComplete()
+                    .verify(Duration.ofSeconds(30));
         } finally {
             connectionPool.close();
         }

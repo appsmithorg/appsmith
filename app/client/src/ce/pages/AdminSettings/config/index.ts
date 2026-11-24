@@ -5,7 +5,7 @@ import { config as GeneralConfig } from "ee/pages/AdminSettings/config/general";
 import { config as EmailConfig } from "pages/AdminSettings/config/email";
 import { config as InstanceSettings } from "ee/pages/AdminSettings/config/instanceSettings";
 import { config as Configuration } from "ee/pages/AdminSettings/config/configuration";
-import { config as VersionConfig } from "pages/AdminSettings/config/version";
+import { config as AdminCentralConfig } from "ee/pages/AdminSettings/config/version";
 import { config as UserSettings } from "ee/pages/AdminSettings/config/userSettings";
 import { config as Authentication } from "ee/pages/AdminSettings/config/authentication";
 import { config as BrandingConfig } from "ee/pages/AdminSettings/config/branding";
@@ -62,13 +62,14 @@ if (isSuperUser) ConfigFactory.register(ProvisioningConfig);
 if (isSuperUser) ConfigFactory.register(UserListing);
 
 // Instance categories
+if (isSuperUser && !isMultiOrgEnabled)
+  ConfigFactory.register(AdminCentralConfig);
+
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
 
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(Configuration);
 
 if (isSuperUser && !isMultiOrgEnabled)
   ConfigFactory.register(getMcpServerConfig(isMultiOrgEnabled));
-
-if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
 
 export default ConfigFactory;
