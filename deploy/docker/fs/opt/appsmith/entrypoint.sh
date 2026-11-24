@@ -73,6 +73,12 @@ compose_redis_url_from_parts() {
   fi
 
   local host="$APPSMITH_REDIS_HOST"
+  # Only a plain hostname, IPv4 address or bracketed IPv6 address is accepted. Anything
+  # else (e.g. "user@host" or a host with a path) would corrupt the URL authority.
+  if ! [[ "$host" =~ ^[A-Za-z0-9._-]+$ || "$host" =~ ^\[[0-9A-Fa-f:.]+\]$ ]]; then
+    tlog "ERROR: APPSMITH_REDIS_HOST must be a plain hostname, IPv4 address or bracketed IPv6 address (e.g. [::1])"
+    return 1
+  fi
   local port="${APPSMITH_REDIS_PORT:-6379}"
   local password="$explicit_password"
   # The embedded Redis (localhost) is started with the generated password, so a

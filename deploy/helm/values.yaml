@@ -807,7 +807,7 @@ externalSecrets:
   #           property: password
   additionalSecrets: []
   ## @param externalSecrets.remoteNameSecret [Deprecated] Renamed to externalSecrets.remoteSecretName
-  # @schema description: Deprecated alias; use externalSecrets.remoteSecretName instead. Kept for backward compatibility and ignored by the templates.
+  # @schema description: Deprecated alias for externalSecrets.remoteSecretName. Used only when remoteSecretName is empty.
   # -- [Deprecated] Use externalSecrets.remoteSecretName instead
   # @section -- External Secrets
   remoteNameSecret: ""

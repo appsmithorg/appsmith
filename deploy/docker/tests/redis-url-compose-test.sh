@@ -135,6 +135,29 @@ assert_url "localhost host uses the generated embedded Redis password" \
   APPSMITH_REDIS_PASSWORD=generated APPSMITH_REDIS_URL_EXTERNAL= \
   APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=127.0.0.1
 
+# 13. The hostname "localhost" also falls back to the generated password.
+assert_url "localhost hostname uses the generated embedded Redis password" \
+  "redis://:generated@localhost:6379" \
+  APPSMITH_REDIS_PASSWORD=generated APPSMITH_REDIS_URL_EXTERNAL= \
+  APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=localhost
+
+# 14. Bracketed IPv6 hosts are accepted as-is.
+assert_url "bracketed IPv6 host is accepted" \
+  "redis://[::1]:6379" \
+  APPSMITH_REDIS_HOST='[::1]'
+
+# 15. Hosts that would corrupt the URL authority are rejected.
+unset APPSMITH_REDIS_URL APPSMITH_REDIS_PASSWORD APPSMITH_REDIS_URL_EXTERNAL APPSMITH_REDIS_PASSWORD_EXTERNAL
+export APPSMITH_REDIS_HOST='user@redis.example.com'
+if compose_redis_url_from_parts && [[ -z "${APPSMITH_REDIS_URL:-}" ]]; then
+  echo "FAILED: invalid host was accepted"; fail=$((fail + 1))
+elif [[ -n "${APPSMITH_REDIS_URL:-}" ]]; then
+  echo "FAILED: invalid host produced a URL"; fail=$((fail + 1))
+else
+  echo "OK: host containing @ is rejected"
+fi
+unset APPSMITH_REDIS_HOST
+
 if [[ $fail -eq 0 ]]; then
   echo "SUCCEEDED!!!"
   exit 0

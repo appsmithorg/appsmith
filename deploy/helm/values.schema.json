@@ -107,7 +107,7 @@
                     "type": "string"
                 },
                 "remoteNameSecret": {
-                    "description": "Deprecated alias; use remoteSecretName instead. Kept for backward compatibility and ignored by the templates.",
+                    "description": "Deprecated alias for externalSecrets.remoteSecretName. Used only when remoteSecretName is empty.",
                     "type": "string"
                 },
                 "secretStoreRef": {
