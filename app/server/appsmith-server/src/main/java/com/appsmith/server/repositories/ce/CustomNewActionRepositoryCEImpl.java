@@ -561,8 +561,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .aggregate(aggregation, collection, Document.class)
                 .onErrorResume(CustomNewActionRepositoryCEImpl::isHintRejected, error -> {
                     log.warn(
-                            "Support diagnostics aggregation with index {} was rejected, retrying without it",
-                            DIAGNOSTICS_EDITABLE_ACTIONS);
+                            "Support diagnostics aggregation with index {} was rejected with {}, retrying without it",
+                            DIAGNOSTICS_EDITABLE_ACTIONS,
+                            error.getClass().getSimpleName());
                     return mongoOperations.aggregate(
                             aggregation.withOptions(DiagnosticsValues.AGGREGATION_OPTIONS), collection, Document.class);
                 });
