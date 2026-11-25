@@ -27,15 +27,21 @@ import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.BsonObjectId;
+import com.google.cloud.firestore.BsonTimestamp;
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.Decimal128Value;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.Int32Value;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.RegexValue;
+import com.google.cloud.firestore.VectorValue;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Ticker;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +59,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -943,7 +950,40 @@ public class FirestorePlugin extends BasePlugin {
                                 objResult.getClass().getName()));
             }
 
-            return objResult;
+            return toReservedMap(objResult);
+        }
+
+        /**
+         * Firestore stores these values as maps with reserved keys, and the client turns them into its own types. This
+         * returns the map, because the types do not serialize to JSON in full and a query can write the map back as the
+         * same value.
+         */
+        private static Object toReservedMap(Object value) {
+            if (value instanceof VectorValue vector) {
+                return Map.of(
+                        "__type__",
+                        "__vector__",
+                        "value",
+                        Arrays.stream(vector.toArray()).boxed().toList());
+            }
+            if (value instanceof Int32Value int32) {
+                return Map.of("__int__", int32.value);
+            }
+            if (value instanceof Decimal128Value decimal) {
+                return Map.of("__decimal128__", decimal.stringValue);
+            }
+            if (value instanceof BsonObjectId objectId) {
+                return Map.of("__oid__", objectId.value);
+            }
+            if (value instanceof BsonTimestamp timestamp) {
+                return Map.of(
+                        "__request_timestamp__",
+                        Map.of("seconds", timestamp.seconds, "increment", timestamp.increment));
+            }
+            if (value instanceof RegexValue regex) {
+                return Map.of("__regex__", Map.of("pattern", regex.pattern, "options", regex.options));
+            }
+            return value;
         }
 
         @Override

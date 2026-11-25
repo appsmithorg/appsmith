@@ -33,6 +33,32 @@
     "isExecutionSuccess": false,
     "title": "Query execution error"
   },
+  "getCollectionWithVectors": [
+    {
+      "_ref": {
+        "id": "seeded",
+        "path": "sdk-vectors/seeded"
+      },
+      "inArray": [
+        {
+          "vector": {
+            "__type__": "__vector__",
+            "value": [1.5, -2.25]
+          }
+        }
+      ],
+      "inMap": {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      },
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    }
+  ],
   "getCollectionWithWhereOrderByAndLimit": [
     {
       "_ref": {
@@ -101,6 +127,30 @@
       "seconds": 1709214330
     }
   },
+  "getDocumentWithVectors": {
+    "_ref": {
+      "id": "seeded",
+      "path": "sdk-vectors/seeded"
+    },
+    "inArray": [
+      {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      }
+    ],
+    "inMap": {
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    },
+    "vector": {
+      "__type__": "__vector__",
+      "value": [1.5, -2.25]
+    }
+  },
   "getMissingDocument": {
     "_ref": {
       "id": "missing",
@@ -140,6 +190,26 @@
         "nanos": "<number>",
         "seconds": "<number>"
       }
+    }
+  },
+  "writeBackTheVectorsThatWereRead": {
+    "inArray": [
+      {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      }
+    ],
+    "inMap": {
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    },
+    "vector": {
+      "__type__": "__vector__",
+      "value": [1.5, -2.25]
     }
   }
 }

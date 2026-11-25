@@ -21,7 +21,8 @@
              the root pom pins. The Spring Boot BOM version has CVE-2026-64607.
              Remove when the root pom or the Spring Boot BOM manages httpclient5 5.6.4 or later. -->
         <httpclient5.version>5.6.4</httpclient5.version>
-        <!-- google-cloud-firestore declares OpenTelemetry 1.62.0, which has CVE-2026-118259, fixed in 1.67.0.
+        <!-- google-cloud-firestore declares OpenTelemetry 1.62.0 and the Spring Boot BOM manages an older version.
+             Both have CVE-2026-118259, fixed in 1.67.0.
              Remove when google-cloud-firestore declares and the Spring Boot BOM manages 1.67.0 or later. -->
         <opentelemetry.version>1.67.0</opentelemetry.version>
     </properties>
@@ -50,7 +51,8 @@
         </dependency>
 
         <dependency>
-            <!-- FirestoreClientCache uses Guava. firebase-admin brings 33.6.0-jre, which has CVE-2026-102554. -->
+            <!-- FirestoreClientCache uses Guava. firebase-admin brings 33.6.0-jre, which has CVE-2026-102554.
+                 Keep the dependency. Remove the version pin when firebase-admin brings 33.7.2-jre or later. -->
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.7.2-jre</version>
@@ -89,6 +91,18 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <!-- FirestoreBundledLibrariesTest reads this file. -->
+                        <id>runtime-classpath</id>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <phase>generate-test-resources</phase>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputFile>${project.build.testOutputDirectory}/runtime-classpath.txt</outputFile>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>copy-dependencies</id>
                         <goals>

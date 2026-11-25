@@ -111,6 +111,10 @@ class FirestoreSdkBehaviourTest {
         actual.set("getCollectionWithWhereOrderByAndLimit", body(getCollectionWithWhereOrderByAndLimit()));
         actual.set("paginateByTimestamp", paginateByTimestamp());
 
+        actual.set("getDocumentWithVectors", body(run("GET_DOCUMENT", "sdk-vectors/seeded", null)));
+        actual.set("getCollectionWithVectors", body(run("GET_COLLECTION", "sdk-vectors", null)));
+        actual.set("writeBackTheVectorsThatWereRead", writeBack("sdk-vectors/seeded", "sdk-copies/vectors"));
+
         actual.set("setDocument", shape(body(run("SET_DOCUMENT", "sdk-writes/set", "{\"n\": 1}"))));
         actual.set("createDocument", shape(body(run("CREATE_DOCUMENT", "sdk-writes/create", "{\"n\": 1}"))));
         actual.set("updateDocument", shape(body(run("UPDATE_DOCUMENT", "sdk-writes/set", "{\"n\": 2}"))));
@@ -187,6 +191,18 @@ class FirestoreSdkBehaviourTest {
         allTypes.put("arrayWithReference", List.of(connection.document("sdk-snapshot/other")));
         connection.document("sdk-snapshot/all-types").set(allTypes).get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // Firestore stores a vector as a map with reserved keys.
+        Map<String, Object> vector = Map.of("__type__", "__vector__", "value", List.of(1.5, -2.25));
+        connection
+                .document("sdk-vectors/seeded")
+                .set(Map.of(
+                        "vector",
+                        vector,
+                        "inMap",
+                        Map.of("vector", vector),
+                        "inArray",
+                        List.of(Map.of("vector", vector))))
+                .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         for (int i = 1; i <= 4; i++) {
             connection
                     .document("sdk-pages/p" + i)
@@ -254,6 +270,17 @@ class FirestoreSdkBehaviourTest {
                         ? documentIds(body(secondPage))
                         : error(secondPage));
         return pages;
+    }
+
+    /** Apps can save a document that they read. Returns the copy, without the reference to itself. */
+    private static JsonNode writeBack(String sourcePath, String targetPath) throws IOException {
+        ObjectNode read = (ObjectNode) body(run("GET_DOCUMENT", sourcePath, null));
+        read.remove("_ref");
+        run("SET_DOCUMENT", targetPath, serverObjectMapper.writeValueAsString(read));
+
+        ObjectNode copy = (ObjectNode) body(run("GET_DOCUMENT", targetPath, null));
+        copy.remove("_ref");
+        return copy;
     }
 
     private static JsonNode updateWithServerTimestamp() {
