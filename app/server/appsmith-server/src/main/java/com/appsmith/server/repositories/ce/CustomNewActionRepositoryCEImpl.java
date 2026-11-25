@@ -14,6 +14,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.BsonMinKey;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
@@ -29,6 +30,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +47,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
+
+    private static final String DIAGNOSTICS_DATASOURCE_ID = NewAction.Fields.unpublishedAction + ".datasource._id";
+
+    /** Every BSON date is at or after this one. */
+    private static final Date EARLIEST_DATE = new Date(Long.MIN_VALUE);
 
     private final ReactiveMongoOperations mongoOperations;
 
@@ -505,31 +512,58 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Document> countEditableByPluginTypeForDiagnostics() {
-        MatchOperation editable = match(new Criteria()
-                .andOperator(
-                        notDeleted(),
-                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull()));
-        Aggregation aggregation = newAggregation(
-                        editable, group(NewAction.Fields.pluginType).count().as("count"))
-                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
         // The collection name, not the domain class, keeps _id as the stored string.
         return mongoOperations.aggregate(
-                aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class);
+                editableByPluginTypeAggregation(), mongoOperations.getCollectionName(NewAction.class), Document.class);
+    }
+
+    static Aggregation editableByPluginTypeAggregation() {
+        return newAggregation(
+                        match(editableForDiagnostics()),
+                        group(NewAction.Fields.pluginType).count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
     }
 
     @Override
     public Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics() {
-        String datasourceId = NewAction.Fields.unpublishedAction + ".datasource._id";
-        MatchOperation referencing = match(new Criteria()
-                .andOperator(
-                        notDeleted(),
-                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull(),
-                        where(datasourceId).ne(null)));
-        Aggregation aggregation =
-                newAggregation(referencing, group(datasourceId)).withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
         // The collection name, not the domain class, keeps _id as the stored value.
         return mongoOperations
-                .aggregate(aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class)
+                .aggregate(
+                        referencedDatasourceIdsAggregation(),
+                        mongoOperations.getCollectionName(NewAction.class),
+                        Document.class)
                 .collect(HashSet::new, (ids, group) -> ids.add(group.get("_id").toString()));
+    }
+
+    static Aggregation referencedDatasourceIdsAggregation() {
+        return newAggregation(
+                        match(new Criteria()
+                                .andOperator(
+                                        editableForDiagnostics(),
+                                        where(DIAGNOSTICS_DATASOURCE_ID).ne(null))),
+                        group(DIAGNOSTICS_DATASOURCE_ID))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+    }
+
+    /**
+     * Matches the actions that the editor shows, with conditions that MongoDB can answer from the index of
+     * {@code Migration077AddDiagnosticsIndexToNewAction} alone. {@code {field: null}} needs the document, so:
+     * <ul>
+     *   <li>a deletion date matches when it is not a BSON date, which includes missing and null;
+     *   <li>{@code deleted} matches when it is not true. Unlike {@link #notDeleted()}, that includes an explicit null.
+     * </ul>
+     * Every value is at or above {@code MinKey}, so the datasource condition matches every document. It makes the index,
+     * which starts with the datasource ID, usable. Spring Data passes {@code BsonMinKey} through and converts
+     * {@code org.bson.types.MinKey}.
+     */
+    private static Criteria editableForDiagnostics() {
+        return new Criteria()
+                .andOperator(
+                        where(DIAGNOSTICS_DATASOURCE_ID).gte(new BsonMinKey()),
+                        where(NewAction.Fields.deletedAt).not().gte(EARLIEST_DATE),
+                        where(NewAction.Fields.deleted).ne(true),
+                        where(NewAction.Fields.unpublishedAction_deletedAt)
+                                .not()
+                                .gte(EARLIEST_DATE));
     }
 }

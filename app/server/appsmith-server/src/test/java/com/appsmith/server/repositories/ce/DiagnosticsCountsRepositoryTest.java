@@ -21,9 +21,12 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
@@ -37,7 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
+import static com.appsmith.server.migrations.db.ce.Migration077AddDiagnosticsIndexToNewAction.DIAGNOSTICS_EDITABLE_ACTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -225,6 +230,19 @@ class DiagnosticsCountsRepositoryTest {
     }
 
     @Test
+    void should_countActionUnderNull_when_pluginTypeMissing() {
+        // Given
+        Map<String, Long> before = actionCounts();
+        seed(NewAction.class, new Document("unpublishedAction", new Document()));
+
+        // When
+        Map<String, Long> after = actionCounts();
+
+        // Then
+        assertThat(delta(before, after, null)).isEqualTo(1);
+    }
+
+    @Test
     void should_returnRawType_when_storedPluginTypeNotInEnum() {
         // Given
         Map<String, Long> before = actionCounts();
@@ -279,6 +297,125 @@ class DiagnosticsCountsRepositoryTest {
         assertThat(referenced).contains(ds1.toHexString());
         assertThat(referenced).doesNotContain(ds2.toHexString(), ds3.toHexString(), ds4.toHexString());
         assertThat(referenced).doesNotContainNull();
+    }
+
+    @Test
+    void should_countOnlyEditableActions_when_deletionFieldsVary() {
+        // Given
+        Map<String, Long> before = actionCounts();
+        ObjectId absent = new ObjectId();
+        ObjectId explicitNull = new ObjectId();
+        ObjectId deletedNull = new ObjectId();
+        ObjectId beforeEpoch = new ObjectId();
+        seed(
+                NewAction.class,
+                new Document("pluginType", "SAAS")
+                        .append("deleted", null)
+                        .append("unpublishedAction", actionUsing(deletedNull)));
+        seed(NewAction.class, new Document("pluginType", "SAAS").append("unpublishedAction", actionUsing(absent)));
+        seed(
+                NewAction.class,
+                new Document("pluginType", "SAAS")
+                        .append("deleted", false)
+                        .append("deletedAt", null)
+                        .append("unpublishedAction", actionUsing(explicitNull).append("deletedAt", null)));
+        seed(
+                NewAction.class,
+                new Document("pluginType", "SAAS")
+                        .append("deletedAt", new Date(-1))
+                        .append("unpublishedAction", actionUsing(beforeEpoch)));
+        seed(
+                NewAction.class,
+                new Document("pluginType", "SAAS")
+                        .append("deleted", true)
+                        .append("unpublishedAction", actionUsing(beforeEpoch)));
+        seed(
+                NewAction.class,
+                new Document("pluginType", "SAAS")
+                        .append("unpublishedAction", actionUsing(beforeEpoch).append("deletedAt", new Date(-1))));
+
+        // When
+        Map<String, Long> after = actionCounts();
+        Set<String> referenced = newActionRepository
+                .findReferencedDatasourceIdsForDiagnostics()
+                .as(DiagnosticsCountsRepositoryTest::verified);
+
+        // Then
+        assertThat(delta(before, after, "SAAS")).isEqualTo(3);
+        assertThat(referenced)
+                .contains(absent.toHexString(), explicitNull.toHexString(), deletedNull.toHexString())
+                .doesNotContain(beforeEpoch.toHexString());
+    }
+
+    @Test
+    void should_returnDatasourceId_when_oneActionIsDeletedAndAnotherIsLive() {
+        // Given
+        ObjectId datasourceId = new ObjectId();
+        seed(
+                NewAction.class,
+                new Document("pluginType", "API")
+                        .append("deletedAt", new Date())
+                        .append("unpublishedAction", actionUsing(datasourceId)));
+        seed(NewAction.class, new Document("pluginType", "DB").append("unpublishedAction", actionUsing(datasourceId)));
+
+        // When
+        Set<String> referenced = newActionRepository
+                .findReferencedDatasourceIdsForDiagnostics()
+                .as(DiagnosticsCountsRepositoryTest::verified);
+
+        // Then
+        assertThat(referenced).contains(datasourceId.toHexString());
+    }
+
+    @ParameterizedTest
+    @MethodSource("actionAggregations")
+    void should_readOnlyTheIndex_when_aggregatingActions(Aggregation aggregation) {
+        // Given
+        seed(
+                NewAction.class,
+                new Document("pluginType", "DB").append("unpublishedAction", actionUsing(new ObjectId())));
+        seed(
+                NewAction.class,
+                new Document("pluginType", "DB")
+                        .append("deletedAt", new Date())
+                        .append("unpublishedAction", actionUsing(new ObjectId())));
+        Document command = aggregation
+                .toDocument(mongoOperations.getCollectionName(NewAction.class), Aggregation.DEFAULT_CONTEXT)
+                .append("cursor", new Document())
+                .append("hint", DIAGNOSTICS_EDITABLE_ACTIONS);
+
+        // When
+        Document plan = mongoOperations
+                .executeCommand(new Document("explain", command).append("verbosity", "executionStats"))
+                .as(DiagnosticsCountsRepositoryTest::verified);
+
+        // Then
+        List<Number> docsExamined = valuesOf(plan, "totalDocsExamined");
+        List<Number> keysExamined = valuesOf(plan, "totalKeysExamined");
+        assertThat(docsExamined).isNotEmpty().allMatch(count -> count.longValue() == 0);
+        assertThat(keysExamined).anyMatch(count -> count.longValue() > 0);
+    }
+
+    private static Stream<Aggregation> actionAggregations() {
+        return Stream.of(
+                CustomNewActionRepositoryCEImpl.editableByPluginTypeAggregation(),
+                CustomNewActionRepositoryCEImpl.referencedDatasourceIdsAggregation());
+    }
+
+    /** Collects every number stored under {@code key}, at any depth. */
+    private static List<Number> valuesOf(Object node, String key) {
+        List<Number> values = new ArrayList<>();
+        if (node instanceof Document document) {
+            document.forEach((name, value) -> {
+                if (name.equals(key) && value instanceof Number number) {
+                    values.add(number);
+                }
+                values.addAll(valuesOf(value, key));
+            });
+        } else if (node instanceof List<?> list) {
+            list.forEach(item -> values.addAll(valuesOf(item, key)));
+        }
+        return values;
     }
 
     @Test
