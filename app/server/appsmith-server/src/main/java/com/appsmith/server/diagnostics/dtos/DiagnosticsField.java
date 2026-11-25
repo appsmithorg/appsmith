@@ -1,5 +1,7 @@
 package com.appsmith.server.diagnostics.dtos;
 
+import com.appsmith.server.diagnostics.DiagnosticsValues;
+
 public record DiagnosticsField(Object value, String source, String confidence, String availability) {
 
     public static final String SOURCE_APPLICATION_CONFIG = "application_config";
@@ -12,7 +14,10 @@ public record DiagnosticsField(Object value, String source, String confidence, S
     public static final String CONFIDENCE_INFERRED = "inferred";
     public static final String CONFIDENCE_UNKNOWN = "unknown";
 
+    public static final String AVAILABILITY_AVAILABLE = "available";
+    public static final String AVAILABILITY_UNKNOWN = "unknown";
+
     public static DiagnosticsField unknown(String source) {
-        return new DiagnosticsField("UNKNOWN", source, "unknown", "unknown");
+        return new DiagnosticsField(DiagnosticsValues.UNKNOWN, source, CONFIDENCE_UNKNOWN, AVAILABILITY_UNKNOWN);
     }
 }

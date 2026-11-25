@@ -13266,6 +13266,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@zip.js/zip.js@npm:2.24.0":
+  version: 2.24.0
+  resolution: "@zip.js/zip.js@npm:2.24.0"
+  checksum: 873d384213c59af9ad374f1abfef365f9844dfd7e2f2174e26873cada5cf8cddb7094ecff8d399d00b0c182db21166e34f65222fd8852b6ee9838878d7879538
+  languageName: node
+  linkType: hard
+
 "@zxing/library@npm:^0.17.0":
   version: 0.17.1
   resolution: "@zxing/library@npm:0.17.1"
@@ -13924,6 +13931,7 @@ __metadata:
     "@uppy/utils": ^6.0.2
     "@uppy/webcam": ^1.8.4
     "@welldone-software/why-did-you-render": ^4.2.5
+    "@zip.js/zip.js": 2.24.0
     acorn: 8.10.0
     acorn-walk: 8.2.0
     appsmith-icons: "workspace:^"

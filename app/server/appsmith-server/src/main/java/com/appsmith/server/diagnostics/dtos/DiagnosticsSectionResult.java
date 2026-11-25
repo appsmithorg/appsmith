@@ -26,4 +26,8 @@ public record DiagnosticsSectionResult(
     public static DiagnosticsSectionResult notSupported(DiagnosticsSectionId sectionId) {
         return new DiagnosticsSectionResult(sectionId, DiagnosticsStatus.NOT_SUPPORTED, null, null, null);
     }
+
+    public static DiagnosticsSectionResult notLicensed(DiagnosticsSectionId sectionId) {
+        return new DiagnosticsSectionResult(sectionId, DiagnosticsStatus.NOT_LICENSED, null, null, null);
+    }
 }
