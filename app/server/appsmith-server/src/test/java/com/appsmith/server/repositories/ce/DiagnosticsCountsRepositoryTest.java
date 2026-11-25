@@ -9,6 +9,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationDiagnosticsCounts;
+import com.appsmith.server.migrations.db.ce.Migration077AddDiagnosticsIndexToNewAction;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.index.ReactiveIndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
@@ -382,7 +384,7 @@ class DiagnosticsCountsRepositoryTest {
         Document command = aggregation
                 .toDocument(mongoOperations.getCollectionName(NewAction.class), Aggregation.DEFAULT_CONTEXT)
                 .append("cursor", new Document())
-                .append("hint", DIAGNOSTICS_EDITABLE_ACTIONS);
+                .append("hint", aggregation.getOptions().getHintObject().orElseThrow());
 
         // When
         Document plan = mongoOperations
@@ -394,6 +396,33 @@ class DiagnosticsCountsRepositoryTest {
         List<Number> keysExamined = valuesOf(plan, "totalKeysExamined");
         assertThat(docsExamined).isNotEmpty().allMatch(count -> count.longValue() == 0);
         assertThat(keysExamined).anyMatch(count -> count.longValue() > 0);
+    }
+
+    @Test
+    void should_returnCounts_when_indexIsMissing() {
+        // Given
+        ObjectId datasourceId = new ObjectId();
+        ReactiveIndexOperations indexes = mongoOperations.indexOps(NewAction.class);
+        indexes.dropIndex(DIAGNOSTICS_EDITABLE_ACTIONS).block();
+        try {
+            Map<String, Long> before = actionCounts();
+            seed(
+                    NewAction.class,
+                    new Document("pluginType", "DB").append("unpublishedAction", actionUsing(datasourceId)));
+
+            // When
+            Map<String, Long> after = actionCounts();
+            Set<String> referenced = newActionRepository
+                    .findReferencedDatasourceIdsForDiagnostics()
+                    .as(DiagnosticsCountsRepositoryTest::verified);
+
+            // Then
+            assertThat(delta(before, after, "DB")).isEqualTo(1);
+            assertThat(referenced).contains(datasourceId.toHexString());
+        } finally {
+            indexes.ensureIndex(Migration077AddDiagnosticsIndexToNewAction.diagnosticsIndex())
+                    .block();
+        }
     }
 
     private static Stream<Aggregation> actionAggregations() {

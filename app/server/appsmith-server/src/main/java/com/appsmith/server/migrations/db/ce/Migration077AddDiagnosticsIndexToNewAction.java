@@ -39,7 +39,21 @@ public class Migration077AddDiagnosticsIndexToNewAction {
 
     @Execution
     public void addDiagnosticsIndex() {
-        Index index = makeIndex(
+        Index index = diagnosticsIndex();
+        try {
+            ensureIndexes(mongoTemplate, NewAction.class, index);
+        } catch (Exception exception) {
+            log.error(
+                    "An error occurred while creating the index : {} with keys {}. Support diagnostics counts may time out on a large"
+                            + " newAction collection until an administrator creates it.",
+                    DIAGNOSTICS_EDITABLE_ACTIONS,
+                    index.getIndexKeys().toJson(),
+                    exception);
+        }
+    }
+
+    public static Index diagnosticsIndex() {
+        return makeIndex(
                         NewAction.Fields.unpublishedAction + ".datasource._id",
                         NewAction.Fields.pluginType,
                         NewAction.Fields.deletedAt,
@@ -47,14 +61,5 @@ public class Migration077AddDiagnosticsIndexToNewAction {
                         NewAction.Fields.unpublishedAction_deletedAt)
                 .named(DIAGNOSTICS_EDITABLE_ACTIONS)
                 .background();
-        try {
-            ensureIndexes(mongoTemplate, NewAction.class, index);
-        } catch (Exception exception) {
-            log.error(
-                    "An error occurred while creating the index : {}. Support diagnostics counts may time out on a large"
-                            + " newAction collection until an administrator creates it.",
-                    DIAGNOSTICS_EDITABLE_ACTIONS,
-                    exception);
-        }
     }
 }

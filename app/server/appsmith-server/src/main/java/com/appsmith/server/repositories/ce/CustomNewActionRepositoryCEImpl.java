@@ -11,6 +11,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.mongodb.MongoCommandException;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -37,6 +39,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import static com.appsmith.server.migrations.db.ce.Migration077AddDiagnosticsIndexToNewAction.DIAGNOSTICS_EDITABLE_ACTIONS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -49,6 +52,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     private static final String DIAGNOSTICS_DATASOURCE_ID = NewAction.Fields.unpublishedAction + ".datasource._id";
+
+    private static final AggregationOptions DIAGNOSTICS_HINTED_OPTIONS = AggregationOptions.builder()
+            .maxTime(DiagnosticsValues.AGGREGATION_OPTIONS.getMaxTime())
+            .hint(DIAGNOSTICS_EDITABLE_ACTIONS)
+            .build();
+
+    /** The code MongoDB returns for a hint that names no index. */
+    private static final int BAD_VALUE_ERROR_CODE = 2;
 
     /** Every BSON date is at or after this one. */
     private static final Date EARLIEST_DATE = new Date(Long.MIN_VALUE);
@@ -512,26 +523,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Document> countEditableByPluginTypeForDiagnostics() {
-        // The collection name, not the domain class, keeps _id as the stored string.
-        return mongoOperations.aggregate(
-                editableByPluginTypeAggregation(), mongoOperations.getCollectionName(NewAction.class), Document.class);
+        return aggregateForDiagnostics(editableByPluginTypeAggregation());
     }
 
     static Aggregation editableByPluginTypeAggregation() {
         return newAggregation(
                         match(editableForDiagnostics()),
                         group(NewAction.Fields.pluginType).count().as("count"))
-                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+                .withOptions(DIAGNOSTICS_HINTED_OPTIONS);
     }
 
     @Override
     public Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics() {
-        // The collection name, not the domain class, keeps _id as the stored value.
-        return mongoOperations
-                .aggregate(
-                        referencedDatasourceIdsAggregation(),
-                        mongoOperations.getCollectionName(NewAction.class),
-                        Document.class)
+        return aggregateForDiagnostics(referencedDatasourceIdsAggregation())
                 .collect(HashSet::new, (ids, group) -> ids.add(group.get("_id").toString()));
     }
 
@@ -542,7 +546,31 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                         editableForDiagnostics(),
                                         where(DIAGNOSTICS_DATASOURCE_ID).ne(null))),
                         group(DIAGNOSTICS_DATASOURCE_ID))
-                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+                .withOptions(DIAGNOSTICS_HINTED_OPTIONS);
+    }
+
+    /**
+     * Runs {@code aggregation} with its index hint. MongoDB rejects a hint for an index that does not exist, and the
+     * migration tolerates a failed build, so a rejected hint runs again without it. The rejection comes before any
+     * result. Other errors, including a timeout, are not retried.
+     */
+    private Flux<Document> aggregateForDiagnostics(Aggregation aggregation) {
+        // The collection name, not the domain class, keeps _id as the stored value.
+        String collection = mongoOperations.getCollectionName(NewAction.class);
+        return mongoOperations
+                .aggregate(aggregation, collection, Document.class)
+                .onErrorResume(CustomNewActionRepositoryCEImpl::isHintRejected, error -> {
+                    log.warn(
+                            "Support diagnostics aggregation with index {} was rejected, retrying without it",
+                            DIAGNOSTICS_EDITABLE_ACTIONS);
+                    return mongoOperations.aggregate(
+                            aggregation.withOptions(DiagnosticsValues.AGGREGATION_OPTIONS), collection, Document.class);
+                });
+    }
+
+    private static boolean isHintRejected(Throwable error) {
+        return error.getCause() instanceof MongoCommandException commandException
+                && commandException.getErrorCode() == BAD_VALUE_ERROR_CODE;
     }
 
     /**
@@ -553,7 +581,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
      *   <li>{@code deleted} matches when it is not true. Unlike {@link #notDeleted()}, that includes an explicit null.
      * </ul>
      * Every value is at or above {@code MinKey}, so the datasource condition matches every document. It makes the index,
-     * which starts with the datasource ID, usable. Spring Data passes {@code BsonMinKey} through and converts
+     * which starts with the datasource ID, usable for the hint. Spring Data passes {@code BsonMinKey} through and converts
      * {@code org.bson.types.MinKey}.
      */
     private static Criteria editableForDiagnostics() {
