@@ -107,24 +107,6 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
-        // The server creates an executor for each call, so all executors share one cache. A client can use one thread
-        // for
-        // each CPU core, and at least four. The limit also has to fit hosts that allow few processes.
-        private static final FirestoreClientCache SHARED_CLIENT_CACHE =
-                new FirestoreClientCache(100, Duration.ofHours(2), Ticker.systemTicker());
-
-        private final Scheduler scheduler = Schedulers.boundedElastic();
-
-        private final FirestoreClientCache clientCache;
-
-        public FirestorePluginExecutor() {
-            this(SHARED_CLIENT_CACHE);
-        }
-
-        FirestorePluginExecutor(FirestoreClientCache clientCache) {
-            this.clientCache = clientCache;
-        }
-
         static final String DEFAULT_DATABASE_ID = "(default)";
 
         // Part of the message the Firestore client uses when it is called after shutdown.
@@ -139,6 +121,23 @@ public class FirestorePlugin extends BasePlugin {
 
         private static final Pattern UUID_LIKE_PATTERN =
                 Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+
+        // The server creates an executor for each call, so all executors share one cache. A client can use one thread
+        // for each CPU core, and at least four. The limit also has to fit hosts that allow few processes.
+        private static final FirestoreClientCache SHARED_CLIENT_CACHE =
+                new FirestoreClientCache(100, Duration.ofHours(2), Ticker.systemTicker());
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        private final FirestoreClientCache clientCache;
+
+        public FirestorePluginExecutor() {
+            this(SHARED_CLIENT_CACHE);
+        }
+
+        FirestorePluginExecutor(FirestoreClientCache clientCache) {
+            this.clientCache = clientCache;
+        }
 
         @Override
         @Deprecated
@@ -1002,10 +1001,8 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private boolean isClientOpen(Firestore connection, DatasourceConfiguration datasourceConfiguration) {
-            // Without credentials there is no key, so the connection did not come from the cache.
-            if (!(datasourceConfiguration.getAuthentication() instanceof DBAuth authentication)
-                    || authentication.getUsername() == null
-                    || authentication.getPassword() == null) {
+            if (!(datasourceConfiguration.getAuthentication() instanceof DBAuth)) {
+                // Without credentials there is no key, so the connection did not come from the cache.
                 return true;
             }
             return clientCache.isOpen(clientKey(datasourceConfiguration), connection);

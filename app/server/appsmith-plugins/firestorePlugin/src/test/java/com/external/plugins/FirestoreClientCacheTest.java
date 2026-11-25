@@ -268,4 +268,20 @@ class FirestoreClientCacheTest {
         // Then
         assertThat(open).isTrue();
     }
+
+    @Test
+    void should_keepEveryClient_when_theMaximumIsReachedButNotExceeded() {
+        // Given
+        int maximumClients = 100;
+        FirestoreClientCache largeCache = new FirestoreClientCache(maximumClients, MAXIMUM_IDLE_TIME, ticker);
+        List<Firestore> clients = new ArrayList<>();
+
+        // When
+        for (int i = 0; i < maximumClients; i++) {
+            clients.add(largeCache.get(key(i), () -> mock(Firestore.class)));
+        }
+
+        // Then
+        clients.forEach(client -> verify(client, never()).shutdown());
+    }
 }

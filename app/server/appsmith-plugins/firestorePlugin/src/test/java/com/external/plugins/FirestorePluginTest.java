@@ -72,6 +72,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1071,6 +1072,25 @@ public class FirestorePluginTest {
     }
 
     @Test
+    void should_createTheClientOnThePluginThread_when_connectionIsCreated() {
+        // Given
+        AtomicReference<String> threadName = new AtomicReference<>();
+        FirestoreClientCache clientCache = Mockito.mock(FirestoreClientCache.class);
+        Mockito.when(clientCache.get(Mockito.any(), Mockito.any())).thenAnswer(invocation -> {
+            threadName.set(Thread.currentThread().getName());
+            return Mockito.mock(Firestore.class);
+        });
+        FirestorePlugin.FirestorePluginExecutor executor = new FirestorePlugin.FirestorePluginExecutor(clientCache);
+
+        // When
+        executor.datasourceCreate(serviceAccountDatasourceConfig("some-project", "{}", null))
+                .block();
+
+        // Then
+        assertThat(threadName.get()).startsWith("boundedElastic");
+    }
+
+    @Test
     void should_returnValidationError_when_connectionIsCreatedWithoutCredentials() {
         // Given
         DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("some-project", null, null);
@@ -1193,22 +1213,24 @@ public class FirestorePluginTest {
         DatasourceConfiguration datasourceConfiguration =
                 serviceAccountDatasourceConfig("cancelled-project", "{}", null);
         CountDownLatch listing = new CountDownLatch(1);
+        AtomicBoolean listingFinished = new AtomicBoolean();
         Firestore client = Mockito.mock(Firestore.class);
         Mockito.when(client.listCollections()).thenAnswer(invocation -> {
             listing.countDown();
             new CountDownLatch(1).await(5, TimeUnit.SECONDS);
+            listingFinished.set(true);
             return Collections.emptyList();
         });
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
         Mockito.doReturn(client).when(spyExecutor).createClient(datasourceConfiguration);
         Disposable test = spyExecutor.testDatasource(datasourceConfiguration).subscribe(result -> {}, error -> {});
-        boolean started = listing.await(5, TimeUnit.SECONDS);
+        boolean wasRunning = listing.await(5, TimeUnit.SECONDS) && !listingFinished.get();
 
         // When
         test.dispose();
 
         // Then
-        assertThat(started).isTrue();
+        assertThat(wasRunning).isTrue();
         Mockito.verify(client, Mockito.timeout(5000)).shutdown();
     }
 

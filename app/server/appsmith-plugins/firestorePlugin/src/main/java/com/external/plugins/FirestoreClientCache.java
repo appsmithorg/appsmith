@@ -23,9 +23,8 @@ import java.util.function.Supplier;
 
 /**
  * Shares Firestore clients between datasources that have the same project, credentials and database, and limits how
- * many clients stay open. Each client holds threads and a network channel. The server does not report every connection
- * that it stops using, so the limit and the idle time are what close clients. Idle clients are removed when the cache is
- * next used.
+ * many clients stay open, because each client holds threads and a network channel. The limit and the idle time close
+ * clients. An idle client is removed when the cache is next used.
  *
  * <p>A removed client is shut down: queries that are already running finish, and new calls on it fail with an
  * IllegalStateException.
