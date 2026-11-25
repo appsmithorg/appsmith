@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   changes:
-    if: github.event.pull_request.head.repo.full_name != github.repository
+    if: github.event.pull_request.head.ref == 'chore/app-16589-fork-job-check' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     outputs:
       client: ${{ steps.filter.outputs.client }}
