@@ -69,6 +69,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on if your team uses it, or use "Forgot password" to set a password.`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on to activate it.`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your account`;
@@ -1861,9 +1865,9 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+  `Uploaded file must be in .PNG or .JPG format`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `.SVG, .PNG, or .JPG only • Max 2MB`;
+  `.PNG or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
   "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
@@ -3019,3 +3023,91 @@ export const MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT = () =>
   "Create an organization";
 
 export const PENDING_INVITATIONS = () => "Pending invitations";
+
+export const SUPPORT_DIAGNOSTICS = {
+  title: () => "Support",
+  subText: () =>
+    "Review the details collected about this instance, then download a ZIP to attach to a support ticket. Nothing is sent to Appsmith automatically.",
+  sectionTitles: {
+    INSTANCE: () => "Instance and runtime",
+    DEPLOYMENT: () => "Deployment and infrastructure",
+    FEATURE_FLAGS: () => "Feature flags and entitlements",
+    APPLICATIONS: () => "Applications and pages",
+    DATASOURCES: () => "Datasources and integrations",
+    WORKFLOWS: () => "Workflows and automation",
+    IDENTITY: () => "Identity, access and governance",
+    AI_MCP: () => "AI and MCP",
+    HEALTH: () => "Platform health",
+  },
+  include: (title: string) => `Include ${title} in ZIP`,
+  includeShort: () => "Include in ZIP",
+  selectAll: () => "Select all",
+  clearAll: () => "Clear all",
+  excludedHelp: () =>
+    "Sections you leave out still show on this page but are not added to the ZIP.",
+  statusTags: {
+    waiting: () => "Waiting",
+    collecting: () => "Collecting…",
+    collected: () => "Collected",
+    notSupported: () => "Not available",
+    notLicensed: () => "Not in plan",
+    unknown: () => "Unknown",
+    failed: () => "Failed",
+    timedOut: () => "Timed out",
+    busy: () => "Busy",
+  },
+  refresh: () => "Refresh",
+  retry: () => "Retry",
+  refreshSection: (title: string) => `Refresh ${title}`,
+  retrySection: (title: string) => `Retry ${title}`,
+  busy: () => "Another collection is running. Try again in a moment.",
+  failed: () => "This section could not be collected.",
+  timeout: () => "Collection took longer than 10 seconds.",
+  unknown: () => "Appsmith could not determine this section.",
+  licenseUnknown: () =>
+    "Appsmith could not check your license for this section.",
+  notSupported: () => "Not available in this edition.",
+  notLicensed: () => "Not included in your plan.",
+  failedExport: () =>
+    "If included, the ZIP records only that this section could not be collected.",
+  progress: (done: number, total: number) =>
+    `Collected ${done} of ${total} sections.`,
+  progressDone: () => "All sections collected.",
+  progressFinished: () => "Collection finished.",
+  progressFailed: (count: number) =>
+    count === 1
+      ? "1 section could not be collected."
+      : `${count} sections could not be collected.`,
+  password: () => "Password (optional)",
+  passwordHelp: () =>
+    "12 to 128 characters. The password stays in this browser. Send it to support separately from the ZIP, and use a random password.",
+  passwordInvalid: () =>
+    "Use 12 to 128 characters, or leave the password empty.",
+  showPassword: () => "Show password",
+  hidePassword: () => "Hide password",
+  aesNote: () => "Password-protected ZIPs need 7-Zip, Keka, or WinZip to open.",
+  aesWarning: () =>
+    "The built-in Windows and macOS archive tools cannot open this ZIP.",
+  download: (count: number) => {
+    if (count === 0) return "Download ZIP";
+
+    return count === 1
+      ? "Download ZIP (1 section)"
+      : `Download ZIP (${count} sections)`;
+  },
+  noneSelected: () => "Include at least one section in the ZIP.",
+  waitForCollection: () =>
+    "Wait for the included sections to finish collecting.",
+  tooLarge: () =>
+    "The report is larger than 1 MB. Leave out some sections and try again.",
+  zipFailed: () => "The ZIP could not be created. Try again.",
+  saved: (fileName: string) =>
+    `Saved ${fileName}. Attach it to your support ticket.`,
+  savedEncrypted: (fileName: string) =>
+    `Saved ${fileName}. Attach it to your support ticket, and send the password to support another way.`,
+  auditFailed: () =>
+    "The ZIP was saved, but this download could not be recorded.",
+  listFailed: () => "Could not load the diagnostics.",
+  forbidden: () => "Only instance administrators can use this page.",
+  loading: () => "Loading diagnostics",
+};

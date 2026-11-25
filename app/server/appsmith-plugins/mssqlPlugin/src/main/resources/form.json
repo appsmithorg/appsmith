@@ -56,13 +56,38 @@
       "id": 2,
       "children": [
         {
+          "label": "Authentication type key",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "authenticationMethod",
+          "hidden": true
+        },
+        {
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "SQL_SERVER_LOGIN",
+          "tooltipText": "Windows (Kerberos) signs in with an Active Directory account. It needs a self-hosted Appsmith server set up for Kerberos. See the SQL Server datasource docs.",
+          "options": [
+            {
+              "label": "SQL Server login",
+              "value": "SQL_SERVER_LOGIN"
+            },
+            {
+              "label": "Windows (Kerberos)",
+              "value": "KERBEROS"
+            }
+          ]
+        },
+        {
           "sectionName": null,
           "children": [
             {
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
+              "placeholderText": "Username",
+              "tooltipText": "For Windows (Kerberos), use user@REALM, such as svc_appsmith@CORP.EXAMPLE.COM."
             },
             {
               "label": "Password",
@@ -72,6 +97,25 @@
               "placeholderText": "Password"
             }
           ]
+        },
+        {
+          "label": "Server SPN key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "serverSpn",
+          "hidden": true
+        },
+        {
+          "label": "Server SPN",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "MSSQLSvc/sqlserver.corp.example.com:1433",
+          "tooltipText": "Leave blank to use MSSQLSvc/<host>:<port>. Set it if you connect through an alias, an IP address or a listener.",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "KERBEROS"
+          }
         }
       ]
     },

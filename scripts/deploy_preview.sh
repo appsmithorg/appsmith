@@ -35,9 +35,6 @@ export APPSMITH_SEGMENT_CE_KEY="${APPSMITH_SEGMENT_CE_KEY:-}"
 # Update kubeconfig
 aws eks update-kubeconfig --region "$region" --name "$cluster_name"
 
-kubectl config set-context --current --namespace=default
-kubectl get pods
-
 # Optional cleanup logic
 if [[ -n "${RECREATE-}" ]]; then
   echo "Wiping the DP from MongoDB and Kubernetes since the reset flag was set"
@@ -47,8 +44,6 @@ if [[ -n "${RECREATE-}" ]]; then
   kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "mongosh \$APPSMITH_DB_URL --eval 'db.dropDatabase()'"
   kubectl exec "$pod_name" -n "$NAMESPACE" -- bash -c "supervisorctl stop all && rm -rf /appsmith-stacks/*"
   kubectl delete ns "$NAMESPACE" || true
-  kubectl patch pv "$NAMESPACE-appsmith" -p '{"metadata":{"finalizers":null}}' || true
-  kubectl delete pv "$NAMESPACE-appsmith" --grace-period=0 --force || true
   echo "DP wiped from MongoDB and Kubernetes"
 fi
 

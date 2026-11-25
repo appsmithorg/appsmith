@@ -256,6 +256,9 @@ const FNS = Object.freeze({
   startOfDay: [1, 1],
   diffDays: [2, 2],
   isoDate: [1, 1],
+  // A date as display text from a literal pattern, in UTC or a literal IANA time zone. Workflows run on the server,
+  // where there is no viewer time zone, so UTC is the default.
+  formatDate: [2, 3],
 } as const);
 
 export type Fn = keyof typeof FNS;
@@ -291,6 +294,128 @@ export type UserField = (typeof USER_FIELDS)[number];
 // sortBy's direction and dateBucket's unit: closed sets, each choosing a fixed template.
 export const SORT_DIRECTIONS = ["asc", "desc"] as const;
 export const DATE_BUCKETS = ["day", "week", "month"] as const;
+// formatDate's pattern tokens, longest first so `MMMM` wins over `MMM`, `MM` and `M`. Letters outside this set must
+// be quoted ('at'), so a typo such as `YYYY` is refused instead of printed.
+export const FORMAT_DATE_TOKENS = [
+  "yyyy",
+  "yy",
+  "MMMM",
+  "MMM",
+  "MM",
+  "M",
+  "dd",
+  "d",
+  "EEEE",
+  "EEE",
+  "HH",
+  "H",
+  "hh",
+  "h",
+  "mm",
+  "ss",
+  "a",
+  "z",
+] as const;
+export const FORMAT_DATE_PATTERN_MAX = 60;
+export const FORMAT_DATE_DEFAULT_TIME_ZONE = "UTC";
+// Characters allowed as literal text, quoted or not. No brace, quote, backtick or `$`, so the pattern can never form
+// template syntax inside a widget's {{ }} binding.
+const FORMAT_DATE_LITERAL = /^[A-Za-z0-9 ,.:/()-]$/;
+const FORMAT_DATE_UNQUOTED_LITERAL = /^[ ,.:/()-]$/;
+const TIME_ZONE_SHAPE = /^[A-Za-z0-9_+/-]{1,64}$/;
+
+// One part of a parsed pattern: a token name, or literal text wrapped in a one-element array so the two never mix.
+export type FormatDatePart = string | [string];
+
+// Splits a formatDate pattern into tokens and literal text. Literal text is either a run of allowed punctuation or
+// letters and digits inside single quotes ('at'). Returns a problem message instead of parts when the pattern is
+// not valid.
+export function parseDatePattern(
+  pattern: string,
+): { parts: FormatDatePart[] } | { problem: string } {
+  if (pattern.length === 0 || pattern.length > FORMAT_DATE_PATTERN_MAX) {
+    return {
+      problem: `fn formatDate: the pattern must be 1-${FORMAT_DATE_PATTERN_MAX} characters`,
+    };
+  }
+
+  const parts: FormatDatePart[] = [];
+  const pushLiteral = (text: string) => {
+    const previous = parts[parts.length - 1];
+
+    if (Array.isArray(previous)) {
+      previous[0] += text;
+    } else {
+      parts.push([text]);
+    }
+  };
+  let index = 0;
+
+  while (index < pattern.length) {
+    const char = pattern[index];
+
+    if (char === "'") {
+      const end = pattern.indexOf("'", index + 1);
+
+      if (end === -1 || end === index + 1) {
+        return {
+          problem:
+            "fn formatDate: quoted text must be closed and not empty, for example 'at'",
+        };
+      }
+
+      const text = pattern.slice(index + 1, end);
+
+      if (![...text].every((c) => FORMAT_DATE_LITERAL.test(c))) {
+        return {
+          problem:
+            "fn formatDate: quoted text may hold only letters, digits, spaces and , . : / ( ) -",
+        };
+      }
+
+      pushLiteral(text);
+      index = end + 1;
+      continue;
+    }
+
+    const token = FORMAT_DATE_TOKENS.find((candidate) =>
+      pattern.startsWith(candidate, index),
+    );
+
+    if (token) {
+      parts.push(token);
+      index += token.length;
+      continue;
+    }
+
+    if (FORMAT_DATE_UNQUOTED_LITERAL.test(char)) {
+      pushLiteral(char);
+      index += 1;
+      continue;
+    }
+
+    return {
+      problem: `fn formatDate: "${char}" is not a pattern token; use ${FORMAT_DATE_TOKENS.join(", ")}, the punctuation , . : / ( ) - and spaces, or quote literal text ('at')`,
+    };
+  }
+
+  return { parts };
+}
+
+// Whether the runtime accepts a time zone name. Node ships full ICU, so this matches what browsers and the workflow
+// runner accept.
+export function isKnownTimeZone(timeZone: string): boolean {
+  if (!TIME_ZONE_SHAPE.test(timeZone)) return false;
+
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // The most groups groupBy builds. Past it, the call throws instead of returning a cut list.
 export const GROUP_BY_MAX_GROUPS = 10000;
 
@@ -451,6 +576,8 @@ export type Step =
   | { throw: string }
   | { return: Expr }
   | { showAlert: Expr; style?: "info" | "success" | "warning" | "error" }
+  // Write a value to the console, for a workflow's run history or the browser console. Never shown to the end user.
+  | { log: Expr }
   | { storeValue: string; value: Expr }
   | { resetWidget: string }
   | { showModal: string }
@@ -513,6 +640,7 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
         style: z.enum(["info", "success", "warning", "error"]).optional(),
       })
       .strict(),
+    z.object({ log: exprSchema }).strict(),
     z.object({ storeValue: storeKeySchema, value: exprSchema }).strict(),
     z.object({ resetWidget: bindingIdentifier }).strict(),
     z.object({ showModal: bindingIdentifier }).strict(),
@@ -760,6 +888,24 @@ export function exprProblem(
 
       if (expr.fn === "groupBy" && index === 2) {
         return "fn groupBy: argument 3 must be { count: true }, { sum: field } or { avg: field }";
+      }
+
+      // formatDate's pattern (argument 2) and time zone (argument 3) are literals. LITERAL_TAIL cannot express this
+      // because the time zone is optional, so the tail length changes.
+      if (expr.fn === "formatDate" && index >= 1) {
+        if (typeof arg !== "string") {
+          return `fn formatDate: argument ${index + 1} must be a string literal`;
+        }
+
+        if (index === 1) {
+          const parsed = parseDatePattern(arg);
+
+          if ("problem" in parsed) return parsed.problem;
+        } else if (!isKnownTimeZone(arg)) {
+          return `fn formatDate: "${arg.slice(0, 64)}" is not a known IANA time zone, such as "UTC" or "America/New_York"`;
+        }
+
+        continue;
       }
 
       if (
@@ -1063,6 +1209,8 @@ function stepProblem(
 
   if ("storeValue" in step) return prefixed(validateExpr(step.value, local));
 
+  if ("log" in step) return prefixed(validateExpr(step.log, local));
+
   // throw / showAlert / resetWidget carry validated literals only.
   return undefined;
 }
@@ -1144,6 +1292,30 @@ function compileDateBucket(date: string, unit: string): string {
         : "";
 
   return `((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = new Date(v); if (Number.isNaN(d.getTime())) { return null; }${adjust} const year = d.getUTCFullYear(); if (!(year >= 0 && year <= 9999)) { return null; } return d.toISOString().slice(0, 10); })(${date})`;
+}
+
+// formatDate: a date as text from a pattern parsed at compile time, in one time zone. The parts are emitted as a
+// JSON array: a token is a string, and literal text is a one-element array. The runtime reads the date's fields
+// through Intl in that zone and joins the parts.
+//
+// - null, undefined, "", booleans and an invalid date give null, as in dateBucket.
+// - `YYYY-MM-DD` text is a calendar date, not a moment, so it prints as that day in every zone. It is read at UTC
+//   midnight and formatted in UTC. A date that does not exist, such as 2026-02-30, gives null instead of rolling
+//   over into March.
+// - A year outside 1-9999 gives null, so the yyyy token always has four digits.
+//
+// The template holds no brace inside a string, so it stays brace-balanced inside a widget's {{ }} binding.
+function compileFormatDate(
+  date: string,
+  pattern: string,
+  timeZone: string,
+): string {
+  const parsed = parseDatePattern(pattern);
+
+  // exprProblem refuses an invalid pattern before compiling, so this only guards a direct caller.
+  if ("problem" in parsed) throw new Error(parsed.problem);
+
+  return `((v, parts, tz) => { if (v == null || v === "" || typeof v === "boolean") { return null; } let zone = tz; let d; if (typeof v === "string" && /^\\d\\d\\d\\d-\\d\\d-\\d\\d$/.test(v)) { d = new Date(v + "T00:00:00Z"); if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== v) { return null; } zone = "UTC"; } else { d = new Date(v instanceof Date ? v.getTime() : v); } if (Number.isNaN(d.getTime())) { return null; } const f = Object.create(null); for (const p of new Intl.DateTimeFormat("en-US", { timeZone: zone, year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", hourCycle: "h23", weekday: "long", era: "short", timeZoneName: "short" }).formatToParts(d)) { f[p.type] = p.value; } const year = Number(f.year); if (f.era !== "AD" || !(year >= 1 && year <= 9999)) { return null; } const month = Number(f.month); const hour = Number(f.hour) % 24; const two = (n) => String(n).padStart(2, "0"); const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; const t = Object.create(null); t.yyyy = String(year).padStart(4, "0"); t.yy = t.yyyy.slice(2); t.MMMM = months[month - 1]; t.MMM = t.MMMM.slice(0, 3); t.MM = two(month); t.M = String(month); t.dd = two(f.day); t.d = String(Number(f.day)); t.EEEE = f.weekday; t.EEE = f.weekday.slice(0, 3); t.HH = two(hour); t.H = String(hour); t.hh = two(hour % 12 || 12); t.h = String(hour % 12 || 12); t.mm = two(f.minute); t.ss = two(f.second); t.a = hour < 12 ? "AM" : "PM"; t.z = f.timeZoneName; return parts.map((part) => Array.isArray(part) ? part[0] : t[part]).join(""); })(${date}, ${JSON.stringify(parsed.parts)}, ${JSON.stringify(timeZone)})`;
 }
 
 // A value as a NEW Date in the viewer's local time, or null. Each call gets its own copy, so a date function never
@@ -1534,6 +1706,12 @@ export function compileExpr(expr: Expr): string {
         return `((a, b) => { if (a === null || b === null) { return null; } a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0); return Math.round((b.getTime() - a.getTime()) / 86400000); })(${LOCAL_DATE_OF}(${a[0]}), ${LOCAL_DATE_OF}(${a[1]}))`;
       case "isoDate":
         return `((d) => d === null ? null : String(d.getFullYear()).padStart(4, "0") + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"))(${LOCAL_DATE_OF}(${a[0]}))`;
+      case "formatDate":
+        return compileFormatDate(
+          a[0],
+          args[1] as string,
+          (args[2] as string | undefined) ?? FORMAT_DATE_DEFAULT_TIME_ZONE,
+        );
     }
   }
 
@@ -1723,6 +1901,8 @@ export function compileSteps(steps: Step[]): string[] {
       lines.push(
         `showAlert(${typeof step.showAlert === "string" ? q(step.showAlert) : `String(${compileExpr(step.showAlert)} ?? "")`}, ${q(step.style ?? "info")});`,
       );
+    } else if ("log" in step) {
+      lines.push(`console.log(${compileExpr(step.log)});`);
     } else if ("storeValue" in step) {
       lines.push(
         `await storeValue(${q(step.storeValue)}, ${compileExpr(step.value)}, false);`,

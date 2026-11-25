@@ -1,5 +1,6 @@
-import React, { useContext, useState } from "react";
-import { parseIncompletePhoneNumber } from "libphonenumber-js";
+import React, { useCallback, useContext, useState } from "react";
+import type { CountryCode } from "libphonenumber-js";
+import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 
 import type { BaseInputComponentProps } from "./BaseInputField";
 import BaseInputField, { parseRegex } from "./BaseInputField";
@@ -30,6 +31,7 @@ interface ISDCodeDropdownComponentProps {
   dialCode: string;
   fieldName: string;
   isDisabled: boolean;
+  onMetaISDCodeChange: (countryCode: string, dialCode: string) => void;
   propertyPath: string;
 }
 
@@ -68,12 +70,30 @@ export const isValid = (
   return !parsedRegex || parsedRegex.test(inputValue);
 };
 
-const transformValue = (value: string) => {
-  const parsedValue = parseIncompletePhoneNumber(value);
+const formatPhoneNumber = (value: string, countryCode?: string) =>
+  countryCode
+    ? new AsYouType(countryCode as CountryCode).input(value)
+    : new AsYouType().input(value);
+
+/**
+ * Formats the number for the selected country as it is typed, the same way the
+ * Phone Input widget does, and stores only the digits as the value.
+ * Formatting is skipped while deleting, otherwise characters added by the
+ * formatting (like ")") could not be removed.
+ */
+export const transformValue = (
+  newValue: string,
+  oldValue: string,
+  countryCode?: string,
+) => {
+  const text =
+    newValue && newValue.length > (oldValue || "").length
+      ? formatPhoneNumber(newValue, countryCode)
+      : newValue;
 
   return {
-    text: parsedValue,
-    value: parsedValue,
+    text,
+    value: parseIncompletePhoneNumber(text),
   };
 };
 
@@ -83,18 +103,11 @@ function ISDCodeDropdownComponent({
   dialCode,
   fieldName,
   isDisabled,
+  onMetaISDCodeChange,
   propertyPath,
 }: ISDCodeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
-  const [metaCountryCode, setMetaCountryCode] = useState<string>();
-  const [metaDialCode, setMetaDialCode] = useState<string>();
-
-  const selectedCountryCode = metaCountryCode || countryCode;
-  const selectedDialCode = metaDialCode || dialCode;
-  const selectedISDCode = getSelectedISDCode(
-    selectedDialCode,
-    selectedCountryCode,
-  );
+  const selectedISDCode = getSelectedISDCode(dialCode, countryCode);
 
   const onISDCodeChange = (code?: string) => {
     const country = findCountryByIso(code);
@@ -105,8 +118,7 @@ function ISDCodeDropdownComponent({
       updateWidgetProperty?.(`${propertyPath}.countryCode`, country.code);
       updateWidgetProperty?.(`${propertyPath}.dialCode`, country.dial_code);
     } else {
-      setMetaCountryCode(country.code);
-      setMetaDialCode(country.dial_code);
+      onMetaISDCodeChange(country.code, country.dial_code);
     }
   };
 
@@ -129,13 +141,38 @@ function PhoneInputField({
   propertyPath,
   schemaItem,
 }: PhoneInputFieldProps) {
+  const [metaCountryCode, setMetaCountryCode] = useState<string>();
+  const [metaDialCode, setMetaDialCode] = useState<string>();
+
+  const selectedCountryCode = metaCountryCode || schemaItem.countryCode;
+  const selectedDialCode = metaDialCode || schemaItem.dialCode;
+  const formattingCountryCode = getSelectedISDCode(
+    selectedDialCode,
+    selectedCountryCode,
+  ).value as string;
+
+  const onMetaISDCodeChange = useCallback(
+    (countryCode: string, dialCode: string) => {
+      setMetaCountryCode(countryCode);
+      setMetaDialCode(dialCode);
+    },
+    [],
+  );
+
+  const transformPhoneValue = useCallback(
+    (newValue: string, oldValue: string) =>
+      transformValue(newValue, oldValue, formattingCountryCode),
+    [formattingCountryCode],
+  );
+
   const leftIcon = (
     <ISDCodeDropdownComponent
       allowDialCodeChange={schemaItem.allowDialCodeChange}
-      countryCode={schemaItem.countryCode}
-      dialCode={schemaItem.dialCode}
+      countryCode={selectedCountryCode}
+      dialCode={selectedDialCode}
       fieldName={name}
       isDisabled={schemaItem.isDisabled}
+      onMetaISDCodeChange={onMetaISDCodeChange}
       propertyPath={propertyPath}
     />
   );
@@ -150,7 +187,7 @@ function PhoneInputField({
       passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}
       schemaItem={schemaItem}
-      transformValue={transformValue}
+      transformValue={transformPhoneValue}
     />
   );
 }

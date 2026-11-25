@@ -7,6 +7,8 @@ import {
   querySpecSchema,
   sqlDialectFor,
   withoutMcpMarker,
+  type QuerySpec,
+  type SqlDialect,
 } from "./query.js";
 
 function parse(spec: unknown) {
@@ -860,7 +862,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     [
       "INSERT",
       { values: [{ column: "status", value: { literal: "open" } }] },
-      'INSERT INTO tickets (status) VALUES ({{ "open" }});',
+      'INSERT INTO tickets (status) VALUES ({{ "open" }})',
     ],
     [
       "UPDATE",
@@ -868,12 +870,12 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
         values: [{ column: "status", value: { literal: "done" } }],
         filters: [{ column: "id", op: "eq", value: { literal: 7 } }],
       },
-      'UPDATE tickets SET status = {{ "done" }} WHERE tickets.id = {{ 7 }};',
+      'UPDATE tickets SET status = {{ "done" }} WHERE tickets.id = {{ 7 }}',
     ],
     [
       "DELETE",
       { filters: [{ column: "id", op: "eq", value: { literal: 7 } }] },
-      "DELETE FROM tickets WHERE tickets.id = {{ 7 }};",
+      "DELETE FROM tickets WHERE tickets.id = {{ 7 }}",
     ],
   ])(
     "compiles an Oracle %s with bound values and unquoted names",
@@ -903,7 +905,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'SELECT tag, COUNT(id) AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY tag ORDER BY tag ASC FETCH FIRST 10 ROWS ONLY;',
+      'SELECT tag, COUNT(id) AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY tag ORDER BY tag ASC FETCH FIRST 10 ROWS ONLY',
     );
   });
 
@@ -2260,7 +2262,7 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
     );
 
     expect(body).toBe(
-      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY "count" DESC;',
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY count DESC;',
     );
   });
 
@@ -2589,7 +2591,7 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
 
     expect(body).toBe(
-      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY "count" DESC;',
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY count DESC;',
     );
   });
 
@@ -2895,6 +2897,1402 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
   });
 });
 
+// Checks that a spec is refused with this exact message at this exact path. `.strict()` refuses an unknown key, so
+// `success === false` alone would also pass before a field exists.
+function expectIssue(
+  spec: Record<string, unknown>,
+  message: string,
+  path: (string | number)[],
+) {
+  const result = querySpecSchema.safeParse({
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    ...spec,
+  });
+
+  expect(result.success).toBe(false);
+  expect(result.error?.issues).toContainEqual(
+    expect.objectContaining({ message, path }),
+  );
+}
+
+const dupName = (name: string) =>
+  `the result name "${name}" is used more than once (names ignore case); give each aggregate and group key its own name`;
+
+describe("APP-16495 A: aggregates (more than one aggregate)", () => {
+  // Oracle "weekly resolution time": a week bucket plus 3 columns, the rounded mean of the absolute time, and a count.
+  it("compiles the Oracle weekly shape on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "public.oracle_support_ticket",
+        filters: [
+          {
+            column: "created_at",
+            op: "gte",
+            value: { widget: "StartDate", property: "selectedDate" },
+          },
+        ],
+        groupBy: [
+          { column: "created_at", bucket: "week", as: "week" },
+          "status",
+          "severity",
+          "support_level",
+        ],
+        aggregates: [
+          { fn: "avg", column: "resolution_time", abs: true, round: "floor" },
+          { fn: "count" },
+        ],
+        orderBy: [{ column: "week", direction: "ASC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket WHERE "created_at" >= {{ StartDate.selectedDate }} GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY week ASC;',
+    );
+  });
+
+  it.each([
+    [
+      "mysql" as const,
+      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC LIMIT 10;",
+    ],
+    [
+      "oracle" as const,
+      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC FETCH FIRST 10 ROWS ONLY",
+    ],
+  ])("emits result names bare and orders by one on %s", (dialect, expected) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["status"],
+        aggregates: [
+          {
+            fn: "avg",
+            column: "resolution_time",
+            abs: true,
+            round: "floor",
+          },
+          { fn: "count", as: "tickets" },
+        ],
+        orderBy: [{ column: "tickets", direction: "DESC" }],
+        limit: 10,
+      }),
+      { dialect },
+    );
+
+    expect(body).toBe(expected);
+  });
+
+  it.each([
+    [
+      { fn: "sum", column: "amount", round: "ceil" },
+      'CEIL(SUM("amount")) AS sum',
+    ],
+    [
+      { fn: "avg", column: "amount", round: "round", as: "avg_amount" },
+      'ROUND(AVG("amount")) AS avg_amount',
+    ],
+    [{ fn: "min", column: "delta", abs: true }, 'MIN(ABS("delta")) AS min'],
+    [{ fn: "max", column: "delta", abs: true }, 'MAX(ABS("delta")) AS max'],
+    [{ fn: "min", column: "delta" }, 'MIN("delta") AS min'],
+    [{ fn: "count", column: "id" }, 'COUNT("id") AS count'],
+    [{ fn: "sum", column: "amount", abs: false }, 'SUM("amount") AS sum'],
+  ])("compiles %j", (entry, item) => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [entry],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(`SELECT ${item} FROM orders;`);
+  });
+
+  // The single `aggregate` goes through the same emit path, so the two forms give the same SQL.
+  it.each([
+    [{ fn: "count" }],
+    [{ fn: "count", column: "id" }],
+    [{ fn: "sum", column: "amount" }],
+    [{ fn: "avg", column: "amount" }],
+  ])("gives aggregates [%j] the same SQL as the single aggregate", (entry) => {
+    const spec = {
+      ...base,
+      operation: "SELECT",
+      table: "orders",
+      groupBy: ["region"],
+    };
+
+    expect(compileQuery(parse({ ...spec, aggregates: [entry] }))).toBe(
+      compileQuery(parse({ ...spec, aggregate: entry })),
+    );
+  });
+
+  it("still refuses min and max on the single aggregate", () => {
+    for (const fn of ["min", "max"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregate: { fn, column: "amount" },
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.path).toEqual(["aggregate", "fn"]);
+    }
+  });
+
+  it.each([
+    [
+      "aggregate and aggregates together",
+      { aggregate: { fn: "count" }, aggregates: [{ fn: "count" }] },
+      "use aggregate or aggregates, not both",
+      ["aggregates"],
+    ],
+    [
+      "two avg entries without as",
+      {
+        aggregates: [
+          { fn: "avg", column: "a" },
+          { fn: "avg", column: "b" },
+        ],
+      },
+      dupName("avg"),
+      ["aggregates", 1, "as"],
+    ],
+    [
+      'as: "count" on sum next to a default count',
+      {
+        aggregates: [{ fn: "sum", column: "a", as: "count" }, { fn: "count" }],
+      },
+      dupName("count"),
+      ["aggregates", 1, "as"],
+    ],
+    [
+      "an as equal to a group column in another case",
+      { groupBy: ["Status"], aggregates: [{ fn: "count", as: "status" }] },
+      dupName("status"),
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "0 entries",
+      { aggregates: [] },
+      "Array must contain at least 1 element(s)",
+      ["aggregates"],
+    ],
+    [
+      "7 entries",
+      {
+        aggregates: Array.from({ length: 7 }, (_, index) => ({
+          fn: "count",
+          as: `c${index}`,
+        })),
+      },
+      "Array must contain at most 6 element(s)",
+      ["aggregates"],
+    ],
+    [
+      "abs on count",
+      { aggregates: [{ fn: "count", column: "id", abs: true }] },
+      "abs is not valid with count",
+      ["aggregates", 0, "abs"],
+    ],
+    [
+      "round on count",
+      { aggregates: [{ fn: "count", round: "floor" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "round on min",
+      { aggregates: [{ fn: "min", column: "a", round: "floor" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "round on max",
+      { aggregates: [{ fn: "max", column: "a", round: "ceil" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "sum without a column",
+      { aggregates: [{ fn: "sum" }] },
+      "sum needs a column",
+      ["aggregates", 0, "column"],
+    ],
+    [
+      "the reserved word order as a result name",
+      { aggregates: [{ fn: "count", as: "order" }] },
+      '"order" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the reserved word user as a result name",
+      { aggregates: [{ fn: "count", as: "user" }] },
+      '"user" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the reserved word null as a result name",
+      { aggregates: [{ fn: "count", as: "null" }] },
+      '"null" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "an upper-case result name",
+      { aggregates: [{ fn: "count", as: "Total" }] },
+      "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the split source name as a result name",
+      { aggregates: [{ fn: "count", as: "mcp_split" }] },
+      '"mcp_split" is reserved for the split source; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the split item name as a result name",
+      { aggregates: [{ fn: "count", as: "mcp_split_value" }] },
+      '"mcp_split_value" is reserved for the split source; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "an aggregate column on the reserved split item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregates: [{ fn: "sum", column: "mcp_split_value" }],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["aggregates", 0, "column"],
+    ],
+    [
+      "an orderBy column that is not a result name",
+      {
+        groupBy: ["status"],
+        aggregates: [{ fn: "count" }],
+        orderBy: [{ column: "created_at", direction: "ASC" }],
+      },
+      'with aggregates or a bucket, orderBy can only name a result column ("status", "count")',
+      ["orderBy", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    expectIssue(override, message, path);
+  });
+
+  it("refuses an aggregate column named like its table on PostgreSQL", () => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          aggregates: [{ fn: "count", column: "tickets" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/an aggregate cannot use a column named like its table/);
+  });
+
+  describe("having", () => {
+    it("repeats the full aggregate expression", () => {
+      expect(
+        compileQuery(
+          parse({
+            ...base,
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: ["tag"],
+            aggregates: [{ fn: "avg", column: "x", abs: true, round: "floor" }],
+            having: [{ column: "avg", op: "gt", value: { literal: 5 } }],
+          }),
+        ),
+      ).toBe(
+        'SELECT "tag", FLOOR(AVG(ABS("x"))) AS avg FROM tickets GROUP BY "tag" HAVING FLOOR(AVG(ABS("x"))) > {{ 5 }};',
+      );
+    });
+
+    it("picks the entry whose result name matches", () => {
+      expect(
+        compileQuery(
+          parse({
+            ...base,
+            operation: "SELECT",
+            table: "orders",
+            groupBy: ["region"],
+            aggregates: [
+              { fn: "sum", column: "amount" },
+              { fn: "count", as: "n" },
+            ],
+            having: [{ column: "n", op: "gte", value: { literal: 2 } }],
+          }),
+        ),
+      ).toBe(
+        'SELECT "region", SUM("amount") AS sum, COUNT(*) AS n FROM orders GROUP BY "region" HAVING COUNT(*) >= {{ 2 }};',
+      );
+    });
+
+    it.each([
+      [
+        "a name that is neither a result nor a group column",
+        {
+          groupBy: ["region"],
+          aggregates: [
+            { fn: "sum", column: "amount" },
+            { fn: "count", as: "n" },
+          ],
+          having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        },
+        'having can only test "sum", "n" or a groupBy column',
+      ],
+      [
+        "a bucket's result name",
+        {
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "week", op: "gt", value: { literal: "x" } }],
+        },
+        "having cannot test a bucket or its column (created_at); filter created_at in filters instead",
+      ],
+      [
+        "a bucket's source column",
+        {
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregate: { fn: "count" },
+          having: [{ column: "created_at", op: "gt", value: { literal: "x" } }],
+        },
+        "having cannot test a bucket or its column (created_at); filter created_at in filters instead",
+      ],
+    ])("refuses %s", (_label, override, message) => {
+      expectIssue(override, message, ["having", 0, "column"]);
+    });
+  });
+});
+
+describe("APP-16495 B: date bucket group key", () => {
+  const weekly = {
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+    aggregates: [{ fn: "count" }],
+  };
+
+  it.each(["day", "week", "month", "quarter", "year"])(
+    "emits DATE_TRUNC with the %s unit as fixed text",
+    (bucket) => {
+      expect(
+        compileQuery(
+          parse({
+            ...weekly,
+            groupBy: [{ column: "created_at", bucket, as: "period" }],
+          }),
+          { dialect: "postgres" },
+        ),
+      ).toBe(
+        `SELECT DATE_TRUNC('${bucket}', "created_at") AS period, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('${bucket}', "created_at");`,
+      );
+    },
+  );
+
+  it("compiles on Redshift the same way", () => {
+    expect(compileQuery(parse(weekly), { dialect: "redshift" })).toBe(
+      "SELECT DATE_TRUNC('week', \"created_at\") AS week, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('week', \"created_at\");",
+    );
+  });
+
+  it("works with the single aggregate", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [{ column: "created_at", bucket: "day", as: "day" }],
+          aggregate: { fn: "count" },
+          orderBy: [{ column: "day", direction: "DESC" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      "SELECT DATE_TRUNC('day', \"created_at\") AS day, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('day', \"created_at\") ORDER BY day DESC;",
+    );
+  });
+
+  it.each([undefined, "mysql" as const, "oracle" as const, "other" as const])(
+    "refuses a bucket unless the datasource is PostgreSQL or Redshift (dialect %s)",
+    (dialect) => {
+      expect(() => compileQuery(parse(weekly), { dialect })).toThrow(
+        /^bucket \(on created_at\) is only available on a PostgreSQL or Redshift datasource/,
+      );
+    },
+  );
+
+  it("refuses a bucket column named like its table on PostgreSQL", () => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...weekly,
+          groupBy: [{ column: "tickets", bucket: "week", as: "week" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/groupBy and having cannot use a column named like its table/);
+  });
+
+  const withSplit = {
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    groupBy: [
+      { column: "created_at", bucket: "month", as: "month" },
+      { column: "tags", split: "," },
+    ],
+    aggregates: [{ fn: "count" }],
+  };
+
+  it("combines a bucket with a split on PostgreSQL", () => {
+    expect(compileQuery(parse(withSplit), { dialect: "postgres" })).toBe(
+      'SELECT DATE_TRUNC(\'month\', "created_at") AS month, TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY DATE_TRUNC(\'month\', "created_at"), TRIM(mcp_split.mcp_split_value);',
+    );
+  });
+
+  it("still refuses the split on Redshift when a bucket is present", () => {
+    expect(() =>
+      compileQuery(parse(withSplit), { dialect: "redshift" }),
+    ).toThrow(/split \(on tags\) is only available on a PostgreSQL datasource/);
+  });
+
+  it.each([
+    [
+      "a bucket without an aggregate",
+      { groupBy: [{ column: "created_at", bucket: "week", as: "week" }] },
+      "bucket on a groupBy column needs an aggregate",
+      ["groupBy", 0, "bucket"],
+    ],
+    [
+      "a bucket in columns",
+      { columns: [{ column: "created_at", bucket: "week", as: "week" }] },
+      "bucket is only valid in groupBy",
+      ["columns", 0, "bucket"],
+    ],
+    [
+      "a bucket without as",
+      {
+        groupBy: [{ column: "created_at", bucket: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      'bucket needs as, the name of its result column (such as "week")',
+      ["groupBy", 0, "as"],
+    ],
+    [
+      "a reserved bucket result name",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "date" }],
+        aggregates: [{ fn: "count" }],
+      },
+      '"date" is a reserved SQL word; pick another name',
+      ["groupBy", 0, "as"],
+    ],
+    [
+      "a bucket result name equal to a group column",
+      {
+        groupBy: ["week", { column: "created_at", bucket: "week", as: "week" }],
+        aggregate: { fn: "count" },
+      },
+      dupName("week"),
+      ["groupBy", 1, "as"],
+    ],
+    [
+      "a bucket result name equal to the single aggregate's",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "count" }],
+        aggregate: { fn: "count" },
+      },
+      dupName("count"),
+      ["aggregate"],
+    ],
+    [
+      "an orderBy on the bucket's source column",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+        aggregates: [{ fn: "count" }],
+        orderBy: [{ column: "created_at", direction: "ASC" }],
+      },
+      'with aggregates or a bucket, orderBy can only name a result column ("week", "count")',
+      ["orderBy", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    expectIssue(override, message, path);
+  });
+});
+
+describe("APP-16495 C: distinct", () => {
+  it("compiles SELECT DISTINCT with an ORDER BY on a selected column", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "customers",
+          distinct: true,
+          columns: ["domain", "id"],
+          orderBy: [{ column: "id", direction: "ASC" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe('SELECT DISTINCT domain, id FROM customers ORDER BY "id" ASC;');
+  });
+
+  it("allows a coalesce column, which keeps its name", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          distinct: true,
+          columns: [{ column: "owner", coalesce: { literal: "none" } }, "id"],
+          orderBy: [{ column: "owner", direction: "ASC" }],
+        }),
+      ),
+    ).toBe(
+      'SELECT DISTINCT COALESCE(owner, {{ "none" }}) AS owner, id FROM tickets ORDER BY "owner" ASC;',
+    );
+  });
+
+  it("accepts distinct: false with no columns as a no-op", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          distinct: false,
+        }),
+      ),
+    ).toBe("SELECT * FROM tickets;");
+  });
+
+  it.each([
+    [
+      "no columns",
+      { distinct: true },
+      "distinct needs a non-empty columns list",
+    ],
+    [
+      "an empty columns list",
+      { distinct: true, columns: [] },
+      "distinct needs a non-empty columns list",
+    ],
+    [
+      "an aggregate",
+      { distinct: true, columns: ["a"], aggregate: { fn: "count" } },
+      "distinct cannot be used with aggregate",
+    ],
+    [
+      "aggregates",
+      { distinct: true, columns: ["a"], aggregates: [{ fn: "count" }] },
+      "distinct cannot be used with aggregates",
+    ],
+    [
+      "groupBy",
+      { distinct: true, columns: ["a"], groupBy: ["a"] },
+      "distinct cannot be used with groupBy",
+    ],
+  ])("refuses distinct with %s", (_label, override, message) => {
+    expectIssue(override, message, ["distinct"]);
+  });
+
+  it("refuses an orderBy column that is not in columns", () => {
+    expectIssue(
+      {
+        distinct: true,
+        columns: ["domain"],
+        orderBy: [{ column: "id", direction: "ASC" }],
+      },
+      "with distinct, orderBy can only name a column in columns",
+      ["orderBy", 0, "column"],
+    );
+  });
+});
+
+describe("APP-16495: write guard and fail-closed compiler", () => {
+  const writes: [string, Record<string, unknown>][] = [
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    [
+      "UPDATE",
+      {
+        values: [{ column: "a", value: { literal: 1 } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "DELETE",
+      { filters: [{ column: "id", op: "eq", value: { literal: 1 } }] },
+    ],
+  ];
+
+  it.each(writes)(
+    "refuses aggregates and distinct on %s",
+    (operation, extra) => {
+      for (const [field, value] of [
+        ["aggregates", [{ fn: "count" }]],
+        ["distinct", true],
+      ] as const) {
+        const result = querySpecSchema.safeParse({
+          ...base,
+          operation,
+          table: "tickets",
+          ...extra,
+          [field]: value,
+        });
+
+        expect(result.success).toBe(false);
+        expect(result.error?.issues).toContainEqual(
+          expect.objectContaining({
+            message: `${field} is only valid on a SELECT query`,
+            path: [field],
+          }),
+        );
+      }
+    },
+  );
+
+  // A caller that skips parsing must not get SQL text from an unknown key or a bad result name.
+  it.each([
+    [
+      "an unknown fn",
+      { aggregates: [{ fn: "median", column: "x" }] },
+      /^unknown aggregate fn "median"$/,
+    ],
+    [
+      "an inherited fn name",
+      { aggregates: [{ fn: "constructor", column: "x" }] },
+      /^unknown aggregate fn "constructor"$/,
+    ],
+    [
+      "an unknown round",
+      { aggregates: [{ fn: "avg", column: "x", round: "trunc" }] },
+      /^unknown round "trunc"$/,
+    ],
+    [
+      "an unknown bucket",
+      {
+        groupBy: [{ column: "d", bucket: "decade", as: "d10" }],
+        aggregates: [{ fn: "count" }],
+      },
+      /^unknown bucket "decade"$/,
+    ],
+    [
+      "a result name with SQL in it",
+      { aggregates: [{ fn: "count", as: "c FROM t; DROP TABLE t; --" }] },
+      /^invalid result name/,
+    ],
+    [
+      "a bucket with no result name",
+      {
+        groupBy: [{ column: "d", bucket: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      /^invalid result name/,
+    ],
+    [
+      "abs on count",
+      { aggregates: [{ fn: "count", abs: true }] },
+      /^abs is not valid with count$/,
+    ],
+    [
+      "round on min",
+      { aggregates: [{ fn: "min", column: "x", round: "floor" }] },
+      /^round is only valid with sum or avg$/,
+    ],
+    [
+      "aggregate and aggregates together",
+      { aggregate: { fn: "count" }, aggregates: [{ fn: "count" }] },
+      /^use aggregate or aggregates, not both$/,
+    ],
+    [
+      "distinct with an aggregate",
+      { distinct: true, columns: ["a"], aggregates: [{ fn: "count" }] },
+      /^distinct cannot be used with aggregate, aggregates or groupBy$/,
+    ],
+    [
+      "distinct without columns",
+      { distinct: true },
+      /^distinct needs a non-empty columns list$/,
+    ],
+  ])("throws in the compiler on %s", (_label, extra, error) => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          ...extra,
+        } as never,
+        { dialect: "postgres" },
+      ),
+    ).toThrow(error);
+  });
+});
+
+describe("APP-16495: council follow-ups", () => {
+  // Bare MySQL and Oracle reserved words. As a bare alias, each would fail to parse at run time there.
+  it.each(["key", "rank", "rowid", "level", "number", "size", "comment"])(
+    "refuses the MySQL or Oracle reserved word %s as a result name",
+    (name) => {
+      expectIssue(
+        { aggregates: [{ fn: "count", as: name }] },
+        `"${name}" is a reserved SQL word; pick another name`,
+        ["aggregates", 0, "as"],
+      );
+    },
+  );
+
+  it("refuses an Oracle reserved word as a bucket result name", () => {
+    expectIssue(
+      {
+        groupBy: [{ column: "created_at", bucket: "day", as: "sysdate" }],
+        aggregates: [{ fn: "count" }],
+      },
+      '"sysdate" is a reserved SQL word; pick another name',
+      ["groupBy", 0, "as"],
+    );
+  });
+
+  // SQL Server spells these CEILING and ROUND(x, n). "other" covers it, so ceil and round are refused there.
+  it.each([
+    ["ceil", undefined],
+    ["ceil", "other" as const],
+    ["round", undefined],
+    ["round", "other" as const],
+  ])("refuses round %s on dialect %s", (round, dialect) => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [{ fn: "avg", column: "amount", round }],
+        }),
+        { dialect },
+      ),
+    ).toThrow(
+      new RegExp(
+        `^round "${round}" \\(on amount\\) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource`,
+      ),
+    );
+  });
+
+  it.each([
+    ["postgres" as const, "ceil", 'CEIL(AVG("amount"))', ";"],
+    ["redshift" as const, "round", 'ROUND(AVG("amount"))', ";"],
+    ["mysql" as const, "ceil", "CEIL(AVG(amount))", ";"],
+    ["oracle" as const, "round", "ROUND(AVG(amount))", ""],
+    ["other" as const, "floor", 'FLOOR(AVG("amount"))', ";"],
+    [undefined, "floor", 'FLOOR(AVG("amount"))', ";"],
+  ])("allows on dialect %s round %s", (dialect, round, expression, end) => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [{ fn: "avg", column: "amount", round }],
+        }),
+        { dialect },
+      ),
+    ).toBe(`SELECT ${expression} AS avg FROM orders${end}`);
+  });
+
+  it("refuses a second case-insensitive duplicate: a group column WEEK and a bucket named week", () => {
+    expectIssue(
+      {
+        groupBy: ["WEEK", { column: "created_at", bucket: "week", as: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      dupName("week"),
+      ["groupBy", 1, "as"],
+    );
+  });
+
+  // A caller that skips parsing must not get a quoted or bare name with SQL in it, or an operator that is not in the
+  // closed map.
+  it.each([
+    [
+      "an orderBy column",
+      {
+        columns: ["id"],
+        orderBy: [{ column: 'id" DESC; DROP TABLE t; --', direction: "ASC" }],
+      },
+      "postgres" as const,
+    ],
+    [
+      "a group column on MySQL, where names are bare",
+      {
+        groupBy: ["status FROM t; DROP TABLE t; --"],
+        aggregates: [{ fn: "count" }],
+      },
+      "mysql" as const,
+    ],
+    [
+      "an aggregate column on Oracle",
+      { aggregates: [{ fn: "sum", column: "amount) FROM t; --" }] },
+      "oracle" as const,
+    ],
+  ])("throws on an unsafe identifier in %s", (_label, extra, dialect) => {
+    expect(() =>
+      compileQuery(
+        { ...base, operation: "SELECT", table: "t", ...extra } as never,
+        { dialect },
+      ),
+    ).toThrow(/^unsafe identifier: /);
+  });
+
+  it("throws on a having op that is not in the closed map", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count" }],
+          having: [
+            { column: "count", op: "constructor", value: { literal: 1 } },
+          ],
+        } as never,
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/^unknown having op "constructor"$/);
+  });
+});
+
+describe("APP-16495: CodeRabbit follow-ups", () => {
+  // Reserved as a bare name on MySQL, PostgreSQL, SQL Server or Snowflake. SQL Server and Snowflake are "other".
+  it.each([
+    "precision",
+    "database",
+    "returning",
+    "ilike",
+    "top",
+    "percent",
+    "qualify",
+  ])("refuses the reserved word %s as a result name", (name) => {
+    expectIssue(
+      { aggregates: [{ fn: "count", as: name }] },
+      `"${name}" is a reserved SQL word; pick another name`,
+      ["aggregates", 0, "as"],
+    );
+  });
+
+  // Snowflake folds the bare alias n to N, so a quoted "n" in ORDER BY would not find it. A bare reference folds the
+  // same way as the alias on every database.
+  it("orders by an aggregate result name bare on dialect other", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "sales",
+          groupBy: ["region"],
+          aggregates: [{ fn: "count", as: "n" }],
+          orderBy: [{ column: "n", direction: "DESC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "region", COUNT(*) AS n FROM sales GROUP BY "region" ORDER BY n DESC;',
+    );
+  });
+
+  it("orders by a bucket and an aggregate bare, and by a group column quoted", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [
+            { column: "created_at", bucket: "week", as: "week" },
+            "status",
+          ],
+          aggregates: [{ fn: "count" }],
+          orderBy: [
+            { column: "week", direction: "ASC" },
+            { column: "status", direction: "ASC" },
+            { column: "count", direction: "DESC" },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC(\'week\', "created_at"), "status" ORDER BY week ASC, "status" ASC, count DESC;',
+    );
+  });
+
+  // A caller that skips parsing must not get an unsafe result name into ORDER BY through the bare path.
+  it("throws on an unsafe result name that orderBy names, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "x; DROP TABLE t; --" }],
+          orderBy: [{ column: "x; DROP TABLE t; --", direction: "ASC" }],
+        } as never,
+        { dialect: "other" },
+      ),
+    ).toThrow(/^invalid result name: /);
+  });
+
+  // The single aggregate names its result bare too. On Snowflake, a quoted "count" would miss the alias COUNT.
+  it("orders by the single aggregate's result name bare on dialect other", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "count" },
+          orderBy: [{ column: "count", direction: "DESC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY count DESC;',
+    );
+  });
+
+  // Oracle needs a bare name to start with a letter, so a leading _ is refused on every database.
+  it.each([
+    [
+      "an aggregate",
+      { aggregates: [{ fn: "count", as: "_n" }] },
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "a bucket",
+      {
+        groupBy: [{ column: "created_at", bucket: "day", as: "_day" }],
+        aggregates: [{ fn: "count" }],
+      },
+      ["groupBy", 0, "as"],
+    ],
+  ])(
+    "refuses a result name that starts with _ on %s",
+    (_label, extra, path) => {
+      expectIssue(
+        extra,
+        "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+        path,
+      );
+    },
+  );
+
+  it("throws on a result name that starts with _, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "_n" }],
+        } as never,
+        { dialect: "oracle" },
+      ),
+    ).toThrow(/^invalid result name: "_n"$/);
+  });
+
+  // HAVING resolves an aggregate's result name first, so an aggregate named like a bucket's source column is allowed.
+  it("allows having on an aggregate named like a bucket's source column", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [{ column: "created_at", bucket: "month", as: "month" }],
+          aggregates: [{ fn: "max", column: "created_at", as: "created_at" }],
+          having: [
+            {
+              column: "created_at",
+              op: "gt",
+              value: { literal: "2026-01-01" },
+            },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'month\', "created_at") AS month, MAX("created_at") AS created_at FROM tickets GROUP BY DATE_TRUNC(\'month\', "created_at") HAVING MAX("created_at") > {{ "2026-01-01" }};',
+    );
+  });
+
+  // An orderBy name that is not the aggregate's result stays quoted.
+  it("keeps a group column quoted when the single aggregate is present", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "sum", column: "amount" },
+          orderBy: [{ column: "tag", direction: "ASC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "tag", SUM("amount") AS sum FROM tickets GROUP BY "tag" ORDER BY "tag" ASC;',
+    );
+  });
+});
+
+// A caller that skips parsing must not get a bad table name into the SQL. Before this check, a missing table compiled
+// to `FROM undefined`, and `t; DROP TABLE u` was written as is.
+describe("APP-16506: the compiler checks the table name again", () => {
+  const operations: [string, Record<string, unknown>][] = [
+    ["SELECT", {}],
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["UPDATE", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["DELETE", {}],
+  ];
+  const badTables: [string, unknown][] = [
+    ["a missing table", undefined],
+    ["an empty table", ""],
+    ["a non-string table", 42],
+    ["a statement after the table", "t; DROP TABLE u"],
+    ["an empty name part", "public..t"],
+    ["a name that is too long", `s.${"t".repeat(256)}`],
+  ];
+
+  describe.each(operations)("%s", (operation, extra) => {
+    it.each(badTables)("refuses %s", (_, table) => {
+      const spec = {
+        ...base,
+        operation,
+        table,
+        ...extra,
+      } as unknown as Parameters<typeof compileQuery>[0];
+
+      for (const dialect of [undefined, "postgres", "mysql"] as const) {
+        expect(() =>
+          compileQuery(spec, dialect === undefined ? undefined : { dialect }),
+        ).toThrow(new Error(`unsafe table name: ${JSON.stringify(table)}`));
+      }
+    });
+
+    it("still compiles a schema-qualified table", () => {
+      const body = compileQuery(
+        parse({ ...base, operation, table: "public.tickets", ...extra }),
+        { dialect: "postgres" },
+      );
+
+      expect(body).toContain("public.tickets");
+    });
+  });
+});
+
+// A caller that skips parsing must not get other text into the SQL through a column name or a literal. Before these
+// checks, each case below compiled with the text written as is.
+describe("APP-16506: names are re-checked when written", () => {
+  const unsafe = "x OR 1=1 OR y";
+  const compileUnparsed = (
+    spec: Record<string, unknown>,
+    dialect: "postgres" | "redshift" | "mysql" | "oracle" | "other",
+  ) =>
+    compileQuery(
+      { ...base, table: "t", ...spec } as unknown as Parameters<
+        typeof compileQuery
+      >[0],
+      { dialect },
+    );
+  const columnError = new Error(
+    `unsafe column name: ${JSON.stringify(unsafe)}`,
+  );
+
+  it.each(["postgres", "redshift", "mysql", "oracle", "other"] as const)(
+    "refuses an unsafe filter column on %s",
+    (dialect) => {
+      expect(() =>
+        compileUnparsed(
+          {
+            operation: "DELETE",
+            filters: [{ column: unsafe, op: "eq", value: { literal: 1 } }],
+          },
+          dialect,
+        ),
+      ).toThrow(columnError);
+    },
+  );
+
+  it("refuses an unsafe column in the plain select list", () => {
+    expect(() =>
+      compileUnparsed(
+        { operation: "SELECT", columns: ["a FROM secrets --"] },
+        "postgres",
+      ),
+    ).toThrow(
+      new Error(`unsafe column name: ${JSON.stringify("a FROM secrets --")}`),
+    );
+  });
+
+  it("refuses an unsafe coalesce column in the plain select list", () => {
+    expect(() =>
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          columns: [{ column: unsafe, coalesce: { literal: 0 } }],
+        },
+        "mysql",
+      ),
+    ).toThrow(columnError);
+  });
+
+  it("refuses an unsafe split column", () => {
+    expect(() =>
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          groupBy: [{ column: 'a") ,1) x; --', split: "," }],
+        },
+        "postgres",
+      ),
+    ).toThrow(
+      new Error(`unsafe column name: ${JSON.stringify('a") ,1) x; --')}`),
+    );
+  });
+
+  it.each([
+    ["INSERT", "a) VALUES (1); DROP TABLE t; --"],
+    ["UPDATE", "a = 1, b"],
+  ])("refuses an unsafe %s column", (operation, column) => {
+    expect(() =>
+      compileUnparsed(
+        { operation, values: [{ column, value: { literal: 1 } }] },
+        "postgres",
+      ),
+    ).toThrow(new Error(`unsafe column name: ${JSON.stringify(column)}`));
+  });
+
+  it.each([
+    [
+      "a filter value",
+      { filters: [{ column: "a", op: "eq", value: { literal: "{{ x }}" } }] },
+    ],
+    [
+      "a like value",
+      {
+        filters: [
+          {
+            column: "a",
+            op: "like",
+            value: { literal: "}}" },
+            match: "contains",
+          },
+        ],
+      },
+    ],
+    [
+      "a coalesce fallback",
+      { columns: [{ column: "a", coalesce: { literal: "{{ x" } }] },
+    ],
+  ])("refuses template braces in %s", (_, extra) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", ...extra }, "postgres"),
+    ).toThrow(new Error("unsafe literal value"));
+  });
+
+  it("still compiles a literal with a single brace, escaped", () => {
+    expect(
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          filters: [{ column: "a", op: "eq", value: { literal: "{x}" } }],
+        },
+        "postgres",
+      ),
+    ).toBe('SELECT * FROM t WHERE "a" = {{ "\\u007bx\\u007d" }};');
+  });
+});
+
+// Splits a body into text and `{{ }}` segments the way Appsmith does (getDynamicStringSegments in
+// src/utils/DynamicBindingUtils.ts). It counts single braces and does not skip quoted text.
+function appsmithSegments(text: string): string[] {
+  const start = text.indexOf("{{");
+
+  if (start === -1) return [text];
+
+  const segments = start > 0 ? [text.slice(0, start)] : [];
+  const rest = text.slice(start);
+  let depth = 0;
+
+  for (let i = 0; i < rest.length; i++) {
+    if (rest[i] === "{") depth++;
+
+    if (rest[i] === "}") {
+      depth--;
+
+      if (rest[i - 1] === "}" && depth === 0) {
+        segments.push(rest.slice(0, i + 1));
+
+        const tail = rest.slice(i + 1);
+
+        return tail ? [...segments, ...appsmithSegments(tail)] : segments;
+      }
+    }
+  }
+
+  return [text];
+}
+
+// A caller that skips parsing must not get other text into the SQL through a value, a direction, a limit, an operator
+// or an over-long name. Single braces also arrive through parsed specs.
+describe("APP-16506: emitted tokens are re-checked", () => {
+  const compileUnparsed = (
+    spec: Record<string, unknown>,
+    dialect: "postgres" | "oracle" | "mysql" = "postgres",
+  ) =>
+    compileQuery(
+      { ...base, table: "t", ...spec } as unknown as Parameters<
+        typeof compileQuery
+      >[0],
+      { dialect },
+    );
+
+  it("keeps single braces in literals inside their own binding", () => {
+    // Given a parsed spec with { in one literal and } in another
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "t",
+      filters: [
+        { column: "a", op: "eq", value: { literal: "{" } },
+        { column: "b", op: "eq", value: { literal: "}" } },
+      ],
+    });
+
+    // When it compiles
+    const body = compileQuery(spec, { dialect: "mysql" });
+
+    // Then each value is its own binding, and every brace left belongs to a binding
+    expect(body).toBe(
+      'SELECT * FROM t WHERE t.a = {{ "\\u007b" }} AND t.b = {{ "\\u007d" }};',
+    );
+    expect(appsmithSegments(body)).toEqual([
+      "SELECT * FROM t WHERE t.a = ",
+      '{{ "\\u007b" }}',
+      " AND t.b = ",
+      '{{ "\\u007d" }}',
+      ";",
+    ]);
+    expect(
+      appsmithSegments(body)
+        .filter((segment) => !segment.startsWith("{{"))
+        .join(""),
+    ).not.toMatch(/[{}]/);
+  });
+
+  it.each([
+    ["${", "${x}"],
+    ["a backtick", "`x`"],
+    ["U+2028", "a b"],
+    ["U+2029", "a b"],
+  ])("refuses %s in a string literal", (_, literal) => {
+    expect(() =>
+      compileUnparsed({
+        operation: "SELECT",
+        filters: [{ column: "a", op: "eq", value: { literal } }],
+      }),
+    ).toThrow(new Error("unsafe literal value"));
+  });
+
+  it("refuses an orderBy direction that is not ASC or DESC", () => {
+    expect(() =>
+      compileUnparsed({
+        operation: "SELECT",
+        orderBy: [{ column: "a", direction: "ASC; DROP TABLE t" }],
+      }),
+    ).toThrow(new Error('unknown orderBy direction "ASC; DROP TABLE t"'));
+  });
+
+  it.each([
+    ["postgres", "1; DROP TABLE t"],
+    ["postgres", 0],
+    ["postgres", 1001],
+    ["postgres", 1.5],
+    ["oracle", "1 ROWS ONLY; DROP TABLE t; --"],
+    ["oracle", 1001],
+    ["oracle", -1],
+  ] as const)("refuses a bad limit on %s: %p", (dialect, limit) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", limit }, dialect),
+    ).toThrow(
+      new Error(
+        `limit must be an integer from 1 to 1000: ${JSON.stringify(limit)}`,
+      ),
+    );
+  });
+
+  it.each(["between", "constructor", "toString"])(
+    "refuses the filter op %s",
+    (op) => {
+      expect(() =>
+        compileUnparsed({
+          operation: "DELETE",
+          filters: [{ column: "a", op, value: { literal: 1 } }],
+        }),
+      ).toThrow(new Error(`unknown filter op ${JSON.stringify(op)}`));
+    },
+  );
+
+  it.each([
+    [
+      "an orderBy column",
+      { orderBy: [{ column: "a".repeat(129), direction: "ASC" }] },
+    ],
+    [
+      "a group column",
+      { aggregate: { fn: "count" }, groupBy: ["a".repeat(129)] },
+    ],
+    [
+      "an aggregate column",
+      { aggregate: { fn: "sum", column: "a".repeat(129) } },
+    ],
+  ])("refuses %s longer than 128 characters", (_, extra) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", ...extra }, "mysql"),
+    ).toThrow(
+      new Error(`unsafe identifier: ${JSON.stringify("a".repeat(129))}`),
+    );
+  });
+
+  it("still compiles a 128-character column", () => {
+    const name = "a".repeat(128);
+
+    expect(
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          orderBy: [{ column: name, direction: "ASC" }],
+        },
+        "mysql",
+      ),
+    ).toBe(`SELECT * FROM t ORDER BY ${name} ASC;`);
+  });
+});
+
 describe("APP-16324 F9: marking MCP-authored SQL", () => {
   const body = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
 
@@ -3027,5 +4425,2912 @@ describe("buildActionDto", () => {
   it("reads the stored body of any other SQL plugin from actionConfiguration.body", () => {
     expect(storedSqlBody({ body: "SELECT 1;" })).toBe("SELECT 1;");
     expect(storedSqlBody(undefined)).toBeUndefined();
+  });
+});
+
+// APP-16507: Redshift and Snowflake run SQL as plain text. The server pastes each {{ }} value into the query before it
+// runs, so a binding there is not a parameter. The compiler and buildActionDto refuse any binding for those plugins.
+describe("APP-16507: no bindings for plugins without prepared statements", () => {
+  const withValues: [string, Record<string, unknown>][] = [
+    [
+      "a widget-valued filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      },
+    ],
+    [
+      "a literal filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [{ column: "status", op: "eq", value: { literal: "paid" } }],
+      },
+    ],
+    [
+      "a skipWhenEmpty filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+            skipWhenEmpty: true,
+          },
+        ],
+      },
+    ],
+    [
+      "a coalesce fallback",
+      {
+        operation: "SELECT",
+        table: "users",
+        columns: [{ column: "nickname", coalesce: { literal: "none" } }],
+      },
+    ],
+    [
+      "a having value",
+      {
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 5 } }],
+      },
+    ],
+    [
+      "an UPDATE value",
+      {
+        operation: "UPDATE",
+        table: "users",
+        values: [{ column: "status", value: { literal: "closed" } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "an INSERT value",
+      {
+        operation: "INSERT",
+        table: "users",
+        values: [
+          {
+            column: "email",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      },
+    ],
+  ];
+
+  const plugins: [string, string][] = [
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ];
+
+  it.each(
+    plugins.flatMap(([packageName, database]) =>
+      withValues.map(
+        ([label, spec]) => [database, label, packageName, spec] as const,
+      ),
+    ),
+  )("refuses %s with %s", (database, _label, packageName, spec) => {
+    // Given
+    const parsed = parse({ ...base, ...spec });
+
+    // When
+    const compile = () =>
+      compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      });
+
+    // Then
+    expect(compile).toThrow(
+      `the ${database} plugin does not use prepared statements`,
+    );
+  });
+
+  it.each(plugins)("compiles a query with no values on %s", (packageName) => {
+    // Given
+    const parsed = parse({
+      ...base,
+      operation: "SELECT",
+      table: "users",
+      columns: ["id", "email"],
+      filters: [{ column: "deleted_at", op: "isNull" }],
+      orderBy: [{ column: "id", direction: "DESC" }],
+      limit: 50,
+    });
+
+    // When
+    const body = compileQuery(parsed, {
+      dialect: sqlDialectFor(packageName),
+      packageName,
+    });
+
+    // Then
+    expect(body).not.toContain("{{");
+    expect(body).toContain("LIMIT 50");
+  });
+
+  it.each(["postgres-plugin", "mysql-plugin", "mssql-plugin", "oracle-plugin"])(
+    "still binds values on %s, which uses prepared statements",
+    (packageName) => {
+      // Given
+      const parsed = parse({
+        ...base,
+        operation: "SELECT",
+        table: "users",
+        filters: [{ column: "status", op: "eq", value: { literal: "paid" } }],
+      });
+
+      // When
+      const body = compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      });
+
+      // Then
+      expect(body).toContain('{{ "paid" }}');
+    },
+  );
+
+  it.each(plugins)(
+    "buildActionDto refuses to store a binding for %s even when compiled without packageName",
+    (packageName, database) => {
+      // Given: compiled with no packageName, so compileQuery cannot refuse it.
+      const parsed = parse({
+        ...base,
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      });
+      const body = compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+      });
+
+      // When
+      const store = () =>
+        buildActionDto(parsed, markMcpAuthoredBody(body), packageName);
+
+      // Then
+      expect(store).toThrow(
+        `the ${database} plugin does not use prepared statements`,
+      );
+    },
+  );
+});
+
+const DIALECTS = ["postgres", "redshift", "mysql", "oracle", "other"] as const;
+
+// `SELECT * FROM <table>` as each dialect ends it. An Oracle body has no `;`.
+const SELECT_STAR_END: Record<SqlDialect, string> = {
+  postgres: ";",
+  redshift: ";",
+  mysql: ";",
+  oracle: "",
+  other: ";",
+};
+
+const selectStar = (table: string, dialect: SqlDialect) =>
+  `SELECT * FROM ${table}${SELECT_STAR_END[dialect]}`;
+
+const CATALOG_MESSAGE = (table: string) =>
+  `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+
+describe("APP-16506 A: system catalogs are refused", () => {
+  it.each([
+    "information_schema.tables",
+    "PG_CATALOG.pg_class",
+    "pg_toast.pg_toast_2619",
+    "pg_temp_3.scratch",
+    "mysql.user",
+    "Performance_Schema.threads",
+    "sys.objects",
+    "master.sys.objects",
+  ])("should_refuse_a_system_schema_when_table_is_%s", (table) => {
+    // Given
+    const spec = { ...base, operation: "SELECT", table };
+
+    // When
+    const result = querySpecSchema.safeParse(spec);
+
+    // Then
+    expect(result.success).toBe(false);
+    expect(
+      result.success
+        ? []
+        : result.error.issues.map((issue) => ({
+            path: issue.path,
+            message: issue.message,
+          })),
+    ).toEqual([{ path: ["table"], message: CATALOG_MESSAGE(table) }]);
+  });
+
+  it.each([
+    ["SELECT", {}],
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["UPDATE", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["DELETE", {}],
+  ])(
+    "should_throw_on_a_system_schema_when_an_unparsed_%s_reaches_the_compiler",
+    (operation, extra) => {
+      // Given
+      const spec = {
+        ...base,
+        operation,
+        table: "information_schema.columns",
+        ...extra,
+      } as unknown as QuerySpec;
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE("information_schema.columns")),
+        );
+      }
+    },
+  );
+
+  it.each(["pg_user", "public.pg_stats", "PG_SHADOW", "pg_x.t"])(
+    "should_refuse_%s_only_on_postgres_and_redshift",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      for (const dialect of ["postgres", "redshift"] as const) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE(table)),
+        );
+      }
+
+      for (const dialect of ["mysql", "oracle", "other"] as const) {
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
+      }
+    },
+  );
+
+  it.each([
+    "stl_query",
+    "public.stv_sessions",
+    "SVV_TABLE_INFO",
+    "pg_catalog_x.svl_qlog",
+  ])("should_refuse_%s_only_on_redshift_and_postgres_pg_rules", (table) => {
+    // Given
+    const spec = parse({ ...base, operation: "SELECT", table });
+    const refused = table
+      .toLowerCase()
+      .split(".")
+      .some((part) => part.startsWith("pg_"))
+      ? ["postgres", "redshift"]
+      : ["redshift"];
+
+    // When / Then
+    for (const dialect of DIALECTS) {
+      if (refused.includes(dialect)) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE(table)),
+        );
+      } else {
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
+      }
+    }
+  });
+
+  it.each(["SYSTEM.help", "system.users", "Prod.System.t"])(
+    "should_refuse_the_oracle_system_schema_only_on_oracle_when_table_is_%s",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      expect(() => compileQuery(spec, { dialect: "oracle" })).toThrow(
+        new Error(CATALOG_MESSAGE(table)),
+      );
+
+      for (const dialect of [
+        "postgres",
+        "redshift",
+        "mysql",
+        "other",
+      ] as const) {
+        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+      }
+    },
+  );
+
+  it("should_refuse_a_redshift_system_table_on_a_write_too", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "stl_load_errors",
+    });
+
+    // When / Then
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      new Error(CATALOG_MESSAGE("stl_load_errors")),
+    );
+  });
+
+  it.each(["public.pgsql_data", "sysadmin.users", "app.mysql_users", "sys"])(
+    "should_accept_%s_because_it_is_not_a_system_catalog",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
+      }
+    },
+  );
+});
+
+// APP-16506 B: a SELECT over several tables (`from` and `joins`).
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+
+const ALIASED_PACKAGES = [
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+] as const;
+
+function compileFor(spec: unknown, packageName: string) {
+  return compileQuery(parse(spec), {
+    dialect: sqlDialectFor(packageName),
+    packageName,
+  });
+}
+
+function issuesOf(spec: unknown) {
+  const result = querySpecSchema.safeParse(spec);
+
+  return result.success
+    ? []
+    : result.error.issues.map((issue) => ({
+        path: issue.path,
+        message: issue.message,
+      }));
+}
+
+// Three tables: orders, the customer of each order, and its payments.
+const threeTableJoin = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "public.orders", as: "o" },
+  joins: [
+    {
+      type: "inner",
+      table: "public.customers",
+      as: "c",
+      on: [{ left: "c.id", right: "o.customer_id" }],
+    },
+    {
+      type: "left",
+      table: "public.payments",
+      as: "p",
+      on: [{ left: "p.order_id", right: "o.id" }],
+    },
+  ],
+  filters: [
+    { column: "o.status", op: "eq", value: { literal: "paid" } },
+    {
+      anyOf: [
+        { column: "p.refunded", op: "isNull" },
+        { column: "p.refunded", op: "eq", value: { literal: false } },
+      ],
+    },
+    {
+      column: "c.region",
+      op: "eq",
+      value: { widget: "RegionSelect", property: "selectedOptionValue" },
+    },
+  ],
+  groupBy: ["c.region", { column: "c.name", as: "customer" }],
+  aggregates: [
+    { fn: "count", as: "orders" },
+    { fn: "sum", column: "p.amount", as: "paid_total" },
+  ],
+  having: [{ column: "orders", op: "gt", value: { literal: 1 } }],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 50,
+};
+
+const THREE_TABLE_POSTGRES =
+  'SELECT c."region" AS region, c."name" AS customer, COUNT(*) AS orders, SUM(p."amount") AS paid_total FROM (SELECT "customer_id", "id", "status" FROM public.orders) o INNER JOIN (SELECT "id", "region", "name" FROM public.customers) c ON c."id" = o."customer_id" LEFT JOIN (SELECT "order_id", "refunded", "amount" FROM public.payments) p ON p."order_id" = o."id" WHERE o."status" = {{ "paid" }} AND (p."refunded" IS NULL OR p."refunded" = {{ false }}) AND c."region" = {{ RegionSelect.selectedOptionValue }} GROUP BY c."region", c."name" HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC LIMIT 50;';
+const THREE_TABLE_MYSQL =
+  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded <=> NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC LIMIT 50;';
+const THREE_TABLE_ORACLE =
+  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded IS NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC FETCH FIRST 50 ROWS ONLY';
+const THREE_TABLE_MSSQL =
+  'SELECT TOP (50) c."region" AS region, c."name" AS customer, COUNT(*) AS orders, SUM(p."amount") AS paid_total FROM public.orders o INNER JOIN public.customers c ON c."id" = o."customer_id" LEFT JOIN public.payments p ON p."order_id" = o."id" WHERE o."status" = {{ "paid" }} AND (p."refunded" IS NULL OR p."refunded" = {{ false }}) AND c."region" = {{ RegionSelect.selectedOptionValue }} GROUP BY c."region", c."name" HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC;';
+
+// A chain of joins: each joins the source before it.
+function joinChain(joinCount: number, onPairs = 1) {
+  return {
+    ...base,
+    operation: "SELECT",
+    from: { table: "orders", as: "o" },
+    joins: Array.from({ length: joinCount }, (_, index) => ({
+      type: "inner",
+      table: `t${index + 1}`,
+      as: `j${index + 1}`,
+      on: Array.from({ length: onPairs }, (__, pair) => ({
+        left: `j${index + 1}.k${pair}`,
+        right: `${index === 0 ? "o" : `j${index}`}.k${pair}`,
+      })),
+    })),
+    columns: ["o.id"],
+    limit: 10,
+  };
+}
+
+// A minimal valid two-table spec that each refusal test changes in one place.
+const twoTables = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  joins: [
+    {
+      type: "inner",
+      table: "customers",
+      as: "c",
+      on: [{ left: "c.id", right: "o.customer_id" }],
+    },
+  ],
+  columns: ["o.id", { column: "c.name", as: "customer" }],
+  limit: 20,
+};
+
+describe("APP-16506 B: from + joins", () => {
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", THREE_TABLE_POSTGRES],
+      ["mysql-plugin", THREE_TABLE_MYSQL],
+      ["mariadb-plugin", THREE_TABLE_MYSQL],
+      ["oracle-plugin", THREE_TABLE_ORACLE],
+      ["mssql-plugin", THREE_TABLE_MSSQL],
+    ])(
+      "should_compile_a_three_table_join_with_filters_group_having_order_and_limit_when_plugin_is_%s",
+      (packageName, expected) => {
+        // Given
+        const spec = threeTableJoin;
+
+        // When
+        const body = compileFor(spec, packageName);
+
+        // Then
+        expect(body).toBe(expected);
+      },
+    );
+
+    it("should_write_the_oracle_table_alias_without_as", () => {
+      // Given
+      const spec = twoTables;
+
+      // When
+      const body = compileFor(spec, "oracle-plugin");
+
+      // Then
+      expect(body).toBe(
+        "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY",
+      );
+      expect(body).not.toMatch(/ AS [oc] /);
+    });
+
+    it("should_keep_the_case_of_a_mixed_case_column_in_the_inner_list_and_the_outer_reference_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "o.createdAt", as: "created_at" },
+          { column: "c.name", as: "customer" },
+        ],
+        filters: [
+          {
+            column: "o.createdAt",
+            op: "gte",
+            value: { literal: "2026-01-01" },
+          },
+        ],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT o."createdAt" AS created_at, c."name" AS customer FROM (SELECT "customer_id", "createdAt" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" WHERE o."createdAt" >= {{ "2026-01-01" }} LIMIT 20;',
+      );
+    });
+
+    it("should_keep_two_columns_that_differ_only_in_case_and_dedupe_exact_repeats_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "o.Status", as: "status_upper" },
+          { column: "o.status", as: "status" },
+          { column: "o.status", as: "status_again" },
+          { column: "c.name", as: "customer" },
+        ],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT o."Status" AS status_upper, o."status" AS status, o."status" AS status_again, c."name" AS customer FROM (SELECT "customer_id", "Status", "status" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+      );
+    });
+
+    it("should_write_a_mixed_case_column_as_written_on_mysql_oracle_and_sql_server", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [{ column: "o.createdAt", as: "created_at" }, "c.name"],
+      };
+
+      // When / Then
+      expect(compileFor(spec, "mysql-plugin")).toBe(
+        "SELECT o.createdAt AS created_at, c.name AS name FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+      );
+      expect(compileFor(spec, "mssql-plugin")).toBe(
+        'SELECT TOP (20) o."createdAt" AS created_at, c."name" AS name FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+      );
+    });
+
+    it("should_compile_coalesce_distinct_and_mssql_top_together", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "c.name", coalesce: { literal: "Unknown" } },
+          { column: "o.region", coalesce: { literal: "none" }, as: "area" },
+        ],
+        distinct: true,
+        orderBy: [{ column: "name", direction: "ASC" }],
+      };
+
+      // When
+      const mssql = compileFor(spec, "mssql-plugin");
+      const postgres = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(mssql).toBe(
+        'SELECT DISTINCT TOP (20) COALESCE(c."name", {{ "Unknown" }}) AS name, COALESCE(o."region", {{ "none" }}) AS area FROM orders o INNER JOIN customers c ON c."id" = o."customer_id" ORDER BY name ASC;',
+      );
+      expect(postgres).toBe(
+        'SELECT DISTINCT COALESCE(c."name", {{ "Unknown" }}) AS name, COALESCE(o."region", {{ "none" }}) AS area FROM (SELECT "customer_id", "region" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" ORDER BY name ASC LIMIT 20;',
+      );
+    });
+
+    it("should_compile_a_bucket_skip_when_empty_and_in_list_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: undefined,
+        filters: [
+          {
+            column: "c.tier",
+            op: "inList",
+            value: { widget: "Tiers", property: "selectedOptionValues" },
+          },
+          {
+            column: "o.status",
+            op: "eq",
+            value: { widget: "Status", property: "selectedOptionValue" },
+            skipWhenEmpty: true,
+          },
+        ],
+        groupBy: [{ column: "o.created_at", bucket: "month", as: "month" }],
+        aggregates: [{ fn: "count" }],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT DATE_TRUNC(\'month\', o."created_at") AS month, COUNT(*) AS count FROM (SELECT "customer_id", "created_at", "status" FROM orders) o INNER JOIN (SELECT "id", "tier" FROM customers) c ON c."id" = o."customer_id" WHERE CAST(c."tier" AS TEXT) = ANY(CAST({{ (Tiers.selectedOptionValues == null || Tiers.selectedOptionValues.length === 0) ? null : Tiers.selectedOptionValues }} AS TEXT[])) AND ({{ (Status.selectedOptionValue == null || Status.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR o."status" = {{ (Status.selectedOptionValue == null || Status.selectedOptionValue.length === 0) ? null : Status.selectedOptionValue }}) GROUP BY DATE_TRUNC(\'month\', o."created_at") LIMIT 20;',
+      );
+    });
+
+    it.each([
+      [
+        "bucket",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+        },
+        "bucket (on o.created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+      ],
+      [
+        "ilike",
+        {
+          filters: [{ column: "c.name", op: "ilike", value: { literal: "a" } }],
+        },
+        "ilike (filter on c.name) is only available on a PostgreSQL datasource; on MySQL, like is already case-insensitive for most collations",
+      ],
+    ])("should_keep_%s_postgres_only_with_joins", (_label, change, message) => {
+      // Given
+      const spec = { ...twoTables, ...change };
+
+      // When / Then
+      expect(() => compileFor(spec, "mysql-plugin")).toThrow(
+        new Error(message),
+      );
+      expect(() => compileFor(spec, "postgres-plugin")).not.toThrow();
+    });
+
+    it("should_accept_seven_joins_and_four_on_pairs", () => {
+      // Given
+      const spec = joinChain(7, 4);
+
+      // When
+      const body = compileFor(spec, "mysql-plugin");
+
+      // Then
+      expect(body.match(/INNER JOIN/g)).toHaveLength(7);
+      expect(body).toContain(
+        "INNER JOIN t7 j7 ON j7.k0 = j6.k0 AND j7.k1 = j6.k1 AND j7.k2 = j6.k2 AND j7.k3 = j6.k3",
+      );
+    });
+
+    it("should_refuse_a_column_named_like_its_table_inside_the_postgres_projection", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [{ column: "c.customers", as: "x" }],
+      };
+
+      // When / Then
+      expect(() => compileFor(spec, "postgres-plugin")).toThrow(
+        new Error(
+          "a query with from and joins cannot read a column named like its table (customers) on PostgreSQL or Redshift, which would read it as the whole row",
+        ),
+      );
+      expect(compileFor(spec, "mysql-plugin")).toBe(
+        "SELECT c.customers AS x FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+      );
+    });
+  });
+
+  describe("the plugin gate", () => {
+    it.each([
+      ["redshift-plugin", "redshift"],
+      ["snowflake-plugin", "other"],
+      ["unknown-plugin", "other"],
+      ["snowflake-plugin", "postgres"],
+      ["postgres-plugin", "mysql"],
+      [undefined, "postgres"],
+      [undefined, undefined],
+    ])(
+      "should_refuse_from_and_joins_when_packageName_is_%s_and_dialect_is_%s",
+      (packageName, dialect) => {
+        // Given
+        const spec = parse(twoTables);
+
+        // When / Then
+        expect(() =>
+          compileQuery(spec, {
+            dialect: dialect as SqlDialect | undefined,
+            packageName,
+          }),
+        ).toThrow(new Error(ALIASED_MODE_MESSAGE));
+      },
+    );
+
+    it("should_refuse_from_and_joins_when_no_options_are_passed", () => {
+      // Given
+      const spec = parse(twoTables);
+
+      // When / Then
+      expect(() => compileQuery(spec)).toThrow(new Error(ALIASED_MODE_MESSAGE));
+    });
+
+    it.each(ALIASED_PACKAGES)(
+      "should_compile_from_and_joins_when_packageName_is_%s",
+      (packageName) => {
+        expect(compileFor(twoTables, packageName)).toMatch(/^SELECT /);
+      },
+    );
+  });
+
+  describe("querySpecSchema refusals", () => {
+    const COLUMN_REF_MESSAGE =
+      'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name';
+
+    it.each([
+      [
+        "an unqualified column in columns",
+        { columns: ["id"] },
+        [{ path: ["columns", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an unqualified filter column",
+        { filters: [{ column: "status", op: "eq", value: { literal: 1 } }] },
+        [{ path: ["filters", 0, "column"], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an unqualified aggregate column",
+        { columns: undefined, aggregates: [{ fn: "sum", column: "amount" }] },
+        [{ path: ["aggregates", 0, "column"], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an a.b.c reference",
+        { columns: ["a.b.c"] },
+        [{ path: ["columns", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an injection string in an on side",
+        {
+          joins: [
+            {
+              type: "inner",
+              table: "customers",
+              as: "c",
+              on: [{ left: "c.id; DROP TABLE x", right: "o.customer_id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0, "left"],
+            message: COLUMN_REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "a join type of left outer",
+        {
+          joins: [{ ...twoTables.joins[0], type: "left outer" }],
+        },
+        [
+          {
+            path: ["joins", 0, "type"],
+            message:
+              "Invalid enum value. Expected 'inner' | 'left', received 'left outer'",
+          },
+        ],
+      ],
+      [
+        "a join type of constructor",
+        {
+          joins: [{ ...twoTables.joins[0], type: "constructor" }],
+        },
+        [
+          {
+            path: ["joins", 0, "type"],
+            message:
+              "Invalid enum value. Expected 'inner' | 'left', received 'constructor'",
+          },
+        ],
+      ],
+      [
+        "an injection string in a join table",
+        {
+          joins: [{ ...twoTables.joins[0], table: "x; DROP TABLE y" }],
+        },
+        [
+          {
+            path: ["joins", 0, "table"],
+            message: "must be table or schema.table (plain identifiers)",
+          },
+        ],
+      ],
+      [
+        "an injection string as an alias",
+        { from: { table: "orders", as: "x; DROP" } },
+        [
+          {
+            path: ["from", "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "a reserved word as an alias",
+        { joins: [{ ...twoTables.joins[0], as: "select" }] },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message: '"select" is a reserved SQL word; pick another name',
+          },
+        ],
+      ],
+      [
+        "an alias that starts with mcp_split",
+        { from: { table: "orders", as: "mcp_split_x" } },
+        [
+          {
+            path: ["from", "as"],
+            message: "an alias cannot start with mcp_split",
+          },
+        ],
+      ],
+      [
+        "a constructor alias that no source declares",
+        { columns: ["constructor.id"] },
+        [
+          {
+            path: ["columns", 0],
+            message:
+              '"constructor.id" uses the alias "constructor", which no source declares (aliases: o, c)',
+          },
+        ],
+      ],
+      [
+        "a system catalog as a join table",
+        {
+          joins: [
+            { ...twoTables.joins[0], table: "information_schema.tables" },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "table"],
+            message: CATALOG_MESSAGE("information_schema.tables"),
+          },
+        ],
+      ],
+      [
+        "an alias used twice",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              as: "o",
+              on: [{ left: "o.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id"],
+        },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message:
+              'the alias "o" is used more than once (aliases ignore case); give each source its own alias',
+          },
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is o; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair with this join's alias on both sides",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "c.parent_id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is c; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair that names a later join",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "p.customer_id" }],
+            },
+            {
+              type: "left",
+              table: "payments",
+              as: "p",
+              on: [{ left: "p.order_id", right: "o.id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is c; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair that does not use this join's alias",
+        {
+          joins: [
+            twoTables.joins[0],
+            {
+              type: "left",
+              table: "payments",
+              as: "p",
+              on: [{ left: "c.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id", { column: "p.amount", as: "amount" }],
+        },
+        [
+          {
+            path: ["joins", 1, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is p; earlier sources: o, c)",
+          },
+        ],
+      ],
+      [
+        "an unused alias",
+        {
+          joins: undefined,
+          columns: undefined,
+          aggregates: [{ fn: "count" }],
+        },
+        [
+          {
+            path: ["from", "as"],
+            message:
+              'the alias "o" is not used; read a column through it or remove the source',
+          },
+        ],
+      ],
+      [
+        "a missing limit",
+        { limit: undefined },
+        [
+          {
+            path: ["limit"],
+            message:
+              "limit is required with from and joins (at most 1000 rows)",
+          },
+        ],
+      ],
+      [
+        "a limit over the cap",
+        { limit: 1001 },
+        [
+          {
+            path: ["limit"],
+            message: "Number must be less than or equal to 1000",
+          },
+        ],
+      ],
+      [
+        "SELECT *",
+        { columns: undefined },
+        [
+          {
+            path: ["columns"],
+            message:
+              "with from and joins, list the columns to return in columns (SELECT * is not available)",
+          },
+        ],
+      ],
+      [
+        "a write",
+        { operation: "UPDATE" },
+        [
+          {
+            path: ["operation"],
+            message: "from and joins are only valid on a SELECT query",
+          },
+        ],
+      ],
+      [
+        "values",
+        { values: [{ column: "a", value: { literal: 1 } }] },
+        [{ path: [], message: "Unrecognized key(s) in object: 'values'" }],
+      ],
+      [
+        "a repeated result name",
+        { columns: ["o.id", "c.id"] },
+        [
+          {
+            path: ["columns", 1],
+            message:
+              'the result name "id" is used more than once (names ignore case); give each output its own name with as',
+          },
+        ],
+      ],
+      [
+        "a column part that is not a result name",
+        { columns: ["o.Status", "c.select"] },
+        [
+          {
+            path: ["columns", 0],
+            message:
+              'the column name "Status" cannot be a result name as it is; add as with a lower-case name that is not a SQL keyword',
+          },
+          {
+            path: ["columns", 1],
+            message:
+              'the column name "select" cannot be a result name as it is; add as with a lower-case name that is not a SQL keyword',
+          },
+        ],
+      ],
+      [
+        "split",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.tags", split: "," }],
+          aggregates: [{ fn: "count" }],
+        },
+        [
+          {
+            path: ["groupBy", 0, "split"],
+            message: "split is not available with from and joins",
+          },
+        ],
+      ],
+      [
+        "groupBy without aggregates",
+        { groupBy: ["o.status"] },
+        [{ path: ["groupBy"], message: "groupBy needs aggregates" }],
+      ],
+      [
+        "columns with aggregates",
+        { aggregates: [{ fn: "count" }] },
+        [
+          {
+            path: ["columns"],
+            message:
+              "with aggregates, put the columns to return in groupBy, not in columns",
+          },
+        ],
+      ],
+      [
+        "an orderBy that is not a result name",
+        { orderBy: [{ column: "created_at", direction: "ASC" }] },
+        [
+          {
+            path: ["orderBy", 0, "column"],
+            message:
+              'with from and joins, orderBy can only name a result name ("id", "customer")',
+          },
+        ],
+      ],
+      [
+        "a having that is not a result name",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "total", op: "gt", value: { literal: 1 } }],
+        },
+        [
+          {
+            path: ["having", 0, "column"],
+            message:
+              'having can only test an aggregate\'s result name ("count") or a groupBy result name',
+          },
+        ],
+      ],
+      [
+        "an injection string in from.table",
+        { from: { table: "orders; DROP TABLE x", as: "o" } },
+        [
+          {
+            path: ["from", "table"],
+            message: "must be table or schema.table (plain identifiers)",
+          },
+        ],
+      ],
+      [
+        "an injection string in the on right side",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "o.customer_id OR 1=1" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0, "right"],
+            message: COLUMN_REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an injection string in a groupBy column reference",
+        {
+          columns: undefined,
+          groupBy: ['o.status" --'],
+          aggregates: [{ fn: "count" }],
+        },
+        [{ path: ["groupBy", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an injection string in having",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [
+            { column: "count; DROP TABLE x", op: "gt", value: { literal: 1 } },
+          ],
+        },
+        [
+          {
+            path: ["having", 0, "column"],
+            message: "must be a plain SQL identifier",
+          },
+          {
+            path: ["having", 0, "column"],
+            message:
+              'having can only test an aggregate\'s result name ("count") or a groupBy result name',
+          },
+        ],
+      ],
+      [
+        "an injection string in orderBy",
+        { orderBy: [{ column: "id DESC; --", direction: "ASC" }] },
+        [
+          {
+            path: ["orderBy", 0, "column"],
+            message: "must be a plain SQL identifier",
+          },
+          {
+            path: ["orderBy", 0, "column"],
+            message:
+              'with from and joins, orderBy can only name a result name ("id", "customer")',
+          },
+        ],
+      ],
+      [
+        "table and from together",
+        { table: "orders" },
+        [
+          {
+            path: ["table"],
+            message:
+              "use table for a query on one table, or from (with joins) for several, not both",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, change, issues) => {
+      // Given
+      const spec = { ...twoTables, ...change };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual(issues);
+    });
+
+    it("should_refuse_joins_without_from", () => {
+      // Given
+      const spec = { ...twoTables, from: undefined };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([{ path: ["from"], message: "Required" }]);
+    });
+
+    it("should_refuse_a_qualified_column_in_single_table_mode", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        columns: ["o.id"],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["columns", 0], message: "must be a plain SQL identifier" },
+      ]);
+    });
+
+    it.each([
+      [
+        "eight joins",
+        joinChain(8),
+        ["joins"],
+        "Array must contain at most 7 element(s)",
+      ],
+      [
+        "five on pairs",
+        joinChain(1, 5),
+        ["joins", 0, "on"],
+        "Array must contain at most 4 element(s)",
+      ],
+    ])("should_refuse_%s", (_label, spec, path, message) => {
+      expect(issuesOf(spec)).toEqual([{ path, message }]);
+    });
+
+    it("should_accept_a_qualified_column_with_as_and_a_repeated_column_part", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: ["o.id", { column: "c.id", as: "customer_id" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([]);
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileUnparsed(
+      change: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      const spec = { ...twoTables, ...change } as unknown as QuerySpec;
+
+      return () =>
+        compileQuery(spec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "join type left outer",
+        { joins: [{ ...twoTables.joins[0], type: "left outer" }] },
+        'unknown join type "left outer"',
+      ],
+      [
+        "join type constructor",
+        { joins: [{ ...twoTables.joins[0], type: "constructor" }] },
+        'unknown join type "constructor"',
+      ],
+      [
+        "an injection string as an alias",
+        { joins: [{ ...twoTables.joins[0], as: "c; DROP" }] },
+        'unsafe alias: "c; DROP"',
+      ],
+      [
+        "an injection string as a join table",
+        { joins: [{ ...twoTables.joins[0], table: "t; DROP TABLE x" }] },
+        'unsafe table name: "t; DROP TABLE x"',
+      ],
+      [
+        "an a.b.c on side",
+        {
+          joins: [
+            { ...twoTables.joins[0], on: [{ left: "c.id.x", right: "o.id" }] },
+          ],
+        },
+        'unsafe column reference: "c.id.x"',
+      ],
+      [
+        "an on pair with this join's alias on both sides",
+        {
+          joins: [
+            { ...twoTables.joins[0], on: [{ left: "c.id", right: "c.id" }] },
+          ],
+        },
+        "each on pair compares a column of this join's own alias with a column of a source declared before it",
+      ],
+      [
+        "an alias used twice",
+        { joins: [{ ...twoTables.joins[0], as: "o" }] },
+        'the alias "o" is used more than once',
+      ],
+      [
+        "a catalog join table",
+        { joins: [{ ...twoTables.joins[0], table: "pg_catalog.pg_authid" }] },
+        CATALOG_MESSAGE("pg_catalog.pg_authid"),
+      ],
+      [
+        "a pg_ join table on postgres",
+        { joins: [{ ...twoTables.joins[0], table: "pg_shadow" }] },
+        CATALOG_MESSAGE("pg_shadow"),
+      ],
+      [
+        "eight joins",
+        { joins: joinChain(8).joins },
+        "joins must be a list of at most 7 joins",
+      ],
+      [
+        "a join with no on pairs",
+        { joins: [{ ...twoTables.joins[0], on: [] }] },
+        "a join needs 1 to 4 on pairs",
+      ],
+      [
+        "a write",
+        { operation: "DELETE" },
+        "from and joins are only valid on a SELECT query",
+      ],
+      [
+        "no limit",
+        { limit: undefined },
+        "limit is required with from and joins (at most 1000 rows)",
+      ],
+      [
+        "a limit over the cap",
+        { limit: 5000 },
+        "limit must be an integer from 1 to 1000: 5000",
+      ],
+      [
+        "SELECT *",
+        { columns: [] },
+        "with from and joins, list the columns to return in columns (SELECT * is not available)",
+      ],
+      [
+        "table and from together",
+        { table: "orders" },
+        "use table for a query on one table, or from (with joins) for several, not both",
+      ],
+      [
+        "an alias that no source declares",
+        {
+          filters: [{ column: "x.id", op: "eq", value: { literal: 1 } }],
+        },
+        '"x.id" uses an alias that no source declares',
+      ],
+      [
+        "an unqualified column",
+        { columns: ["id"] },
+        'unsafe column reference: "id"',
+      ],
+      [
+        "an unused alias",
+        { joins: undefined, columns: [{ column: "c.id", as: "id" }] },
+        '"c.id" uses an alias that no source declares',
+      ],
+      [
+        "a repeated result name",
+        { columns: ["o.id", "c.id"] },
+        'the result name "id" is used more than once',
+      ],
+      [
+        "an invalid result name",
+        { columns: [{ column: "o.id", as: "x FROM y" }] },
+        'invalid result name: "x FROM y"',
+      ],
+      [
+        "split",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.tags", split: "," }],
+          aggregates: [{ fn: "count" }],
+        },
+        "split is not available with from and joins",
+      ],
+      [
+        "an unknown having name",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "o.secret", op: "gt", value: { literal: 1 } }],
+        },
+        'having can only test an aggregate\'s result name or a plain groupBy result name: "o.secret"',
+      ],
+    ])("should_throw_on_%s", (_label, change, message) => {
+      expect(compileUnparsed(change)).toThrow(new Error(message));
+    });
+
+    // The projection is built from the spec before anything is emitted. orderBy names result names, so it adds
+    // nothing to the projection. A hand-built orderBy on a source column is a reference the projection missed: the
+    // emit-time check must refuse it rather than write c."secret".
+    it.each(["postgres-plugin", "mysql-plugin"])(
+      "should_refuse_an_outer_reference_to_a_column_that_is_not_projected_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const change = {
+          orderBy: [{ column: "c.secret", direction: "ASC" }],
+        };
+
+        // When / Then
+        expect(compileUnparsed(change, packageName)).toThrow(
+          new Error('"c.secret" is not a column this query reads through c'),
+        );
+      },
+    );
+  });
+});
+
+// APP-16506 C and D: CASE and WITH, in aliased mode only.
+const REF_MESSAGE =
+  'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name';
+const CASE_IN_GROUP_BY =
+  "a CASE cannot be in groupBy: compute it in a with query, then group by that query's output";
+const NESTED_CASE = "a CASE cannot contain another CASE";
+const CASE_OPERAND =
+  'then and else take { column: "alias.column" } or { literal } (not a widget value)';
+const CASE_LITERAL =
+  "a CASE literal must be a string, number or boolean, not null";
+const CASE_CAP = "a query level can have at most 12 CASE expressions";
+const BOOLEAN_CASE =
+  "a boolean then or else is not available on Oracle or SQL Server; use a number or a string";
+const CTE_ORDER_AND_LIMIT =
+  "a with query has no orderBy and no limit; order and limit the outer query";
+const NESTED_WITH =
+  "with queries cannot be nested; list every with query in the outer with";
+const WITH_ON_MYSQL =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
+
+function caseLiteralTypes(first: string, other: string) {
+  return `every literal then and else in one CASE has the same type: the first is a ${first}, this one is a ${other}`;
+}
+
+function laterCte(name: string) {
+  return `"${name}" is not a with query declared before this query; a with query can read only the ones declared before it`;
+}
+
+// A CASE that labels an order by its total.
+const bandCase = {
+  when: [
+    {
+      if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+      then: { literal: "large" },
+    },
+    {
+      if: [
+        { column: "o.total", op: "isNull" },
+        {
+          anyOf: [
+            { column: "o.status", op: "eq", value: { literal: "new" } },
+            { column: "o.status", op: "isNull" },
+          ],
+        },
+      ],
+      then: { column: "o.status" },
+    },
+  ],
+  else: { literal: "small" },
+};
+
+const caseColumns = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  columns: ["o.id", { case: bandCase, as: "order_band" }],
+  limit: 50,
+};
+
+const caseAggregates = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  groupBy: ["o.region"],
+  aggregates: [
+    {
+      fn: "sum",
+      case: {
+        when: [
+          {
+            if: [{ column: "o.status", op: "eq", value: { literal: "paid" } }],
+            then: { column: "o.total" },
+          },
+        ],
+        else: { literal: 0 },
+      },
+      as: "paid_total",
+    },
+    {
+      fn: "count",
+      case: {
+        when: [
+          {
+            if: [{ column: "o.refunded", op: "notNull" }],
+            then: { literal: 1 },
+          },
+        ],
+      },
+      as: "refunds",
+    },
+  ],
+  having: [{ column: "paid_total", op: "gt", value: { literal: 0 } }],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 20,
+};
+
+// Changes the CASE of caseColumns.
+function withBandCase(change: Record<string, unknown>) {
+  return {
+    ...caseColumns,
+    columns: ["o.id", { case: { ...bandCase, ...change }, as: "order_band" }],
+  };
+}
+
+const CASE_COLUMNS_POSTGRES =
+  'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;';
+const CASE_COLUMNS_ORACLE =
+  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY';
+const CASE_COLUMNS_MSSQL =
+  'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;';
+const CASE_COLUMNS_MYSQL =
+  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;';
+const CASE_AGGREGATES_POSTGRES =
+  'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;';
+const CASE_AGGREGATES_ORACLE =
+  'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY';
+const CASE_AGGREGATES_MSSQL =
+  'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;';
+
+describe("APP-16506 C: CASE", () => {
+  // JSON.stringify writes a very small or very large finite number in exponent form. The binding check must accept it.
+  it("should_bind_exponent_form_numbers_when_a_case_literal_is_very_small_or_very_large", () => {
+    // Given
+    const spec = withBandCase({
+      when: [
+        {
+          if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+          then: { literal: 0.0000001 },
+        },
+      ],
+      else: { literal: 1e21 },
+    });
+
+    // When
+    const body = compileFor(spec, "postgres-plugin");
+
+    // Then
+    expect(body).toContain("THEN {{ 1e-7 }} ELSE {{ 1e+21 }} END");
+  });
+
+  it("should_bind_an_exponent_form_number_when_a_filter_literal_is_very_small", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "readings",
+      filters: [{ column: "value", op: "lt", value: { literal: 0.0000001 } }],
+    });
+
+    // When
+    const body = compileQuery(spec, { dialect: "postgres" });
+
+    // Then
+    expect(body).toBe('SELECT * FROM readings WHERE "value" < {{ 1e-7 }};');
+  });
+
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", CASE_COLUMNS_POSTGRES],
+      ["oracle-plugin", CASE_COLUMNS_ORACLE],
+      ["mssql-plugin", CASE_COLUMNS_MSSQL],
+      ["mysql-plugin", CASE_COLUMNS_MYSQL],
+    ])(
+      "should_compile_a_case_column_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(caseColumns, packageName)).toBe(expected);
+      },
+    );
+
+    it.each([
+      ["postgres-plugin", CASE_AGGREGATES_POSTGRES],
+      ["oracle-plugin", CASE_AGGREGATES_ORACLE],
+      ["mssql-plugin", CASE_AGGREGATES_MSSQL],
+    ])(
+      "should_compile_case_aggregate_inputs_and_having_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(caseAggregates, packageName)).toBe(expected);
+      },
+    );
+
+    it("should_bind_a_boolean_case_literal_on_postgres", () => {
+      // Given
+      const spec = withBandCase({
+        when: [
+          {
+            if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+            then: { literal: true },
+          },
+        ],
+        else: { literal: false },
+      });
+
+      // When / Then
+      expect(compileFor(spec, "postgres-plugin")).toBe(
+        'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ true }} ELSE {{ false }} END AS order_band FROM (SELECT "id", "total" FROM orders) o LIMIT 50;',
+      );
+    });
+
+    it.each(["oracle-plugin", "mssql-plugin"])(
+      "should_refuse_a_boolean_case_literal_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "gte", value: { literal: 1 } }],
+              then: { literal: true },
+            },
+          ],
+          else: undefined,
+        });
+
+        // When / Then
+        expect(() => compileFor(spec, packageName)).toThrow(
+          new Error(BOOLEAN_CASE),
+        );
+      },
+    );
+
+    it.each(["oracle-plugin", "mssql-plugin"])(
+      "should_refuse_a_boolean_case_literal_in_else_only_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "gte", value: { literal: 1 } }],
+              then: { column: "o.status" },
+            },
+          ],
+          else: { literal: true },
+        });
+
+        // When / Then
+        expect(() => compileFor(spec, packageName)).toThrow(
+          new Error(BOOLEAN_CASE),
+        );
+      },
+    );
+
+    it("should_accept_twelve_case_expressions_in_one_level", () => {
+      // Given
+      const spec = {
+        ...caseColumns,
+        columns: Array.from({ length: 12 }, (_, index) => ({
+          case: bandCase,
+          as: `band_${index}`,
+        })),
+      };
+
+      // When / Then
+      expect(compileFor(spec, "mysql-plugin").match(/CASE WHEN/g)).toHaveLength(
+        12,
+      );
+    });
+  });
+
+  describe("querySpecSchema refusals", () => {
+    it("should_refuse_a_case_in_group_by_and_point_to_with", () => {
+      // Given
+      const spec = {
+        ...caseColumns,
+        columns: undefined,
+        groupBy: [{ case: bandCase, as: "order_band" }],
+        aggregates: [{ fn: "count" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["groupBy", 0, "case"], message: CASE_IN_GROUP_BY },
+      ]);
+    });
+
+    it.each([
+      [
+        "a CASE inside a CASE",
+        withBandCase({
+          else: { case: bandCase },
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else"],
+            message: NESTED_CASE,
+          },
+        ],
+      ],
+      [
+        "a widget value as then",
+        withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "isNull" }],
+              then: { widget: "Input1", property: "text" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "then"],
+            message: CASE_OPERAND,
+          },
+        ],
+      ],
+      [
+        "a null literal",
+        withBandCase({ else: { literal: null } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: CASE_LITERAL,
+          },
+        ],
+      ],
+      [
+        "literals of two types",
+        withBandCase({ else: { literal: 0 } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: caseLiteralTypes("string", "number"),
+          },
+        ],
+      ],
+      [
+        "skipWhenEmpty in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "eq",
+                  value: { widget: "Status", property: "selectedOptionValue" },
+                  skipWhenEmpty: true,
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "skipWhenEmpty"],
+            message: "a CASE condition cannot use skipWhenEmpty",
+          },
+        ],
+      ],
+      [
+        "inList in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "inList",
+                  value: { widget: "Tags", property: "selectedOptionValues" },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "op"],
+            message: "a CASE condition cannot use inList",
+          },
+        ],
+      ],
+      [
+        "nine when branches",
+        withBandCase({
+          when: Array.from({ length: 9 }, () => bandCase.when[0]),
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when"],
+            message: "Array must contain at most 8 element(s)",
+          },
+        ],
+      ],
+      [
+        "no when branch",
+        withBandCase({ when: [] }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when"],
+            message: "Array must contain at least 1 element(s)",
+          },
+        ],
+      ],
+      [
+        "five conditions in a branch",
+        withBandCase({
+          when: [
+            {
+              if: Array.from({ length: 5 }, () => ({
+                column: "o.total",
+                op: "isNull",
+              })),
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if"],
+            message: "Array must contain at most 4 element(s)",
+          },
+        ],
+      ],
+      [
+        "thirteen CASE expressions",
+        Array.from({ length: 13 }, (_, index) => ({
+          case: bandCase,
+          as: `band_${index}`,
+        })),
+        [{ path: ["columns", 12, "case"], message: CASE_CAP }],
+      ],
+      [
+        "a CASE column without as",
+        ["o.id", { case: bandCase }],
+        [{ path: ["columns", 1, "as"], message: "Required" }],
+      ],
+      [
+        "an unqualified column in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [{ column: "total", op: "isNull" }],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "column"],
+            message: REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an alias that no source declares in then",
+        withBandCase({ else: { column: "x.status" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "column"],
+            message:
+              '"x.status" uses the alias "x", which no source declares (aliases: o)',
+          },
+        ],
+      ],
+      [
+        "an injection string as the CASE result name",
+        ["o.id", { case: bandCase, as: "x; DROP TABLE y" }],
+        [
+          {
+            path: ["columns", 1, "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "template syntax in a CASE literal",
+        withBandCase({ else: { literal: "{{ evil() }}" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: "no template syntax",
+          },
+        ],
+      ],
+      [
+        "an injection string in a then column",
+        withBandCase({ else: { column: "o.id; DROP TABLE y" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "column"],
+            message: REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an unknown key in a CASE",
+        ["o.id", { case: { ...bandCase, then: "x" }, as: "order_band" }],
+        [
+          {
+            path: ["columns", 1, "case"],
+            message: "Unrecognized key(s) in object: 'then'",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, columns, issues) => {
+      expect(issuesOf({ ...caseColumns, columns })).toEqual(issues);
+    });
+
+    it("should_refuse_an_aggregate_with_both_column_and_case", () => {
+      // Given
+      const spec = {
+        ...caseAggregates,
+        aggregates: [
+          { ...caseAggregates.aggregates[0], column: "o.total" },
+          caseAggregates.aggregates[1],
+        ],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        {
+          path: ["aggregates", 0, "case"],
+          message: "an aggregate takes column or case, not both",
+        },
+      ]);
+    });
+
+    it("should_refuse_a_case_column_in_single_table_mode", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        columns: [{ case: bandCase, as: "order_band" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["columns", 0], message: "Invalid input" },
+      ]);
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileCase(
+      spec: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      return () =>
+        compileQuery(spec as unknown as QuerySpec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "a CASE inside a CASE",
+        withBandCase({ else: { case: bandCase } }),
+        NESTED_CASE,
+      ],
+      [
+        "a null literal",
+        withBandCase({ else: { literal: null } }),
+        CASE_LITERAL,
+      ],
+      [
+        "an object literal",
+        withBandCase({ else: { literal: { a: 1 } } }),
+        CASE_LITERAL,
+      ],
+      [
+        "literals of two types",
+        withBandCase({ else: { literal: 0 } }),
+        caseLiteralTypes("string", "number"),
+      ],
+      [
+        "a widget operand",
+        withBandCase({ else: { widget: "W", property: "text" } }),
+        CASE_OPERAND,
+      ],
+      [
+        "an operand with column and literal",
+        withBandCase({ else: { column: "o.status", literal: "x" } }),
+        CASE_OPERAND,
+      ],
+      [
+        "nine when branches",
+        withBandCase({
+          when: Array.from({ length: 9 }, () => bandCase.when[0]),
+        }),
+        "a CASE needs 1 to 8 when branches",
+      ],
+      [
+        "a branch with no conditions",
+        withBandCase({ when: [{ if: [], then: { literal: "x" } }] }),
+        "a CASE branch needs 1 to 4 if conditions",
+      ],
+      [
+        "skipWhenEmpty in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "eq",
+                  value: { widget: "S", property: "text" },
+                  skipWhenEmpty: true,
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        "a CASE condition cannot use skipWhenEmpty",
+      ],
+      [
+        "inList in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "inList",
+                  value: { widget: "S", property: "selectedOptionValues" },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        "a CASE condition cannot use inList",
+      ],
+      [
+        "an unknown filter op in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "constructor",
+                  value: { literal: 1 },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        'unknown filter op "constructor"',
+      ],
+      [
+        "an injection string in a then column",
+        withBandCase({ else: { column: "o.id; DROP TABLE y" } }),
+        'unsafe column reference: "o.id; DROP TABLE y"',
+      ],
+      [
+        "a CASE in groupBy",
+        {
+          ...caseColumns,
+          columns: undefined,
+          groupBy: [{ case: bandCase, as: "order_band" }],
+          aggregates: [{ fn: "count" }],
+        },
+        CASE_IN_GROUP_BY,
+      ],
+      [
+        "thirteen CASE expressions",
+        {
+          ...caseColumns,
+          columns: Array.from({ length: 13 }, (_, index) => ({
+            case: bandCase,
+            as: `band_${index}`,
+          })),
+        },
+        CASE_CAP,
+      ],
+      [
+        "an aggregate with column and case",
+        {
+          ...caseAggregates,
+          aggregates: [{ ...caseAggregates.aggregates[0], column: "o.total" }],
+          having: undefined,
+          orderBy: undefined,
+        },
+        "an aggregate takes column or case, not both",
+      ],
+    ])("should_throw_on_%s", (_label, spec, message) => {
+      expect(compileCase(spec)).toThrow(new Error(message));
+    });
+
+    it("should_refuse_a_case_aggregate_in_an_unparsed_single_table_spec", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregates: [{ fn: "sum", case: bandCase, as: "x" }],
+      } as unknown as QuerySpec;
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error("a CASE is only available in a query with from"),
+        );
+      }
+    });
+  });
+});
+
+// Two CTEs: paid totals per customer, then the customers over 500. The outer query joins customers to the second.
+const withJoin = {
+  ...base,
+  operation: "SELECT",
+  with: [
+    {
+      name: "order_totals",
+      query: {
+        from: { table: "orders", as: "o" },
+        filters: [{ column: "o.status", op: "eq", value: { literal: "paid" } }],
+        groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+        aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+      },
+    },
+    {
+      name: "big_spenders",
+      query: {
+        from: { cte: "order_totals", as: "t" },
+        columns: ["t.customer_id", "t.paid_total"],
+        filters: [
+          { column: "t.paid_total", op: "gte", value: { literal: 500 } },
+        ],
+      },
+    },
+  ],
+  from: { table: "customers", as: "c" },
+  joins: [
+    {
+      type: "inner",
+      cte: "big_spenders",
+      as: "b",
+      on: [{ left: "b.customer_id", right: "c.id" }],
+    },
+  ],
+  columns: [{ column: "c.name", as: "customer" }, "b.paid_total"],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 10,
+};
+
+// Changes one CTE of withJoin.
+function withCte(index: number, change: Record<string, unknown>) {
+  return {
+    ...withJoin,
+    with: withJoin.with.map((cte, at) =>
+      at === index ? { ...cte, ...change } : cte,
+    ),
+  };
+}
+
+function withCteQuery(index: number, change: Record<string, unknown>) {
+  return withCte(index, {
+    query: { ...withJoin.with[index].query, ...change },
+  });
+}
+
+const WITH_JOIN_POSTGRES =
+  'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;';
+const WITH_JOIN_ORACLE =
+  'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY';
+const WITH_JOIN_MSSQL =
+  'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;';
+
+// The MRR report of the design (section 4), in the current spec shape. The bucket's result is named period, because
+// month is a reserved word.
+const mrrReport = {
+  ...base,
+  operation: "SELECT",
+  with: [
+    {
+      name: "invoice_mrr",
+      query: {
+        from: { table: "stripe.invoices", as: "i" },
+        joins: [
+          {
+            type: "inner",
+            table: "stripe.subscriptions",
+            as: "s",
+            on: [{ left: "s.id", right: "i.subscription_id" }],
+          },
+          {
+            type: "inner",
+            table: "stripe.subscription_items",
+            as: "si",
+            on: [{ left: "si.subscription_id", right: "s.id" }],
+          },
+          {
+            type: "inner",
+            table: "stripe.customers",
+            as: "c",
+            on: [{ left: "c.id", right: "i.customer_id" }],
+          },
+          {
+            type: "left",
+            table: "stripe.charges",
+            as: "ch",
+            on: [{ left: "ch.invoice_id", right: "i.id" }],
+          },
+          {
+            type: "left",
+            table: "cloud_services.users",
+            as: "u",
+            on: [{ left: "u.email", right: "c.email" }],
+          },
+        ],
+        filters: [
+          { column: "i.status", op: "eq", value: { literal: "paid" } },
+          {
+            anyOf: [
+              { column: "u.is_internal", op: "isNull" },
+              { column: "u.is_internal", op: "eq", value: { literal: false } },
+            ],
+          },
+        ],
+        groupBy: [
+          { column: "i.period_start", bucket: "month", as: "period" },
+          { column: "c.id", as: "customer_id" },
+        ],
+        aggregates: [
+          {
+            fn: "sum",
+            case: {
+              when: [
+                {
+                  if: [
+                    {
+                      column: "s.status",
+                      op: "eq",
+                      value: { literal: "active" },
+                    },
+                    {
+                      anyOf: [
+                        { column: "ch.refunded", op: "isNull" },
+                        {
+                          column: "ch.refunded",
+                          op: "eq",
+                          value: { literal: false },
+                        },
+                      ],
+                    },
+                  ],
+                  then: { column: "i.amount_paid" },
+                },
+              ],
+              else: { literal: 0 },
+            },
+            as: "mrr_cents",
+          },
+          {
+            fn: "sum",
+            case: {
+              when: [
+                {
+                  if: [
+                    {
+                      column: "si.plan_interval",
+                      op: "eq",
+                      value: { literal: "year" },
+                    },
+                  ],
+                  then: { column: "i.amount_paid" },
+                },
+              ],
+              else: { literal: 0 },
+            },
+            as: "annual_cents",
+          },
+        ],
+      },
+    },
+  ],
+  from: { cte: "invoice_mrr", as: "m" },
+  groupBy: ["m.period"],
+  aggregates: [
+    { fn: "sum", column: "m.mrr_cents", as: "mrr_cents" },
+    { fn: "sum", column: "m.annual_cents", as: "annual_cents" },
+    { fn: "count", column: "m.customer_id", as: "customers" },
+  ],
+  orderBy: [{ column: "period", direction: "ASC" }],
+  limit: 120,
+};
+
+const MRR_POSTGRES =
+  'WITH invoice_mrr AS (SELECT DATE_TRUNC(\'month\', i."period_start") AS period, c."id" AS customer_id, SUM(CASE WHEN s."status" = {{ "active" }} AND (ch."refunded" IS NULL OR ch."refunded" = {{ false }}) THEN i."amount_paid" ELSE {{ 0 }} END) AS mrr_cents, SUM(CASE WHEN si."plan_interval" = {{ "year" }} THEN i."amount_paid" ELSE {{ 0 }} END) AS annual_cents FROM (SELECT "subscription_id", "customer_id", "id", "period_start", "status", "amount_paid" FROM stripe.invoices) i INNER JOIN (SELECT "id", "status" FROM stripe.subscriptions) s ON s."id" = i."subscription_id" INNER JOIN (SELECT "subscription_id", "plan_interval" FROM stripe.subscription_items) si ON si."subscription_id" = s."id" INNER JOIN (SELECT "id", "email" FROM stripe.customers) c ON c."id" = i."customer_id" LEFT JOIN (SELECT "invoice_id", "refunded" FROM stripe.charges) ch ON ch."invoice_id" = i."id" LEFT JOIN (SELECT "email", "is_internal" FROM cloud_services.users) u ON u."email" = c."email" WHERE i."status" = {{ "paid" }} AND (u."is_internal" IS NULL OR u."is_internal" = {{ false }}) GROUP BY DATE_TRUNC(\'month\', i."period_start"), c."id") SELECT m.period AS period, SUM(m.mrr_cents) AS mrr_cents, SUM(m.annual_cents) AS annual_cents, COUNT(m.customer_id) AS customers FROM invoice_mrr m GROUP BY m.period ORDER BY period ASC LIMIT 120;';
+
+describe("APP-16506 D: WITH", () => {
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", WITH_JOIN_POSTGRES],
+      ["oracle-plugin", WITH_JOIN_ORACLE],
+      ["mssql-plugin", WITH_JOIN_MSSQL],
+    ])(
+      "should_compile_two_ctes_and_a_join_on_a_cte_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(withJoin, packageName)).toBe(expected);
+      },
+    );
+
+    it.each(["mysql-plugin", "mariadb-plugin"])(
+      "should_refuse_with_when_plugin_is_%s",
+      (packageName) => {
+        expect(() => compileFor(withJoin, packageName)).toThrow(
+          new Error(WITH_ON_MYSQL),
+        );
+      },
+    );
+
+    it("should_compile_the_mrr_report_on_postgres_within_the_body_cap", () => {
+      // When
+      const body = compileFor(mrrReport, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(MRR_POSTGRES);
+      expect(Buffer.byteLength(body, "utf8")).toBe(1314);
+      expect(Buffer.byteLength(body, "utf8")).toBeLessThan(8 * 1024);
+    });
+
+    it("should_keep_case_in_a_cte_and_group_by_its_output", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        with: [
+          {
+            name: "banded",
+            query: {
+              from: { table: "orders", as: "o" },
+              columns: ["o.id", { case: bandCase, as: "order_band" }],
+            },
+          },
+        ],
+        from: { cte: "banded", as: "b" },
+        groupBy: ["b.order_band"],
+        aggregates: [{ fn: "count", as: "orders" }],
+        limit: 10,
+      };
+
+      // When / Then
+      expect(compileFor(spec, "postgres-plugin")).toBe(
+        'WITH banded AS (SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o) SELECT b.order_band AS order_band, COUNT(*) AS orders FROM banded b GROUP BY b.order_band LIMIT 10;',
+      );
+    });
+  });
+
+  describe("querySpecSchema refusals", () => {
+    it.each([
+      [
+        "an orderBy in a with query",
+        withCteQuery(0, {
+          orderBy: [{ column: "paid_total", direction: "ASC" }],
+        }),
+        [
+          {
+            path: ["with", 0, "query", "orderBy"],
+            message: CTE_ORDER_AND_LIMIT,
+          },
+        ],
+      ],
+      [
+        "a limit in a with query",
+        withCteQuery(0, { limit: 5 }),
+        [{ path: ["with", 0, "query", "limit"], message: CTE_ORDER_AND_LIMIT }],
+      ],
+      [
+        "a nested with",
+        withCteQuery(0, { with: [{ name: "x", query: {} }] }),
+        [{ path: ["with", 0, "query", "with"], message: NESTED_WITH }],
+      ],
+      [
+        "a with query that reads a later one",
+        {
+          ...withJoin,
+          with: [
+            {
+              name: "order_totals",
+              query: {
+                ...withJoin.with[0].query,
+                from: { cte: "big_spenders", as: "o" },
+              },
+            },
+            withJoin.with[1],
+          ],
+        },
+        [
+          {
+            path: ["with", 0, "query", "from", "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "a with query that reads itself",
+        withCteQuery(1, { from: { cte: "big_spenders", as: "t" } }),
+        [
+          {
+            path: ["with", 1, "query", "from", "cte"],
+            message: laterCte("big_spenders"),
+          },
+          {
+            path: ["with", 0, "name"],
+            message:
+              "the with query order_totals is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "a cte with no with",
+        {
+          ...withJoin,
+          with: undefined,
+          columns: [{ column: "c.name", as: "customer" }, "b.customer_id"],
+          orderBy: undefined,
+        },
+        [
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "a repeated with query name",
+        withCte(1, { name: "order_totals" }),
+        [
+          {
+            path: ["with", 1, "name"],
+            message:
+              'the with query name "order_totals" is used more than once',
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an unused with query",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            {
+              name: "unused_totals",
+              query: withJoin.with[0].query,
+            },
+          ],
+        },
+        [
+          {
+            path: ["with", 2, "name"],
+            message:
+              "the with query unused_totals is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "five with queries",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            ...Array.from({ length: 3 }, (_, index) => ({
+              name: `extra_${index}`,
+              query: withJoin.with[0].query,
+            })),
+          ],
+        },
+        [
+          {
+            path: ["with"],
+            message: "Array must contain at most 4 element(s)",
+          },
+          ...[2, 3, 4].map((index) => ({
+            path: ["with", index, "name"],
+            message: `the with query extra_${index - 2} is not used; read it with from or a join { cte, as }`,
+          })),
+        ],
+      ],
+      [
+        "an empty with",
+        { ...withJoin, with: [] },
+        [
+          {
+            path: ["with"],
+            message: "Array must contain at least 1 element(s)",
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an outer reference to an output the with query does not declare",
+        {
+          ...withJoin,
+          columns: [{ column: "c.name", as: "customer" }, "b.secret"],
+          orderBy: undefined,
+        },
+        [
+          {
+            path: ["columns", 1],
+            message:
+              '"b.secret" is not an output of the with query big_spenders (outputs: customer_id, paid_total)',
+          },
+        ],
+      ],
+      [
+        "a table named like a with query, ignoring case",
+        {
+          ...withJoin,
+          from: { table: "Order_Totals", as: "c" },
+        },
+        [
+          {
+            path: ["from", "table"],
+            message:
+              '"Order_Totals" is also the name of a with query: use { cte: "Order_Totals" } to read the with query, or schema.table to read the table',
+          },
+        ],
+      ],
+      [
+        "an alias that is a with query name",
+        {
+          ...withJoin,
+          joins: [
+            {
+              ...withJoin.joins[0],
+              as: "order_totals",
+              on: [{ left: "order_totals.customer_id", right: "c.id" }],
+            },
+          ],
+          columns: [
+            { column: "c.name", as: "customer" },
+            "order_totals.paid_total",
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message:
+              'the alias "order_totals" is also the name of a with query; pick another alias',
+          },
+        ],
+      ],
+      [
+        "a source with table and cte",
+        {
+          ...withJoin,
+          from: { table: "customers", cte: "big_spenders", as: "c" },
+        },
+        [{ path: ["from"], message: "a source names table or cte, not both" }],
+      ],
+      [
+        "a source with neither table nor cte",
+        { ...withJoin, from: { as: "c" } },
+        [{ path: ["from"], message: "a source needs table or cte" }],
+      ],
+      [
+        "a reserved word as a with query name",
+        withCte(1, { name: "select" }),
+        [
+          {
+            path: ["with", 1, "name"],
+            message: '"select" is a reserved SQL word; pick another name',
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an injection string as a with query name",
+        withCte(0, { name: "x; DROP TABLE y" }),
+        [
+          {
+            path: ["with", 0, "name"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+          {
+            path: ["with", 1, "query", "from", "cte"],
+            message: laterCte("order_totals"),
+          },
+        ],
+      ],
+      [
+        "an injection string in a cte source",
+        { ...withJoin, joins: [{ ...withJoin.joins[0], cte: "b; DROP" }] },
+        [
+          {
+            path: ["joins", 0, "cte"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+          {
+            path: ["with", 1, "name"],
+            message:
+              "the with query big_spenders is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "an injection string as a cte source alias",
+        withCteQuery(1, { from: { cte: "order_totals", as: "x; DROP" } }),
+        [
+          {
+            path: ["with", 1, "query", "from", "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "a repeated output name in a with query",
+        withCteQuery(1, {
+          columns: ["t.customer_id", "t.paid_total", "t.paid_total"],
+        }),
+        [
+          {
+            path: ["with", 1, "query", "columns", 2],
+            message:
+              'the result name "paid_total" is used more than once (names ignore case); give each output its own name with as',
+          },
+        ],
+      ],
+      [
+        "SELECT * in a with query",
+        withCteQuery(1, { columns: undefined }),
+        [
+          {
+            path: ["with", 1, "query", "columns"],
+            message:
+              "with from and joins, list the columns to return in columns (SELECT * is not available)",
+          },
+        ],
+      ],
+      [
+        "a missing outer limit",
+        { ...withJoin, limit: undefined },
+        [
+          {
+            path: ["limit"],
+            message:
+              "limit is required with from and joins (at most 1000 rows)",
+          },
+        ],
+      ],
+      [
+        "a write",
+        { ...withJoin, operation: "DELETE" },
+        [
+          {
+            path: ["operation"],
+            message: "from and joins are only valid on a SELECT query",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, spec, issues) => {
+      expect(issuesOf(spec)).toEqual(issues);
+    });
+
+    it("should_send_a_with_only_spec_to_the_aliased_schema", () => {
+      // Given
+      const spec = { ...base, operation: "SELECT", with: withJoin.with };
+
+      // When / Then
+      expect(issuesOf(spec)).toContainEqual({
+        path: ["from"],
+        message: "Required",
+      });
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileWith(
+      spec: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      return () =>
+        compileQuery(spec as unknown as QuerySpec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "an outer reference to an output the with query does not declare",
+        {
+          ...withJoin,
+          columns: [{ column: "c.name", as: "customer" }, "b.secret"],
+          orderBy: undefined,
+        },
+        '"b.secret" is not an output of the with query big_spenders',
+      ],
+      [
+        "an orderBy in a with query",
+        withCteQuery(0, {
+          orderBy: [{ column: "paid_total", direction: "ASC" }],
+        }),
+        CTE_ORDER_AND_LIMIT,
+      ],
+      [
+        "a limit in a with query",
+        withCteQuery(0, { limit: 5 }),
+        CTE_ORDER_AND_LIMIT,
+      ],
+      ["a nested with", withCteQuery(0, { with: [] }), NESTED_WITH],
+      [
+        "a with query that reads a later one",
+        withCteQuery(0, { from: { cte: "big_spenders", as: "o" } }),
+        'no with query declared before this one is named "big_spenders"',
+      ],
+      [
+        "an unused with query",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            { name: "unused_totals", query: withJoin.with[0].query },
+          ],
+        },
+        "the with query unused_totals is not used",
+      ],
+      [
+        "a repeated with query name",
+        withCte(1, { name: "order_totals" }),
+        'the with query name "order_totals" is used more than once',
+      ],
+      [
+        "five with queries",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            ...Array.from({ length: 3 }, (_, index) => ({
+              name: `extra_${index}`,
+              query: withJoin.with[0].query,
+            })),
+          ],
+        },
+        "with needs 1 to 4 queries",
+      ],
+      [
+        "a table named like a with query",
+        { ...withJoin, from: { table: "ORDER_TOTALS", as: "c" } },
+        '"ORDER_TOTALS" is also the name of a with query; read the table as schema.table',
+      ],
+      [
+        "an alias that is a with query name",
+        {
+          ...withJoin,
+          joins: [
+            {
+              ...withJoin.joins[0],
+              as: "order_totals",
+              on: [{ left: "order_totals.customer_id", right: "c.id" }],
+            },
+          ],
+        },
+        'the alias "order_totals" is also the name of a with query',
+      ],
+      [
+        "an injection string as a with query name",
+        withCte(0, { name: "x; DROP TABLE y" }),
+        'unsafe alias: "x; DROP TABLE y"',
+      ],
+      [
+        "an injection string as a cte source alias",
+        withCteQuery(1, { from: { cte: "order_totals", as: "x; DROP" } }),
+        'unsafe alias: "x; DROP"',
+      ],
+      [
+        "a source with table and cte",
+        {
+          ...withJoin,
+          from: { table: "customers", cte: "big_spenders", as: "c" },
+        },
+        "a source names table or cte, not both",
+      ],
+    ])("should_throw_on_%s", (_label, spec, message) => {
+      expect(compileWith(spec)).toThrow(new Error(message));
+    });
+
+    // The projection of a CTE source is its declared outputs. orderBy names result names, so it adds nothing to the
+    // projection. A hand-built orderBy on b.secret is a reference that reaches the emitter unchecked: the emit-time
+    // check must refuse it rather than write b.secret.
+    it.each(["postgres-plugin", "oracle-plugin", "mssql-plugin"])(
+      "should_refuse_an_outer_reference_to_a_cte_output_that_is_not_declared_at_emit_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = {
+          ...withJoin,
+          orderBy: [{ column: "b.secret", direction: "ASC" }],
+        };
+
+        // When / Then
+        expect(compileWith(spec, packageName)).toThrow(
+          new Error(
+            '"b.secret" is not an output of the with query big_spenders',
+          ),
+        );
+      },
+    );
+
+    it("should_refuse_with_on_mysql_before_compiling_a_with_query", () => {
+      // Given
+      const spec = withCteQuery(0, { limit: 5 });
+
+      // When / Then
+      expect(compileWith(spec, "mysql-plugin")).toThrow(
+        new Error(WITH_ON_MYSQL),
+      );
+    });
+  });
+});
+
+// APP-16506: the Oracle plugin removes `;` from a query only when OracleExecuteUtils.isPLSQL returns false. This is a
+// copy of its PLSQL_MATCH_REGEX. isPLSQL runs it on the lower-cased query and looks for a match anywhere.
+const ORACLE_PLSQL_MATCH =
+  /(\bdeclare\b(\s))|(\bbegin\b(\s))|(\bend\b(\s|;))|(\bexception\b(\s))/;
+
+// When isPLSQL matches, the plugin keeps every `;`, and Oracle 21c and older fail with ORA-00933. So an Oracle body
+// must have no `;` at all: then the plugin has nothing to keep.
+describe("APP-16506: Oracle bodies have no trailing semicolon", () => {
+  it("should_have_no_semicolon_when_an_oracle_case_column_looks_like_plsql", () => {
+    // Given
+    const spec = caseColumns;
+
+    // When
+    const body = compileFor(spec, "oracle-plugin");
+    const stored = markMcpAuthoredBody(body);
+
+    // Then
+    expect(ORACLE_PLSQL_MATCH.test(stored.toLowerCase())).toBe(true);
+    expect(stored).not.toContain(";");
+  });
+
+  it("should_have_no_semicolon_when_a_single_table_oracle_column_is_named_exception", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "incidents",
+      // "exception FROM" matches isPLSQL. "exception," would not, because the word needs a space after it.
+      columns: ["id", "exception"],
+      limit: 10,
+    });
+
+    // When
+    const body = compileQuery(spec, { dialect: "oracle" });
+    const stored = markMcpAuthoredBody(body);
+
+    // Then
+    expect(ORACLE_PLSQL_MATCH.test(stored.toLowerCase())).toBe(true);
+    expect(stored).not.toContain(";");
+  });
+
+  it("should_keep_the_trailing_semicolon_when_the_dialect_is_not_oracle", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "incidents",
+      columns: ["id", "exception"],
+      limit: 10,
+    });
+
+    // When / Then
+    for (const dialect of ["postgres", "redshift", "mysql", "other"] as const) {
+      expect(compileQuery(spec, { dialect })).toMatch(/;$/);
+    }
+
+    expect(compileQuery(spec)).toMatch(/;$/);
   });
 });

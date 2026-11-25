@@ -676,7 +676,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_query",
       gate: "data",
       summary:
-        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL)",
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL; aggregates: several count/sum/avg/min/max with abs and round; date bucket group keys on PostgreSQL and Redshift; distinct; from + joins over several tables on PostgreSQL, MySQL, MariaDB, Oracle and SQL Server, with CASE, and with queries except on MySQL and MariaDB)",
     },
     {
       name: "create_mongo_query",
@@ -706,6 +706,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "structured Amazon S3 file action (list/read/upload/delete)",
     },
     {
+      name: "create_smtp_query",
+      gate: "data",
+      summary:
+        "structured SMTP email (from, to, cc, bcc, replyTo, subject, body, bodyType); never runs on page load",
+    },
+    {
       name: "create_graphql_query",
       gate: "data",
       summary: "structured GraphQL query/mutation (parameterized variables)",
@@ -719,7 +725,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "get_action",
       gate: "data",
       summary:
-        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since",
+        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since, an email's addresses and subject, and an email body this server wrote and nobody edited since",
     },
     {
       name: "run_action",
@@ -736,6 +742,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "duplicate_action",
       gate: "data_governance",
       summary: "duplicate an action (governed)",
+    },
+    {
+      name: "copy_action",
+      gate: "data_governance",
+      summary:
+        "copy a SQL or REST query to a page of another app; the query text stays on the server (governed)",
     },
     {
       name: "prepare_delete_action",
@@ -770,7 +782,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_js_object",
       gate: "js_governance",
       summary:
-        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
+        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget, log) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
     },
     {
       name: "update_js_object",

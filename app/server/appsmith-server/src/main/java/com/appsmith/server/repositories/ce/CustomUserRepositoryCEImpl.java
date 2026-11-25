@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.diagnostics.DiagnosticsValues;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -13,6 +15,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -56,6 +59,36 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .all(IdOnly.class)
                 .count()
                 .map(count -> count == 0);
+    }
+
+    /**
+     * An account counts as a person's active account unless it is system generated or its enabled flag is false.
+     *
+     * @return true when no person has an active account yet.
+     */
+    @Override
+    public Mono<Boolean> hasNoActivatedUser() {
+        return queryBuilder()
+                .criteria(Bridge.or(Bridge.isNull(User.Fields.isEnabled), Bridge.isTrue(User.Fields.isEnabled)))
+                .criteria(Bridge.or(
+                        Bridge.isNull(User.Fields.isSystemGenerated), Bridge.isFalse(User.Fields.isSystemGenerated)))
+                .limit(1)
+                .all(IdOnly.class)
+                .count()
+                .map(count -> count == 0);
+    }
+
+    @Override
+    public Mono<Boolean> activatePendingAccount(String id, String encodedPassword, LoginSource source) {
+        return queryBuilder()
+                .byId(id)
+                .criteria(Bridge.isFalse(User.Fields.isEnabled))
+                .updateFirst(Bridge.update()
+                        .set(User.Fields.isEnabled, true)
+                        .set(User.Fields.password, encodedPassword)
+                        .set(User.Fields.source, source)
+                        .set(User.Fields.updatedAt, Instant.now()))
+                .map(updatedCount -> updatedCount == 1);
     }
 
     /**
@@ -114,5 +147,22 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         return queryBuilder().byId(id).updateFirst(updateObj);
+    }
+
+    @Override
+    public Mono<Long> countForDiagnostics() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                        Aggregation.match(new Criteria()
+                                .andOperator(
+                                        notDeleted(),
+                                        Criteria.where(User.Fields.isSystemGenerated)
+                                                .ne(true))),
+                        Aggregation.count().as("count"))
+                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
+        return reactiveMongoOperations
+                .aggregate(aggregation, reactiveMongoOperations.getCollectionName(User.class), Document.class)
+                .next()
+                .map(document -> ((Number) document.get("count")).longValue())
+                .defaultIfEmpty(0L);
     }
 }
