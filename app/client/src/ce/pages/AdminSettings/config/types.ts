@@ -152,6 +152,7 @@ export const SettingCategories = {
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",
   AI: "ai",
+  SUPPORT: "support",
 };
 
 export enum CategoryType {
