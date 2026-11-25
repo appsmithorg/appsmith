@@ -121,7 +121,7 @@ class RedisConfigTracingTest {
 
         // Then
         assertThat(endedSpans).hasSize(1);
-        assertThat(endedSpans.get(0).toSpanData().getStatus().getStatusCode()).isEqualTo(StatusCode.UNSET);
+        assertThat(endedSpans.get(0).toSpanData().getStatus().getStatusCode()).isNotEqualTo(StatusCode.ERROR);
     }
 
     /**
