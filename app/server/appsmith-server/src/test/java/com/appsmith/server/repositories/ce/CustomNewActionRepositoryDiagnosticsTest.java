@@ -74,6 +74,26 @@ class CustomNewActionRepositoryDiagnosticsTest {
                 .isEmpty();
     }
 
+    @Test
+    void should_notMakeOtherDatasourceIndexesEligible_when_countRetriesWithoutHint() {
+        // Given
+        givenAggregations(Flux.error(commandFailure(BAD_VALUE)), Flux.empty());
+
+        // When
+        Flux<Document> counts = repository().countEditableByPluginTypeForDiagnostics();
+
+        // Then
+        StepVerifier.create(counts).verifyComplete();
+        ArgumentCaptor<Aggregation> aggregations = ArgumentCaptor.forClass(Aggregation.class);
+        verify(mongoOperations, times(2)).aggregate(aggregations.capture(), anyString(), eq(Document.class));
+        assertThat(aggregations.getAllValues())
+                .extracting(aggregation -> aggregation
+                        .toPipeline(Aggregation.DEFAULT_CONTEXT)
+                        .toString()
+                        .contains("datasource._id"))
+                .containsExactly(true, false);
+    }
+
     private CustomNewActionRepositoryCEImpl repository() {
         return new CustomNewActionRepositoryCEImpl(mongoOperations, ObservationRegistry.NOOP);
     }

@@ -523,19 +523,31 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Document> countEditableByPluginTypeForDiagnostics() {
-        return aggregateForDiagnostics(editableByPluginTypeAggregation());
+        return aggregateForDiagnostics(
+                editableByPluginTypeAggregation(), countByPluginTypeAggregation(editableForDiagnostics()));
     }
 
+    /**
+     * Every value is at or above {@code MinKey}, so the datasource condition matches every document. It lets the hinted
+     * index, which starts with the datasource ID, answer the query alone. Without the hint it would let the planner choose
+     * another index that starts with the datasource ID, which is slower than no condition. Spring Data passes
+     * {@code BsonMinKey} through and converts {@code org.bson.types.MinKey}.
+     */
     static Aggregation editableByPluginTypeAggregation() {
-        return newAggregation(
-                        match(editableForDiagnostics()),
-                        group(NewAction.Fields.pluginType).count().as("count"))
+        return countByPluginTypeAggregation(new Criteria()
+                        .andOperator(where(DIAGNOSTICS_DATASOURCE_ID).gte(new BsonMinKey()), editableForDiagnostics()))
                 .withOptions(DIAGNOSTICS_HINTED_OPTIONS);
+    }
+
+    private static Aggregation countByPluginTypeAggregation(Criteria criteria) {
+        return newAggregation(
+                match(criteria), group(NewAction.Fields.pluginType).count().as("count"));
     }
 
     @Override
     public Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics() {
-        return aggregateForDiagnostics(referencedDatasourceIdsAggregation())
+        Aggregation aggregation = referencedDatasourceIdsAggregation();
+        return aggregateForDiagnostics(aggregation, aggregation)
                 .collect(HashSet::new, (ids, group) -> ids.add(group.get("_id").toString()));
     }
 
@@ -550,15 +562,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     /**
-     * Runs {@code aggregation} with its index hint. MongoDB rejects a hint for an index that does not exist, and the
-     * migration tolerates a failed build, so a rejected hint runs again without it. The rejection comes before any
+     * Runs {@code hinted} with its index hint. MongoDB rejects a hint for an index that does not exist, and the migration
+     * tolerates a failed build, so after a rejected hint {@code fallback} runs without one. The rejection comes before any
      * result. Other errors, including a timeout, are not retried.
      */
-    private Flux<Document> aggregateForDiagnostics(Aggregation aggregation) {
+    private Flux<Document> aggregateForDiagnostics(Aggregation hinted, Aggregation fallback) {
         // The collection name, not the domain class, keeps _id as the stored value.
         String collection = mongoOperations.getCollectionName(NewAction.class);
         return mongoOperations
-                .aggregate(aggregation, collection, Document.class)
+                .aggregate(hinted, collection, Document.class)
                 .onErrorResume(CustomNewActionRepositoryCEImpl::isHintRejected, error -> {
                     log.warn(
                             "Support diagnostics aggregation with index {} was rejected with {} (code {}), retrying without it",
@@ -566,7 +578,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             error.getClass().getSimpleName(),
                             BAD_VALUE_ERROR_CODE);
                     return mongoOperations.aggregate(
-                            aggregation.withOptions(DiagnosticsValues.AGGREGATION_OPTIONS), collection, Document.class);
+                            fallback.withOptions(DiagnosticsValues.AGGREGATION_OPTIONS), collection, Document.class);
                 });
     }
 
@@ -582,14 +594,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
      *   <li>a deletion date matches when it is not a BSON date, which includes missing and null;
      *   <li>{@code deleted} matches when it is not true. Unlike {@link #notDeleted()}, that includes an explicit null.
      * </ul>
-     * Every value is at or above {@code MinKey}, so the datasource condition matches every document. It makes the index,
-     * which starts with the datasource ID, usable for the hint. Spring Data passes {@code BsonMinKey} through and converts
-     * {@code org.bson.types.MinKey}.
      */
     private static Criteria editableForDiagnostics() {
         return new Criteria()
                 .andOperator(
-                        where(DIAGNOSTICS_DATASOURCE_ID).gte(new BsonMinKey()),
                         where(NewAction.Fields.deletedAt).not().gte(EARLIEST_DATE),
                         where(NewAction.Fields.deleted).ne(true),
                         where(NewAction.Fields.unpublishedAction_deletedAt)
