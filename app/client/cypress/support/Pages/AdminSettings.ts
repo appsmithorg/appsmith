@@ -32,7 +32,7 @@ export class AdminSettings {
     USER_SETTINGS: "/settings/user-settings",
     INSTANCE_SETTINGS: "/settings/instance-settings",
     CONFIGURATION: "/settings/configuration",
-    VERSION: "/settings/version",
+    VERSION: "/settings/admin-central",
     AUTHENTICATION: "/settings/authentication",
     GOOGLEAUTH: "/settings/authentication/google-auth",
     GITHUBAUTH: "/settings/authentication/github-auth",
