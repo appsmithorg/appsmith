@@ -114,6 +114,7 @@
     "@uppy/utils": "^6.0.2",
     "@uppy/webcam": "^1.8.4",
     "@welldone-software/why-did-you-render": "^4.2.5",
+    "@zip.js/zip.js": "2.24.0",
     "acorn": "8.10.0",
     "acorn-walk": "8.2.0",
     "appsmith-icons": "workspace:^",
