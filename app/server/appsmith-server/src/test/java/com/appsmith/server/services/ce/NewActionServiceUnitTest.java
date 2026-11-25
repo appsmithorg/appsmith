@@ -33,7 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -48,60 +48,60 @@ public class NewActionServiceUnitTest {
 
     NewActionServiceCEImpl newActionService;
 
-    @MockBean
+    @MockitoBean
     Validator validator;
 
-    @MockBean
+    @MockitoBean
     AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     DatasourceService datasourceService;
 
-    @MockBean
+    @MockitoBean
     PluginService pluginService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @MockitoBean
     PolicyGenerator policyGenerator;
 
-    @MockBean
+    @MockitoBean
     NewPageService newPageService;
 
-    @MockBean
+    @MockitoBean
     ApplicationService applicationService;
 
-    @MockBean
+    @MockitoBean
     PolicySolution policySolution;
 
-    @MockBean
+    @MockitoBean
     ConfigService configService;
 
-    @MockBean
+    @MockitoBean
     PermissionGroupService permissionGroupService;
 
-    @MockBean
+    @MockitoBean
     NewActionRepository newActionRepository;
 
-    @MockBean
+    @MockitoBean
     DatasourcePermission datasourcePermission;
 
-    @MockBean
+    @MockitoBean
     ApplicationPermission applicationPermission;
 
-    @MockBean
+    @MockitoBean
     PagePermission pagePermission;
 
-    @MockBean
+    @MockitoBean
     NewActionHelper newActionHelper;
 
-    @MockBean
+    @MockitoBean
     EntityValidationService entityValidationService;
 
     ActionPermission actionPermission = new ActionPermissionImpl();
 
-    @MockBean
+    @MockitoBean
     ObservationRegistry observationRegistry;
 
     @BeforeEach

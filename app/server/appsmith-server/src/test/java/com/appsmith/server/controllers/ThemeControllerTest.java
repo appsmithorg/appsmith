@@ -135,7 +135,7 @@ class ThemeControllerTest {
         response.expectStatus()
                 .isOk()
                 .expectBody()
-                .jsonPath("$.data[?(@.displayName == '%s')]", namedThemeDisplayName)
+                .jsonPath(String.format("$.data[?(@.displayName == '%s')]", namedThemeDisplayName))
                 .exists()
                 .jsonPath("$.data[?(@.isSystemTheme == true)]")
                 .exists();

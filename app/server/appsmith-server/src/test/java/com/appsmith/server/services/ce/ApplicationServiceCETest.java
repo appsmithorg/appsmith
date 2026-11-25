@@ -98,8 +98,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -115,6 +113,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -206,7 +206,7 @@ public class ApplicationServiceCETest {
     @Autowired
     NewActionService newActionService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
@@ -251,10 +251,10 @@ public class ApplicationServiceCETest {
     @Autowired
     PermissionGroupService permissionGroupService;
 
-    @MockBean
+    @MockitoBean
     ReleaseNotesService releaseNotesService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutor pluginExecutor;
 
     @Autowired
@@ -290,7 +290,7 @@ public class ApplicationServiceCETest {
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     UserDataService userDataService;
 
     String workspaceId;

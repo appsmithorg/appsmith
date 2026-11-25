@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,13 +37,13 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static MockWebServer mockCloudServices;
 
-    @MockBean
+    @MockitoBean
     ApplicationPermission applicationPermission;
 
     @Autowired
     CacheableTemplateHelper cacheableTemplateHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     CacheableTemplateHelper spyCacheableTemplateHelper;
 
     String baseUrl;

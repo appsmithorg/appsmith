@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -54,12 +54,12 @@ public class UserServiceResendEmailVerificationRateLimitTest {
     UserRepository userRepository;
 
     // Spied so the under-limit successes do not attempt a real email send, and so send attempts can be counted.
-    @SpyBean
+    @MockitoSpyBean
     EmailService emailService;
 
     // Spied to enable instance-level email verification (it is read from the instance-variables config doc,
     // not the organization config) without mutating shared instance state.
-    @SpyBean
+    @MockitoSpyBean
     InstanceVariablesHelper instanceVariablesHelper;
 
     private ResendEmailVerificationDTO dtoFor(String email) {

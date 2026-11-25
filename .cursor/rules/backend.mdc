@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Backend — `app/server/`
 
-- **Stack:** Java 17, Spring Boot 3.x (Reactive WebFlux), MongoDB
+- **Stack:** Java 25, Spring Boot 4.x (Reactive WebFlux), MongoDB
 - **Build:** Maven (`pom.xml`) — run with `mvn` or `./mvnw`
 - **Entry point:** `appsmith-server/src/main/java/com/appsmith/server/ServerApplication.java`
 

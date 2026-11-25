@@ -1,7 +1,7 @@
 package com.appsmith.server.configurations;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
+import org.springframework.boot.reactor.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.stereotype.Component;
 

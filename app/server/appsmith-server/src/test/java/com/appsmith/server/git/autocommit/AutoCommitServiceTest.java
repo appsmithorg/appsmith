@@ -40,8 +40,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -68,49 +68,49 @@ import static org.mockito.Mockito.doReturn;
 @Slf4j
 public class AutoCommitServiceTest {
 
-    @SpyBean
+    @MockitoSpyBean
     AutoCommitService autoCommitService;
 
     @Autowired
     GitFileSystemTestHelper gitFileSystemTestHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     FSGitHandler fsGitHandler;
 
-    @MockBean
+    @MockitoBean
     DSLMigrationUtils dslMigrationUtils;
 
-    @SpyBean
+    @MockitoSpyBean
     ApplicationService applicationService;
 
-    @MockBean
+    @MockitoBean
     NewPageService newPageService;
 
     @Autowired
     PagePermission pagePermission;
 
-    @SpyBean
+    @MockitoSpyBean
     RedisUtils redisUtils;
 
-    @MockBean
+    @MockitoBean
     CentralGitService centralGitService;
 
-    @MockBean
+    @MockitoBean
     GitPrivateRepoHelper gitPrivateRepoHelper;
 
-    @MockBean
+    @MockitoBean
     AutoCommitEligibilityHelper autoCommitEligibilityHelper;
 
-    @MockBean
+    @MockitoBean
     BranchTrackingStatus branchTrackingStatus;
 
-    @MockBean
+    @MockitoBean
     UserDataService userDataService;
 
-    @SpyBean
+    @MockitoSpyBean
     JsonSchemaMigration jsonSchemaMigration;
 
-    @SpyBean
+    @MockitoSpyBean
     GitServiceConfig gitServiceConfig;
 
     Application testApplication;

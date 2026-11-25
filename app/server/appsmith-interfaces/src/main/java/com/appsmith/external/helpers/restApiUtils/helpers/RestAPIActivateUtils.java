@@ -24,10 +24,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
@@ -87,7 +87,6 @@ public class RestAPIActivateUtils {
                 .tag("plugin", className)
                 .name(ACTUAL_API_CALL)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
                     HttpHeaders headers = stringResponseEntity.getHeaders();
                     /*
@@ -121,7 +120,9 @@ public class RestAPIActivateUtils {
                     // Convert the headers into json tree to store in the results
                     String headerInJsonString;
                     try {
-                        headerInJsonString = objectMapper.writeValueAsString(headers);
+                        // HttpHeaders is no longer a Map in Spring Framework 7. Serialize its map view to keep the
+                        // {"name": ["value"]} shape that action results have always had.
+                        headerInJsonString = objectMapper.writeValueAsString(headers.asMultiValueMap());
                     } catch (JsonProcessingException e) {
                         throw Exceptions.propagate(e);
                     }
@@ -190,7 +191,7 @@ public class RestAPIActivateUtils {
                 });
     }
 
-    protected Mono<ClientResponse> httpCall(
+    protected Mono<ResponseEntity<byte[]>> httpCall(
             WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody, int iteration) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new AppsmithPluginException(
@@ -209,12 +210,11 @@ public class RestAPIActivateUtils {
                 .method(httpMethod)
                 .uri(uri)
                 .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
-                .exchange()
-                .flatMap(response -> {
+                .exchangeToMono(response -> {
                     if (response.statusCode().is3xxRedirection()) {
                         // if there is no redirect location then we should just return the response
                         if (CollectionUtils.isEmpty(response.headers().header(HttpHeaders.LOCATION))) {
-                            return Mono.just(response);
+                            return response.toEntity(byte[].class);
                         }
 
                         String redirectUrl =
@@ -229,7 +229,8 @@ public class RestAPIActivateUtils {
 
                         return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1);
                     }
-                    return Mono.just(response);
+                    // exchangeToMono releases the body once this Mono completes, so read it here
+                    return response.toEntity(byte[].class);
                 });
     }
 

@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 class EmailServiceCEImplTest {
 
-    @SpyBean
+    @MockitoSpyBean
     EmailSender mockEmailSender;
 
     @Autowired

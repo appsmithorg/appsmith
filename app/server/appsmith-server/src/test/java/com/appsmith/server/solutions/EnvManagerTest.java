@@ -33,9 +33,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -62,55 +62,55 @@ import static org.mockito.ArgumentMatchers.eq;
 public class EnvManagerTest {
     EnvManager envManager;
 
-    @MockBean
+    @MockitoBean
     private SessionUserService sessionUserService;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
 
-    @MockBean
+    @MockitoBean
     private EmailSender emailSender;
 
-    @MockBean
+    @MockitoBean
     private CommonConfig commonConfig;
 
-    @MockBean
+    @MockitoBean
     private EmailConfig emailConfig;
 
-    @MockBean
+    @MockitoBean
     private JavaMailSender javaMailSender;
 
-    @MockBean
+    @MockitoBean
     private GoogleRecaptchaConfig googleRecaptchaConfig;
 
-    @MockBean
+    @MockitoBean
     private FileUtils fileUtils;
 
-    @MockBean
+    @MockitoBean
     private ConfigService configService;
 
-    @MockBean
+    @MockitoBean
     private PermissionGroupService permissionGroupService;
 
-    @MockBean
+    @MockitoBean
     private UserUtils userUtils;
 
-    @MockBean
+    @MockitoBean
     private OrganizationService organizationService;
 
-    @MockBean
+    @MockitoBean
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     AssetService assetService;
 
-    @MockBean
+    @MockitoBean
     BlacklistedEnvVariableHelper blacklistedEnvVariableHelper;
 
     private EmailService emailService;

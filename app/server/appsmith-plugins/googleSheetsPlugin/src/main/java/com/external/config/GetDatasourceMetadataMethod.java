@@ -88,8 +88,7 @@ public class GetDatasourceMetadataMethod {
                 .uri(uriBuilder.build(false).toUri())
                 .body(BodyInserters.empty())
                 .headers(headers -> headers.set("Authorization", "Bearer " + accessToken))
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(response -> {
                     // Choose body depending on response status
                     byte[] responseBody = response.getBody();

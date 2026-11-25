@@ -42,7 +42,7 @@
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>gcloud</artifactId>
+            <artifactId>testcontainers-gcloud</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
             <exclusions>

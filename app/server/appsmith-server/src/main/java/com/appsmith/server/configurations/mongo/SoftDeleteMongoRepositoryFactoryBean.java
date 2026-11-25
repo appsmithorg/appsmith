@@ -1,9 +1,9 @@
 package com.appsmith.server.configurations.mongo;
 
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory;
 import org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactoryBean;
 import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ public class SoftDeleteMongoRepositoryFactoryBean<T extends Repository<S, ID>, S
     }
 
     @Override
-    protected RepositoryFactorySupport getFactoryInstance(ReactiveMongoOperations operations) {
+    protected ReactiveMongoRepositoryFactory getFactoryInstance(ReactiveMongoOperations operations) {
         return new SoftDeleteMongoRepositoryFactory(operations);
     }
 }

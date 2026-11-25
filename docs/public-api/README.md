@@ -25,7 +25,7 @@ by springdoc. It is produced by the default server test run, not by a running in
   (the release build, the Cypress image build) run no tests and upload nothing. On a rerun that
   executes only previously failed tests, the artifact is absent unless this test was among them.
 - The test is also the compatibility check for the springdoc dependency in `appsmith-server/pom.xml`.
-  springdoc must track the Spring Boot line (2.9.x for Spring Boot 3.5); an older version compiles
+  springdoc must track the Spring Boot line (3.1.x–3.2.x for Spring Boot 4.1); an older version compiles
   but fails at generation time with `NoSuchMethodError`, which the test turns into a build failure
   instead of a silent gap.
 
