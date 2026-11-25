@@ -78,6 +78,10 @@ public class FirestoreErrorMessages extends BasePluginErrorMessages {
     public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID =
             "Unable to connect to the Firestore project. No project found for the given ProjectID.";
 
+    public static final String DS_CONNECTION_FAILED_FOR_DATABASE_ID =
+            "Unable to connect to the Firestore database. Check that a database with the given Database ID exists "
+                    + "in the project and that the ProjectID is correct.";
+
     /*
     ************************************************************************************************************************************************
                                        Error messages related to validation of datasource.
@@ -94,7 +98,9 @@ public class FirestoreErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_CLIENTJSON_ERROR_MSG = "Missing ClientJSON in datasource.";
 
-    public static final String DS_MISSING_FIRESTORE_URL_ERROR_MSG = "Missing Firestore URL.";
+    public static final String DS_INVALID_DATABASE_ID_ERROR_MSG = "Invalid Database ID. Use 4 to 63 lowercase "
+            + "letters, numbers or hyphens, starting with a letter and ending with a letter or number, and not shaped "
+            + "like a UUID. Leave it empty to use the (default) database.";
 
     /*
     ************************************************************************************************************************************************
