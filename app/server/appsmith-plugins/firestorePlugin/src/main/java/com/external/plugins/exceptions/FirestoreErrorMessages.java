@@ -28,6 +28,8 @@ public class FirestoreErrorMessages extends BasePluginErrorMessages {
                     + "fields to be non-empty: 'Timestamp Value Path', 'Delete Key Value "
                     + "Pair Path', 'Body'";
 
+    public static final String CONNECTION_CLOSED_ERROR_MSG = "The Firestore connection has been closed.";
+
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG =
             "Firestore query has failed to execute. To know more please check the error details.";
 

@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
@@ -32,34 +33,29 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
+import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.cloud.FirestoreClient;
+import com.google.common.base.Ticker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,9 +107,28 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
+        // The server creates an executor for each call, so all executors share one cache. A client can use one thread
+        // for
+        // each CPU core, and at least four. The limit also has to fit hosts that allow few processes.
+        private static final FirestoreClientCache SHARED_CLIENT_CACHE =
+                new FirestoreClientCache(100, Duration.ofHours(2), Ticker.systemTicker());
+
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
+        private final FirestoreClientCache clientCache;
+
+        public FirestorePluginExecutor() {
+            this(SHARED_CLIENT_CACHE);
+        }
+
+        FirestorePluginExecutor(FirestoreClientCache clientCache) {
+            this.clientCache = clientCache;
+        }
+
         static final String DEFAULT_DATABASE_ID = "(default)";
+
+        // Part of the message the Firestore client uses when it is called after shutdown.
+        private static final String CLIENT_CLOSED_MESSAGE = "already been closed";
 
         // The Database ID is the first datasource property, bound by form.json.
         private static final int DATABASE_ID_PROPERTY_INDEX = 0;
@@ -157,6 +172,21 @@ public class FirestorePlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Firestore plugin.");
+            // Check before the bindings are substituted, because the retry substitutes them again.
+            return Mono.fromSupplier(() -> isClientOpen(connection, datasourceConfiguration))
+                    .flatMap(isOpen -> isOpen
+                            ? substituteAndExecute(
+                                    connection, executeActionDTO, datasourceConfiguration, actionConfiguration)
+                            : Mono.error(connectionClosed(null)))
+                    .subscribeOn(scheduler);
+        }
+
+        private Mono<ActionExecutionResult> substituteAndExecute(
+                Firestore connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+
             Object smartSubstitutionObject = actionConfiguration.getFormData().getOrDefault(SMART_SUBSTITUTION, TRUE);
             Boolean smartJsonSubstitution = TRUE;
             if (smartSubstitutionObject instanceof Boolean) {
@@ -322,7 +352,8 @@ public class FirestorePlugin extends BasePlugin {
                                     actionConfiguration);
                         }
                     })
-                    .onErrorResume(error -> {
+                    .onErrorMap(FirestorePluginExecutor::toStaleConnectionIfClosed)
+                    .onErrorResume(error -> !(error instanceof StaleConnectionException), error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         if (!(error instanceof AppsmithPluginException)) {
@@ -569,6 +600,10 @@ public class FirestorePlugin extends BasePlugin {
                             }
 
                         } catch (IllegalAccessException | InvocationTargetException e) {
+                            Throwable cause = toStaleConnectionIfClosed(e.getCause());
+                            if (cause instanceof StaleConnectionException) {
+                                return Mono.error(cause);
+                            }
                             /*
                              * - Printing the stack because e.getMessage() returns null for FieldValue errors.
                              */
@@ -915,75 +950,69 @@ public class FirestorePlugin extends BasePlugin {
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Firestore plugin.");
-            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-
-            final Set<String> errors = validateDatasource(datasourceConfiguration);
-            if (!CollectionUtils.isEmpty(errors)) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        errors.iterator().next()));
-            }
-
-            final String projectId = authentication.getUsername();
-            final String clientJson = authentication.getPassword();
-            final String databaseId = resolveDatabaseId(datasourceConfiguration);
-
-            InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
-
             return Mono.fromSupplier(() -> {
-                        log.debug(Thread.currentThread().getName()
-                                + ": instantiating googlecredentials object from Firestore plugin.");
-                        GoogleCredentials credentials;
-                        try {
-                            credentials = GoogleCredentials.fromStream(serviceAccount);
-                        } catch (IOException e) {
-                            throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    FirestoreErrorMessages.DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG,
-                                    e.getMessage()));
-                        }
-
-                        FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
-                                .setProjectId(projectId)
-                                .setCredentials(credentials);
-                        // The Database URL is a Realtime Database setting. Firestore does not need it.
-                        if (!isBlank(datasourceConfiguration.getUrl())) {
-                            optionsBuilder.setDatabaseUrl(datasourceConfiguration.getUrl());
-                        }
-                        return optionsBuilder.build();
+                        throwIfInvalid(datasourceConfiguration);
+                        return clientCache.get(
+                                clientKey(datasourceConfiguration), () -> createClient(datasourceConfiguration));
                     })
-                    .onErrorMap(Exceptions::unwrap)
-                    .map(options -> getOrInitializeApp(options, firebaseAppName(projectId, clientJson)))
-                    .map(app -> FirestoreClient.getFirestore(app, databaseId))
                     .subscribeOn(scheduler);
         }
 
         /**
-         * FirebaseApp instances live in a JVM-wide registry, and each app holds its own credentials. The name is
-         * derived from both the project ID and the service account JSON so that datasources with different
-         * credentials never share an app, even when they point to the same project.
+         * Creates a client that is not shared. The caller shuts it down.
          */
-        static String firebaseAppName(String projectId, String clientJson) {
+        Firestore createClient(DatasourceConfiguration datasourceConfiguration) {
+            throwIfInvalid(datasourceConfiguration);
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            GoogleCredentials credentials;
             try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] hash = digest.digest((projectId + "\n" + clientJson).getBytes(StandardCharsets.UTF_8));
-                return "firestore-" + HexFormat.of().formatHex(hash);
-            } catch (NoSuchAlgorithmException e) {
-                throw new IllegalStateException("SHA-256 is not available", e);
+                credentials = GoogleCredentials.fromStream(
+                        new ByteArrayInputStream(authentication.getPassword().getBytes(StandardCharsets.UTF_8)));
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        FirestoreErrorMessages.DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG,
+                        e.getMessage());
+            }
+
+            // The Database URL is a Realtime Database setting, which Firestore does not use.
+            return FirestoreOptions.newBuilder()
+                    .setCredentials(credentials)
+                    .setProjectId(authentication.getUsername())
+                    .setDatabaseId(resolveDatabaseId(datasourceConfiguration))
+                    .build()
+                    .getService();
+        }
+
+        private void throwIfInvalid(DatasourceConfiguration datasourceConfiguration) {
+            final Set<String> errors = validateDatasource(datasourceConfiguration);
+            if (!CollectionUtils.isEmpty(errors)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        errors.iterator().next());
             }
         }
 
-        private static FirebaseApp getOrInitializeApp(FirebaseOptions options, String appName) {
-            try {
-                return FirebaseApp.getInstance(appName);
-            } catch (IllegalStateException notFound) {
-                try {
-                    return FirebaseApp.initializeApp(options, appName);
-                } catch (IllegalStateException alreadyExists) {
-                    // Another thread initialized the same app between the lookup and the initialization.
-                    return FirebaseApp.getInstance(appName);
-                }
+        private static FirestoreClientCache.Key clientKey(DatasourceConfiguration datasourceConfiguration) {
+            final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            return FirestoreClientCache.Key.of(
+                    authentication.getUsername(),
+                    authentication.getPassword(),
+                    resolveDatabaseId(datasourceConfiguration));
+        }
+
+        private boolean isClientOpen(Firestore connection, DatasourceConfiguration datasourceConfiguration) {
+            // Without credentials there is no key, so the connection did not come from the cache.
+            if (!(datasourceConfiguration.getAuthentication() instanceof DBAuth authentication)
+                    || authentication.getUsername() == null
+                    || authentication.getPassword() == null) {
+                return true;
             }
+            return clientCache.isOpen(clientKey(datasourceConfiguration), connection);
+        }
+
+        private static StaleConnectionException connectionClosed(Throwable cause) {
+            return new StaleConnectionException(FirestoreErrorMessages.CONNECTION_CLOSED_ERROR_MSG, cause);
         }
 
         /**
@@ -1007,36 +1036,59 @@ public class FirestorePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for Firestore plugin.");
-            return datasourceCreate(datasourceConfiguration).flatMap(connection -> {
-                try {
-                    connection.listCollections();
-                } catch (FirestoreException e) {
-                    log.error("Invalid datasource configuration: " + e.getMessage());
-                    if (e.getMessage().contains("Metadata operations require admin authentication")) {
-                        DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
-                        datasourceTestResult.setMessages(new HashSet<>(
-                                Collections.singletonList(FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
-                        return Mono.just(datasourceTestResult);
-                    }
-                    // With a named database, the failure can come from the Database ID as well as the project.
-                    final boolean isDefaultDatabase =
-                            DEFAULT_DATABASE_ID.equals(resolveDatabaseId(datasourceConfiguration));
-                    return Mono.just(new DatasourceTestResult(
-                            isDefaultDatabase
-                                    ? FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID
-                                    : FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID));
+            // A test uses its own client, so that testing many configurations does not remove clients in use.
+            return Mono.using(
+                            () -> createClient(datasourceConfiguration),
+                            client -> Mono.fromSupplier(
+                                    () -> testConnection(client, resolveDatabaseId(datasourceConfiguration))),
+                            FirestoreClientCache::shutDown)
+                    .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(
+                DatasourceConfiguration datasourceConfiguration, Boolean isDynamoDBConnectionTimeToLiveEnabled) {
+            return testDatasource(datasourceConfiguration);
+        }
+
+        private static DatasourceTestResult testConnection(Firestore connection, String databaseId) {
+            try {
+                connection.listCollections();
+            } catch (FirestoreException e) {
+                log.error("Invalid datasource configuration: " + e.getMessage());
+                if (e.getMessage().contains("Metadata operations require admin authentication")) {
+                    DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
+                    datasourceTestResult.setMessages(new HashSet<>(
+                            Collections.singletonList(FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
+                    return datasourceTestResult;
                 }
-                return Mono.just(new DatasourceTestResult());
-            });
+                // With a named database, the failure can come from the Database ID as well as the project.
+                return new DatasourceTestResult(
+                        DEFAULT_DATABASE_ID.equals(databaseId)
+                                ? FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID
+                                : FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID);
+            }
+            return new DatasourceTestResult();
         }
 
         @Override
         public void datasourceDestroy(Firestore connection) {
-            // This is empty because there's no concept of destroying a Firestore connection here.
-            // The FirebaseApp behind the connection stays in the JVM-wide registry and is reused by any datasource
-            // with the same project ID and service account credentials.
-            // Do not delete the FirebaseApp or close the Firestore here: other datasources with the same project,
-            // credentials and database ID share the same instances.
+            // Other datasources with the same project, credentials and database use the same client, so do not shut it
+            // down here. FirestoreClientCache does that.
+        }
+
+        /**
+         * The Firestore client throws an IllegalStateException when it is called after shutdown, before it sends
+         * anything. FirestoreClientCache can shut down a client that a query is about to use. The server retries a
+         * StaleConnectionException with a new connection.
+         */
+        private static Throwable toStaleConnectionIfClosed(Throwable error) {
+            if (error instanceof IllegalStateException
+                    && error.getMessage() != null
+                    && error.getMessage().contains(CLIENT_CLOSED_MESSAGE)) {
+                return connectionClosed(error);
+            }
+            return error;
         }
 
         @Override
@@ -1074,6 +1126,9 @@ public class FirestorePlugin extends BasePlugin {
                 Firestore connection, DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": getStructure() called for Firestore plugin.");
             return Mono.fromSupplier(() -> {
+                        if (!isClientOpen(connection, datasourceConfiguration)) {
+                            throw connectionClosed(null);
+                        }
                         log.debug(Thread.currentThread().getName()
                                 + ": invoking connection.listCollections() from Firestore plugin.");
                         Iterable<CollectionReference> collectionReferences = connection.listCollections();
@@ -1098,6 +1153,7 @@ public class FirestorePlugin extends BasePlugin {
 
                         return structure;
                     })
+                    .onErrorMap(FirestorePluginExecutor::toStaleConnectionIfClosed)
                     .subscribeOn(scheduler);
         }
 
