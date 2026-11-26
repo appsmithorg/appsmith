@@ -22,20 +22,28 @@ if [[ ! -e "$entrypoint" ]]; then
   exit 1
 fi
 
-# Extract the compose_redis_url_from_parts function definition (from its line up to
-# the closing brace at column 0) and source it in isolation. This avoids running the
-# entrypoint's main section or its other `source` dependencies.
-fn_source="$(awk '/^compose_redis_url_from_parts\(\) \{/{flag=1} flag{print} /^\}/{if(flag){exit}}' "$entrypoint")"
+# Extract the Redis helper function definitions (each from its line up to the closing
+# brace at column 0) into a temp file and source it in isolation. This avoids running
+# the entrypoint's main section or its other `source` dependencies.
+fn_file="$(mktemp)"
+trap 'rm -f "$fn_file"' EXIT
 
-if [[ -z "$fn_source" ]]; then
-  echo "FAILED: could not extract compose_redis_url_from_parts from $entrypoint"
-  exit 1
-fi
+for fn in redis_host_is_local redis_url_is_local compose_redis_url_from_parts persist_composed_redis_url; do
+  if ! awk -v fn="$fn" '$0 ~ "^" fn "\\(\\) \\{" {flag=1} flag{print} /^\}/{if(flag){exit}}' "$entrypoint" > "$fn_file.part" \
+    || [[ ! -s "$fn_file.part" ]]; then
+    echo "FAILED: could not extract $fn from $entrypoint"
+    rm -f "$fn_file.part"
+    exit 1
+  fi
+  cat "$fn_file.part" >> "$fn_file"
+  rm -f "$fn_file.part"
+done
 
-# Stub tlog (defined elsewhere in the entrypoint) so the function is self-contained.
+# Stub tlog (defined elsewhere in the entrypoint) so the functions are self-contained.
 tlog() { :; }
 
-eval "$fn_source"
+# shellcheck source=/dev/null
+source "$fn_file"
 
 fail=0
 
@@ -48,7 +56,8 @@ assert_url() {
   # Clear all inputs, then apply only what the case specifies.
   unset APPSMITH_REDIS_URL APPSMITH_REDIS_HOST APPSMITH_REDIS_PORT \
         APPSMITH_REDIS_PASSWORD APPSMITH_REDIS_TLS APPSMITH_REDIS_SSL \
-        APPSMITH_REDIS_URL_EXTERNAL APPSMITH_REDIS_PASSWORD_EXTERNAL
+        APPSMITH_REDIS_URL_EXTERNAL APPSMITH_REDIS_PASSWORD_EXTERNAL \
+        REDIS_URL_COMPOSED
 
   local kv
   for kv in "$@"; do
@@ -163,6 +172,58 @@ else
   echo "OK: host containing @ is rejected"
 fi
 unset APPSMITH_REDIS_HOST
+
+# 16. A remote name that merely contains "localhost" must not get the generated password.
+assert_url "hostname containing localhost is treated as remote" \
+  "redis://redis-localhost.example.com:6379" \
+  APPSMITH_REDIS_PASSWORD=generated APPSMITH_REDIS_URL_EXTERNAL= \
+  APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=redis-localhost.example.com
+
+# 17. redis_url_is_local (embedded Redis selector) matches the URL hostname exactly.
+check_url_local() {
+  local expected="$1" url="$2" actual=remote
+  if redis_url_is_local "$url"; then actual=local; fi
+  if [[ "$actual" == "$expected" ]]; then
+    echo "OK: $url is $expected"
+  else
+    echo "FAILED: $url expected $expected, got $actual"
+    fail=$((fail + 1))
+  fi
+}
+check_url_local local  "redis://:pw@127.0.0.1:6379"
+check_url_local local  "redis://localhost:6379"
+check_url_local local  "redis://:pw@[::1]:6379"
+check_url_local local  "redis://127.0.0.1"
+check_url_local remote "redis://:pw@redis-localhost.example.com:6379"
+check_url_local remote "rediss://:pw@127.0.0.1.example.com:6379"
+check_url_local remote "redis://[2001:db8::1]:6379"
+check_url_local remote "redis://redis.example.com:6379/0"
+
+# 18. The composed URL survives the reload done by run-with-env.sh (docker.env with its
+#     localhost default first, then pre-define.json), using the real loader.
+# shellcheck source=../fs/opt/appsmith/load-env.sh
+source "$script_dir/../fs/opt/appsmith/load-env.sh"
+TMP="$(mktemp -d)"
+printf '%s\n' 'APPSMITH_REDIS_URL=redis://:generated@127.0.0.1:6379' 'APPSMITH_REDIS_PASSWORD=generated' > "$TMP/docker.env"
+printf '%s' '{"APPSMITH_REDIS_HOST": "redis.example.com"}' > "$TMP/pre-define.json"
+unset APPSMITH_REDIS_URL APPSMITH_REDIS_PASSWORD REDIS_URL_COMPOSED
+export APPSMITH_REDIS_URL_EXTERNAL= APPSMITH_REDIS_PASSWORD_EXTERNAL= APPSMITH_REDIS_HOST=redis.example.com
+compose_redis_url_from_parts
+persist_composed_redis_url
+reloaded="$(
+  unset APPSMITH_REDIS_URL
+  load_env_file env "$TMP/docker.env"
+  load_env_file json "$TMP/pre-define.json"
+  printf '%s' "$APPSMITH_REDIS_URL"
+)"
+if [[ "$reloaded" == "redis://redis.example.com:6379" ]]; then
+  echo "OK: composed URL survives the run-with-env.sh reload"
+else
+  echo "FAILED: composed URL lost on reload (got '$reloaded')"
+  fail=$((fail + 1))
+fi
+rm -rf "$TMP"
+unset APPSMITH_REDIS_HOST APPSMITH_REDIS_URL REDIS_URL_COMPOSED
 
 if [[ $fail -eq 0 ]]; then
   echo "SUCCEEDED!!!"

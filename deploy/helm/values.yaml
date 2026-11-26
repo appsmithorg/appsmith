@@ -783,28 +783,8 @@ externalSecrets:
     kind: SecretStore
   ## @param externalSecrets.additionalSecrets Additional ExternalSecret resources with optional per-key mapping
   # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom.
-  # -- Additional ExternalSecret resources with optional per-key mapping
+  # -- Additional ExternalSecret resources with optional per-key mapping (see "External Secrets: per-key mapping" below for an example)
   # @section -- External Secrets
-  # Example: rename AWS Secrets Manager keys (host/port/password) to the env vars Appsmith expects:
-  #
-  # additionalSecrets:
-  #   - name: redis
-  #     # secretStoreRef:            # optional, overrides externalSecrets.secretStoreRef
-  #     #   name: aws-secretstore
-  #     #   kind: ClusterSecretStore
-  #     data:
-  #       - secretKey: APPSMITH_REDIS_HOST
-  #         remoteRef:
-  #           key: redis-prd-appsmith   # name of the secret in AWS Secrets Manager
-  #           property: host            # JSON property within that secret
-  #       - secretKey: APPSMITH_REDIS_PORT
-  #         remoteRef:
-  #           key: redis-prd-appsmith
-  #           property: port
-  #       - secretKey: APPSMITH_REDIS_PASSWORD
-  #         remoteRef:
-  #           key: redis-prd-appsmith
-  #           property: password
   additionalSecrets: []
   ## @param externalSecrets.remoteNameSecret [Deprecated] Renamed to externalSecrets.remoteSecretName
   # @schema description: Deprecated alias for externalSecrets.remoteSecretName. Used only when remoteSecretName is empty.
