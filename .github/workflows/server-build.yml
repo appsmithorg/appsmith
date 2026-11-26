@@ -185,8 +185,6 @@ jobs:
         if: inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest'
         env:
           ACTIVE_PROFILE: test
-          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
-          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"

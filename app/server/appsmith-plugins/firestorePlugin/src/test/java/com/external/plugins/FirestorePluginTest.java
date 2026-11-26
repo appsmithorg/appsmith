@@ -5,11 +5,13 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
@@ -19,6 +21,7 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Blob;
@@ -26,35 +29,53 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.internal.EmulatorCredentials;
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -73,6 +94,7 @@ import static com.external.constants.FieldName.PREV;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -94,15 +116,19 @@ public class FirestorePluginTest {
 
     static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-    @BeforeAll
-    public static void setUp() throws ExecutionException, InterruptedException, ParseException {
-        firestoreConnection = FirestoreOptions.newBuilder()
+    private static Firestore emulatorConnection() {
+        return FirestoreOptions.newBuilder()
                 .setHost(emulator.getEmulatorEndpoint())
                 .setCredentials(NoCredentials.getInstance())
                 .setRetrySettings(ServiceOptions.getNoRetrySettings())
                 .setProjectId("test-project")
                 .build()
                 .getService();
+    }
+
+    @BeforeAll
+    public static void setUp() throws ExecutionException, InterruptedException, ParseException {
+        firestoreConnection = emulatorConnection();
 
         firestoreConnection
                 .document("initial/one")
@@ -752,12 +778,668 @@ public class FirestorePluginTest {
                 .verify();
     }
 
+    private static String serviceAccountJson(String projectId, String clientEmail) throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        String privateKeyPem = "-----BEGIN PRIVATE KEY-----\n"
+                + Base64.getMimeEncoder(64, "\n".getBytes(StandardCharsets.UTF_8))
+                        .encodeToString(keyPair.getPrivate().getEncoded())
+                + "\n-----END PRIVATE KEY-----\n";
+
+        Map<String, String> json = new HashMap<>();
+        json.put("type", "service_account");
+        json.put("project_id", projectId);
+        json.put("private_key_id", "test-key-id");
+        json.put("private_key", privateKeyPem);
+        json.put("client_email", clientEmail);
+        json.put("client_id", "1234567890");
+        json.put("token_uri", "https://oauth2.googleapis.com/token");
+        try {
+            return new ObjectMapper().writeValueAsString(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static DatasourceConfiguration serviceAccountDatasourceConfig(
+            String projectId, String clientJson, String databaseId) {
+        DBAuth auth = new DBAuth();
+        auth.setUsername(projectId);
+        auth.setPassword(clientJson);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(auth);
+        datasourceConfiguration.setUrl("https://" + projectId + ".firebaseio.com");
+        if (databaseId != null) {
+            datasourceConfiguration.setProperties(List.of(new Property("Database ID", databaseId)));
+        }
+        return datasourceConfiguration;
+    }
+
+    private static String clientEmailOf(Firestore firestore) {
+        return ((ServiceAccountCredentials) firestore.getOptions().getCredentials()).getClientEmail();
+    }
+
+    @Test
+    void should_useNamedDatabase_when_databaseIdIsSet() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "named-db-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@named-db-project.iam.gserviceaccount.com"), "my-db");
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(firestore ->
+                        assertThat(firestore.getOptions().getDatabaseId()).isEqualTo("my-db"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_trimWhitespace_when_databaseIdIsPadded() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "padded-db-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@padded-db-project.iam.gserviceaccount.com"), "  my-db  ");
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(firestore ->
+                        assertThat(firestore.getOptions().getDatabaseId()).isEqualTo("my-db"))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_useDefaultDatabase_when_databaseIdIsAbsentOrEmpty() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "default-db-project";
+        String clientJson = serviceAccountJson(projectId, "sa@default-db-project.iam.gserviceaccount.com");
+
+        // When
+        Mono<Firestore> withoutProperty =
+                pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, null));
+        Mono<Firestore> withEmptyProperty =
+                pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, ""));
+
+        // Then
+        StepVerifier.create(withoutProperty)
+                .assertNext(firestore -> assertThat(firestore.getOptions().getDatabaseId())
+                        .isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID))
+                .verifyComplete();
+        StepVerifier.create(withEmptyProperty)
+                .assertNext(firestore -> assertThat(firestore.getOptions().getDatabaseId())
+                        .isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID))
+                .verifyComplete();
+    }
+
+    @Test
+    void should_useOwnCredentials_when_sameProjectHasDifferentCredentials() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "shared-project";
+        DatasourceConfiguration first = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "first@shared-project.iam.gserviceaccount.com"), null);
+        DatasourceConfiguration second = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "second@shared-project.iam.gserviceaccount.com"), null);
+
+        // When
+        Firestore firstFirestore = pluginExecutor.datasourceCreate(first).block();
+        Firestore secondFirestore = pluginExecutor.datasourceCreate(second).block();
+
+        // Then
+        assertThat(firstFirestore).isNotNull();
+        assertThat(secondFirestore).isNotNull();
+        assertThat(clientEmailOf(firstFirestore)).isEqualTo("first@shared-project.iam.gserviceaccount.com");
+        assertThat(clientEmailOf(secondFirestore)).isEqualTo("second@shared-project.iam.gserviceaccount.com");
+    }
+
+    @Test
+    void should_shareClient_when_sameConfigIsCreatedTwice() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "shared-client-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@shared-client-project.iam.gserviceaccount.com"), "my-db");
+        Firestore first =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+        // When
+        // The server creates an executor for each call.
+        Firestore second = new FirestorePlugin.FirestorePluginExecutor()
+                .datasourceCreate(datasourceConfiguration)
+                .block();
+
+        // Then
+        assertThat(first).isNotNull();
+        assertThat(second).isSameAs(first);
+    }
+
+    @Test
+    void should_notRegisterFirebaseApp_when_connectionIsCreated() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "unregistered-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@unregistered-project.iam.gserviceaccount.com"), null);
+        List<FirebaseApp> appsBefore = FirebaseApp.getApps();
+
+        // When
+        pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+        // Then
+        assertThat(FirebaseApp.getApps()).hasSameSizeAs(appsBefore);
+    }
+
+    @Test
+    void should_requestOAuthScopes_when_connectionIsCreated() throws Exception {
+        // Given
+        String projectId = "scoped-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@scoped-project.iam.gserviceaccount.com"), null);
+
+        // When
+        Firestore connection =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+        // Then
+        ServiceAccountCredentials credentials = (ServiceAccountCredentials)
+                connection.getOptions().getCredentialsProvider().getCredentials();
+        assertThat(credentials.getScopes()).contains("https://www.googleapis.com/auth/datastore");
+    }
+
+    @Test
+    void should_keepClientOpen_when_datasourceIsDestroyed() {
+        // Given
+        Firestore connection = Mockito.mock(Firestore.class);
+
+        // When
+        pluginExecutor.datasourceDestroy(connection);
+
+        // Then
+        Mockito.verifyNoInteractions(connection);
+    }
+
+    @Test
+    void should_checkTheClientOnThePluginThread_when_queryRuns() throws NoSuchAlgorithmException {
+        // Given
+        String clientJson = serviceAccountJson("used-project", "sa@used-project.iam.gserviceaccount.com");
+        AtomicReference<String> threadName = new AtomicReference<>();
+        FirestoreClientCache clientCache = Mockito.mock(FirestoreClientCache.class);
+        Mockito.when(clientCache.isOpen(
+                        FirestoreClientCache.Key.of("used-project", clientJson, "my-db"), firestoreConnection))
+                .thenAnswer(invocation -> {
+                    threadName.set(Thread.currentThread().getName());
+                    return true;
+                });
+        FirestorePlugin.FirestorePluginExecutor executor = new FirestorePlugin.FirestorePluginExecutor(clientCache);
+
+        // When
+        ActionExecutionResult result = executor.executeParameterized(
+                        firestoreConnection,
+                        new ExecuteActionDTO(),
+                        serviceAccountDatasourceConfig("used-project", clientJson, "my-db"),
+                        getDocumentAction())
+                .block();
+
+        // Then
+        assertThat(result.getIsExecutionSuccess()).isTrue();
+        assertThat(threadName.get()).startsWith("boundedElastic");
+    }
+
+    @Test
+    void should_returnStaleConnectionErrorAndKeepFormData_when_clientWasRemovedBeforeTheQuery() {
+        // Given
+        FirestorePlugin.FirestorePluginExecutor executor =
+                new FirestorePlugin.FirestorePluginExecutor(Mockito.mock(FirestoreClientCache.class));
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("value");
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(param));
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, COMMAND, "SET_DOCUMENT");
+        setDataValueSafelyInFormData(formData, PATH, "initial/one");
+        setDataValueSafelyInFormData(formData, BODY, "{\"value\": {{Input1.text}}}");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        // When
+        Mono<ActionExecutionResult> result = executor.executeParameterized(
+                Mockito.mock(Firestore.class),
+                executeActionDTO,
+                serviceAccountDatasourceConfig("removed-project", "{}", null),
+                actionConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(StaleConnectionException.class)
+                        .hasMessage(FirestoreErrorMessages.CONNECTION_CLOSED_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+        assertThat(PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, STRING_TYPE))
+                .isEqualTo("{\"value\": {{Input1.text}}}");
+    }
+
+    @Test
+    void should_returnStaleConnectionError_when_clientWasRemovedBeforeTheStructureIsRead() {
+        // Given
+        FirestorePlugin.FirestorePluginExecutor executor =
+                new FirestorePlugin.FirestorePluginExecutor(Mockito.mock(FirestoreClientCache.class));
+
+        // When
+        Mono<DatasourceStructure> result = executor.getStructure(
+                Mockito.mock(Firestore.class), serviceAccountDatasourceConfig("removed-project", "{}", null));
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(StaleConnectionException.class)
+                        .hasMessage(FirestoreErrorMessages.CONNECTION_CLOSED_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+    }
+
+    @Test
+    void should_readStructure_when_clientIsOpen() {
+        // Given
+        Firestore connection = Mockito.mock(Firestore.class);
+        Mockito.when(connection.listCollections()).thenReturn(Collections.emptyList());
+        FirestoreClientCache clientCache = Mockito.mock(FirestoreClientCache.class);
+        Mockito.when(clientCache.isOpen(
+                        FirestoreClientCache.Key.of(
+                                "open-project", "{}", FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID),
+                        connection))
+                .thenReturn(true);
+        FirestorePlugin.FirestorePluginExecutor executor = new FirestorePlugin.FirestorePluginExecutor(clientCache);
+
+        // When
+        DatasourceStructure structure = executor.getStructure(
+                        connection, serviceAccountDatasourceConfig("open-project", "{}", null))
+                .block();
+
+        // Then
+        assertThat(structure.getTables()).isEmpty();
+    }
+
+    private static ActionConfiguration getDocumentAction() {
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(formData, PATH, "initial/one");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+        return actionConfiguration;
+    }
+
+    @Test
+    void should_createTheClientOnThePluginThread_when_connectionIsCreated() {
+        // Given
+        AtomicReference<String> threadName = new AtomicReference<>();
+        FirestoreClientCache clientCache = Mockito.mock(FirestoreClientCache.class);
+        Mockito.when(clientCache.get(Mockito.any(), Mockito.any())).thenAnswer(invocation -> {
+            threadName.set(Thread.currentThread().getName());
+            return Mockito.mock(Firestore.class);
+        });
+        FirestorePlugin.FirestorePluginExecutor executor = new FirestorePlugin.FirestorePluginExecutor(clientCache);
+
+        // When
+        executor.datasourceCreate(serviceAccountDatasourceConfig("some-project", "{}", null))
+                .block();
+
+        // Then
+        assertThat(threadName.get()).startsWith("boundedElastic");
+    }
+
+    @Test
+    void should_returnValidationError_when_connectionIsCreatedWithoutCredentials() {
+        // Given
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("some-project", null, null);
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithPluginException.class)
+                        .hasMessage(FirestoreErrorMessages.DS_MISSING_CLIENTJSON_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+    }
+
+    @Test
+    void should_returnValidationError_when_datasourceIsTestedWithoutCredentials() {
+        // Given
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("some-project", null, null);
+
+        // When
+        Mono<DatasourceTestResult> result = pluginExecutor.testDatasource(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithPluginException.class)
+                        .hasMessage(FirestoreErrorMessages.DS_MISSING_CLIENTJSON_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+    }
+
+    static Stream<Arguments> datasourceTestCalls() {
+        return Stream.of(
+                Arguments.of(
+                        "one argument", (DatasourceTestCall) (executor, config) -> executor.testDatasource(config)),
+                Arguments.of(
+                        "flag on", (DatasourceTestCall) (executor, config) -> executor.testDatasource(config, true)),
+                Arguments.of(
+                        "flag off", (DatasourceTestCall) (executor, config) -> executor.testDatasource(config, false)));
+    }
+
+    @FunctionalInterface
+    interface DatasourceTestCall {
+        Mono<DatasourceTestResult> run(
+                FirestorePlugin.FirestorePluginExecutor executor, DatasourceConfiguration datasourceConfiguration);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("datasourceTestCalls")
+    void should_notUseTheClientCache_when_datasourceIsTested(String name, DatasourceTestCall testCall) {
+        // Given
+        FirestoreClientCache clientCache = Mockito.mock(FirestoreClientCache.class);
+        FirestorePlugin.FirestorePluginExecutor spyExecutor =
+                Mockito.spy(new FirestorePlugin.FirestorePluginExecutor(clientCache));
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("tested-project", "{}", null);
+        Firestore client = Mockito.mock(Firestore.class);
+        Mockito.doReturn(client).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        testCall.run(spyExecutor, datasourceConfiguration).block();
+
+        // Then
+        Mockito.verifyNoInteractions(clientCache);
+        Mockito.verify(client).listCollections();
+    }
+
+    @Test
+    void should_returnTestResult_when_shuttingDownTheTestedClientFails() {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("shutdown-fails-project", "{}", null);
+        Firestore client = Mockito.mock(Firestore.class);
+        Mockito.doThrow(new IllegalStateException("shutdown failed"))
+                .when(client)
+                .shutdown();
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(client).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        DatasourceTestResult result =
+                spyExecutor.testDatasource(datasourceConfiguration).block();
+
+        // Then
+        assertThat(result.isSuccess()).isTrue();
+    }
+
+    static Stream<Arguments> listCollectionsOutcomes() {
+        return Stream.of(
+                Arguments.of("success", null),
+                Arguments.of("firestore error", FirestoreException.forServerRejection(Status.NOT_FOUND, "Not found")),
+                Arguments.of("unexpected error", new IllegalArgumentException("unexpected")));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("listCollectionsOutcomes")
+    void should_shutDownClient_when_datasourceTestEnds(String outcome, RuntimeException listCollectionsError) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("test-ends-project", "{}", null);
+        Firestore client = Mockito.mock(Firestore.class);
+        if (listCollectionsError != null) {
+            Mockito.when(client.listCollections()).thenThrow(listCollectionsError);
+        }
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(client).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        spyExecutor
+                .testDatasource(datasourceConfiguration)
+                .onErrorResume(error -> Mono.empty())
+                .block();
+
+        // Then
+        Mockito.verify(client, Mockito.timeout(5000)).shutdown();
+    }
+
+    @Test
+    void should_shutDownClient_when_datasourceTestIsCancelled() throws InterruptedException {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("cancelled-project", "{}", null);
+        CountDownLatch listing = new CountDownLatch(1);
+        AtomicBoolean listingFinished = new AtomicBoolean();
+        Firestore client = Mockito.mock(Firestore.class);
+        Mockito.when(client.listCollections()).thenAnswer(invocation -> {
+            listing.countDown();
+            new CountDownLatch(1).await(5, TimeUnit.SECONDS);
+            listingFinished.set(true);
+            return Collections.emptyList();
+        });
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(client).when(spyExecutor).createClient(datasourceConfiguration);
+        Disposable test = spyExecutor.testDatasource(datasourceConfiguration).subscribe(result -> {}, error -> {});
+        boolean wasRunning = listing.await(5, TimeUnit.SECONDS) && !listingFinished.get();
+
+        // When
+        test.dispose();
+
+        // Then
+        assertThat(wasRunning).isTrue();
+        Mockito.verify(client, Mockito.timeout(5000)).shutdown();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"GET_DOCUMENT", "SET_DOCUMENT", "GET_COLLECTION", "ADD_TO_COLLECTION"})
+    void should_returnStaleConnectionError_when_queryRunsOnShutDownClient(String command)
+            throws NoSuchAlgorithmException {
+        // Given
+        Firestore connection = shutDownClient();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, COMMAND, command);
+        setDataValueSafelyInFormData(formData, PATH, command.endsWith("COLLECTION") ? "initial" : "initial/one");
+        setDataValueSafelyInFormData(formData, BODY, "{\"value\": 1}");
+        actionConfiguration.setFormData(formData);
+
+        // When
+        Mono<ActionExecutionResult> result =
+                pluginExecutor.executeParameterized(connection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(StaleConnectionException.class)
+                        .hasMessage(FirestoreErrorMessages.CONNECTION_CLOSED_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+    }
+
+    @Test
+    void should_returnStaleConnectionError_when_structureIsReadOnShutDownClient() throws NoSuchAlgorithmException {
+        // Given
+        Firestore connection = shutDownClient();
+
+        // When
+        Mono<DatasourceStructure> result = pluginExecutor.getStructure(connection, dsConfig);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(StaleConnectionException.class)
+                        .hasMessage(FirestoreErrorMessages.CONNECTION_CLOSED_ERROR_MSG))
+                .verify(Duration.ofSeconds(10));
+    }
+
+    @Test
+    void should_returnQueryError_when_illegalStateIsNotAShutDownClient() {
+        // Given
+        Firestore connection = Mockito.mock(Firestore.class);
+        Mockito.when(connection.collection("initial")).thenThrow(new IllegalStateException("another problem"));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(formData, PATH, "initial");
+        actionConfiguration.setFormData(formData);
+
+        // When
+        Mono<ActionExecutionResult> result =
+                pluginExecutor.executeParameterized(connection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(executionResult -> {
+                    assertThat(executionResult.getIsExecutionSuccess()).isFalse();
+                    assertThat(executionResult.getPluginErrorDetails().getAppsmithErrorMessage())
+                            .isEqualTo(FirestoreErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG);
+                })
+                .verifyComplete();
+    }
+
+    private Firestore shutDownClient() throws NoSuchAlgorithmException {
+        String projectId = "shut-down-project";
+        Firestore client = pluginExecutor.createClient(serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@shut-down-project.iam.gserviceaccount.com"), null));
+        client.shutdown();
+        return client;
+    }
+
+    static Stream<String> invalidDatabaseIds() {
+        return Stream.of(
+                "My_DB!", // invalid characters
+                "MyDb", // uppercase
+                "abc", // 3 characters, below the minimum of 4
+                "a".repeat(64), // 64 characters, above the maximum of 63
+                "1abc", // leading digit
+                "abc-", // trailing hyphen
+                "f47ac10b-58cc-0372-8567-0e02b2c3d479" // UUID-like
+                );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidDatabaseIds")
+    void should_returnInvalidDatabaseIdError_when_databaseIdIsInvalid(String databaseId) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("some-project", "{}", databaseId);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG);
+    }
+
+    static Stream<String> validOrDefaultDatabaseIds() {
+        return Stream.of("my-db", "  my-db  ", "abcd", "a".repeat(63), "(default)", "", "  ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("validOrDefaultDatabaseIds")
+    void should_returnNoErrors_when_databaseIdIsValidOrDefault(String databaseId) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("some-project", "{}", databaseId);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).isEmpty();
+    }
+
+    @Test
+    void should_returnDefaultDatabaseId_when_firstPropertyIsNull() {
+        // Given
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(null);
+        datasourceConfiguration.setProperties(properties);
+
+        // When
+        String databaseId = FirestorePlugin.FirestorePluginExecutor.resolveDatabaseId(datasourceConfiguration);
+
+        // Then
+        assertThat(databaseId).isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID);
+    }
+
+    static Stream<String> blankDatabaseUrls() {
+        return Stream.of(null, "", "  ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("blankDatabaseUrls")
+    void should_returnNoErrors_when_databaseUrlIsBlank(String databaseUrl) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("some-project", "{}", null);
+        datasourceConfiguration.setUrl(databaseUrl);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).isEmpty();
+    }
+
+    @ParameterizedTest
+    @MethodSource("blankDatabaseUrls")
+    void should_createConnection_when_databaseUrlIsBlank(String databaseUrl) throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "no-url-project";
+        String clientJson = serviceAccountJson(projectId, "sa@no-url-project.iam.gserviceaccount.com");
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(projectId, clientJson, null);
+        datasourceConfiguration.setUrl(databaseUrl);
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(firestore ->
+                        assertThat(firestore.getOptions().getProjectId()).isEqualTo(projectId))
+                .verifyComplete();
+    }
+
+    static Stream<Arguments> connectionErrorsByDatabaseId() {
+        return Stream.of(
+                Arguments.of(null, FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID),
+                Arguments.of("my-db", FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID));
+    }
+
+    @ParameterizedTest
+    @MethodSource("connectionErrorsByDatabaseId")
+    void should_returnConnectionErrorForConfiguredDatabase_when_listingCollectionsFails(
+            String databaseId, String expectedError) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("test-project-invalid", "{}", databaseId);
+        Firestore unreachableFirestore = Mockito.mock(Firestore.class);
+        Mockito.when(unreachableFirestore.listCollections())
+                .thenThrow(FirestoreException.forServerRejection(Status.NOT_FOUND, "Not found"));
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(unreachableFirestore).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        Mono<DatasourceTestResult> result = spyExecutor.testDatasource(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(datasourceTestResult ->
+                        assertThat(datasourceTestResult.getInvalids()).containsExactly(expectedError))
+                .verifyComplete();
+    }
+
     @Test
     public void testDatasource_withCorrectCredentials_returnsWithoutInvalids() {
 
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
 
-        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection));
+        // The plugin shuts down the client it tests, so do not pass the shared one.
+        Mockito.doReturn(emulatorConnection()).when(spyExecutor).createClient(dsConfig);
         final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
 
         StepVerifier.create(testDatasourceMono)
@@ -774,7 +1456,8 @@ public class FirestorePluginTest {
 
         // This test validates the Firestore connection, not the ProjectId given by the user
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
-        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestoreConnection));
+        // The plugin shuts down the client it tests, so do not pass the shared one.
+        Mockito.doReturn(emulatorConnection()).when(spyExecutor).createClient(dsConfig);
         final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
 
         StepVerifier.create(testDatasourceMono)
@@ -803,7 +1486,7 @@ public class FirestorePluginTest {
                 .build();
         FirebaseApp.initializeApp(firebaseOptions);
         Firestore firestore = FirestoreClient.getFirestore();
-        Mockito.when(spyExecutor.datasourceCreate(dsConfig)).thenReturn(Mono.just(firestore));
+        Mockito.doReturn(firestore).when(spyExecutor).createClient(dsConfig);
         final Mono<DatasourceTestResult> testDatasourceMono = spyExecutor.testDatasource(dsConfig);
 
         StepVerifier.create(testDatasourceMono)
