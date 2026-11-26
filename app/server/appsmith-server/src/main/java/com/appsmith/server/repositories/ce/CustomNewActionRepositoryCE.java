@@ -100,8 +100,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     /**
      * Returns the IDs, as hex strings, of the datasources that a live, editable action references. An action counts when
-     * it is not deleted, its {@code unpublishedAction.deletedAt} is null, and its embedded datasource has an
-     * {@code _id}.
+     * {@code deleted} is not true, neither {@code deletedAt} nor {@code unpublishedAction.deletedAt} holds a date, and its
+     * embedded datasource has an {@code _id}.
      *
      * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
      */
