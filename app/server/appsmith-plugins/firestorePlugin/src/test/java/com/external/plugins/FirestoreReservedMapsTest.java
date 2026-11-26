@@ -50,6 +50,9 @@ class FirestoreReservedMapsTest {
     @Mock
     private DocumentSnapshot snapshot;
 
+    @Mock
+    private FirestoreClientCache clientCache;
+
     @InjectMocks
     private FirestorePlugin.FirestorePluginExecutor pluginExecutor;
 
