@@ -261,6 +261,7 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 ## External Secrets: per-key mapping
 
 `externalSecrets.additionalSecrets` creates extra `ExternalSecret` resources. Each generated Secret is loaded into the pod via `envFrom`.
+An entry's `secretStoreRef` is merged field by field over `externalSecrets.secretStoreRef`: a `name` or `kind` the entry leaves out is taken from the shared reference (then `secretstore` / `SecretStore`).
 This example renames the AWS Secrets Manager keys `host`/`port`/`password` to the env vars Appsmith expects:
 
 ```yaml
@@ -269,7 +270,7 @@ redis:
 externalSecrets:
   additionalSecrets:
     - name: redis
-      # secretStoreRef:            # optional, overrides externalSecrets.secretStoreRef
+      # secretStoreRef:            # optional, merged field by field over externalSecrets.secretStoreRef
       #   name: aws-secretstore
       #   kind: ClusterSecretStore
       data:

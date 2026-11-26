@@ -95,7 +95,7 @@
             "type": "object",
             "properties": {
                 "additionalSecrets": {
-                    "description": "List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom.",
+                    "description": "List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom. An entry-level secretStoreRef is merged field by field over externalSecrets.secretStoreRef, so a missing name or kind is taken from the shared reference.",
                     "type": "array"
                 },
                 "enabled": {

@@ -782,7 +782,7 @@ externalSecrets:
     # @section -- External Secrets
     kind: SecretStore
   ## @param externalSecrets.additionalSecrets Additional ExternalSecret resources with optional per-key mapping
-  # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom.
+  # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom. An entry-level secretStoreRef is merged field by field over externalSecrets.secretStoreRef, so a missing name or kind is taken from the shared reference.
   # -- Additional ExternalSecret resources with optional per-key mapping (see "External Secrets: per-key mapping" below for an example)
   # @section -- External Secrets
   additionalSecrets: []
