@@ -455,6 +455,15 @@ const getAllowedNumericChars = (
   return allowed;
 };
 
+const isGroupedInteger = (value: string, separator: string): boolean => {
+  const escapedSeparator = separator === "." ? "\\." : separator;
+  const groupedPattern = new RegExp(
+    `^[+-]?[1-9]\\d{0,2}(?:${escapedSeparator}\\d{3})+$`,
+  );
+
+  return groupedPattern.test(value);
+};
+
 /**
  * Normalizes alternate decimal separators (`.` / `,`) typed by regional mobile
  * keypads to `expectedDecimalSeparator` and strips non-numeric characters.
@@ -463,6 +472,7 @@ export const normalizeNumericInputValue = (
   value: string,
   expectedDecimalSeparator: string,
   locale?: string,
+  allowAlternateDecimal = true,
 ): string => {
   if (!value) {
     return value;
@@ -473,7 +483,7 @@ export const normalizeNumericInputValue = (
     String.fromCharCode(ch.charCodeAt(0) - 0xfee0),
   );
 
-  if (!normalized.includes(expectedDecimalSeparator)) {
+  if (allowAlternateDecimal && !normalized.includes(expectedDecimalSeparator)) {
     const alternates = [".", ","].filter(
       (sep) => sep !== expectedDecimalSeparator && normalized.includes(sep),
     );
@@ -482,8 +492,12 @@ export const normalizeNumericInputValue = (
       const alt = alternates[0];
       const firstIdx = normalized.indexOf(alt);
 
-      // Only treat a single alternate separator as a decimal point (multiple occurrences are thousand separators).
-      if (firstIdx !== -1 && normalized.indexOf(alt, firstIdx + 1) === -1) {
+      // Only map a single alternate separator when it isn't a thousands group (e.g. 1,234).
+      if (
+        firstIdx !== -1 &&
+        normalized.indexOf(alt, firstIdx + 1) === -1 &&
+        !isGroupedInteger(normalized, alt)
+      ) {
         normalized =
           normalized.slice(0, firstIdx) +
           expectedDecimalSeparator +
@@ -504,6 +518,9 @@ class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
 > {
+  private isPasting = false;
+  private pasteTimeoutId?: number;
+
   constructor(props: BaseInputComponentProps) {
     super(props);
     this.state = { showPassword: false };
@@ -529,6 +546,10 @@ class BaseInputComponent extends React.Component<
   }
 
   componentWillUnmount() {
+    if (this.pasteTimeoutId !== undefined) {
+      window.clearTimeout(this.pasteTimeoutId);
+    }
+
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
@@ -564,6 +585,15 @@ class BaseInputComponent extends React.Component<
     valueAsString: string,
     inputElement?: HTMLInputElement | null,
   ) => {
+    const allowAlternateDecimal = !this.isPasting;
+
+    this.isPasting = false;
+
+    if (this.pasteTimeoutId !== undefined) {
+      window.clearTimeout(this.pasteTimeoutId);
+      this.pasteTimeoutId = undefined;
+    }
+
     let nextValue = valueAsString;
 
     if (this.props.allowNumericCharactersOnly !== false) {
@@ -576,6 +606,7 @@ class BaseInputComponent extends React.Component<
         valueAsString,
         expectedDecimalSeparator,
         locale,
+        allowAlternateDecimal,
       );
 
       if (
@@ -621,7 +652,23 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onNumericPaste = () => {
+    this.isPasting = true;
+
+    if (this.pasteTimeoutId !== undefined) {
+      window.clearTimeout(this.pasteTimeoutId);
+    }
+
+    // Clear the flag on the next tick in case a paste leaves the input unchanged.
+    this.pasteTimeoutId = window.setTimeout(() => {
+      this.isPasting = false;
+      this.pasteTimeoutId = undefined;
+    }, 0);
+  };
+
   onNumericKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    this.isPasting = false;
+
     if (this.props.allowNumericCharactersOnly !== false) {
       const { key } = e;
 
@@ -712,6 +759,7 @@ class BaseInputComponent extends React.Component<
         onKeyDown={this.onKeyDown}
         onKeyPress={this.onNumericKeyPress}
         onKeyUp={this.onKeyUp}
+        onPaste={this.onNumericPaste}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         rightElement={this.getRightIcon()}

@@ -126,12 +126,74 @@ describe("BaseInputComponent TestCases", () => {
       languagesSpy.mockRestore();
     }
   });
+
+  test("5. Currency input strips grouping separators on paste in en-US while keeping keypad decimals working", () => {
+    const onValueChange = jest.fn();
+    const { container } = renderBaseInputComponent({
+      inputType: "CURRENCY",
+      inputHTMLType: "NUMBER",
+      shouldUseLocale: true,
+      value: "",
+      onValueChange,
+    });
+
+    const inputElement = container.querySelector("input")!;
+
+    fireEvent.paste(inputElement);
+    fireEvent.change(inputElement, { target: { value: "1,234" } });
+
+    expect(onValueChange).toHaveBeenLastCalledWith("1234");
+
+    fireEvent.paste(inputElement);
+    fireEvent.change(inputElement, { target: { value: "1,234.56" } });
+
+    expect(onValueChange).toHaveBeenLastCalledWith("1234.56");
+
+    // Keypad entry immediately after a paste still normalizes alternate decimal separators.
+    fireEvent.keyPress(inputElement, { key: ",", charCode: 44 });
+    fireEvent.change(inputElement, { target: { value: "25," } });
+
+    expect(onValueChange).toHaveBeenLastCalledWith("25.");
+  });
+
+  test("6. Currency input strips dot grouping separators on paste in de-DE", () => {
+    const languagesSpy = jest
+      .spyOn(window.navigator, "languages", "get")
+      .mockReturnValue(["de-DE"]);
+    const onValueChange = jest.fn();
+
+    try {
+      const { container } = renderBaseInputComponent({
+        inputType: "CURRENCY",
+        inputHTMLType: "NUMBER",
+        shouldUseLocale: true,
+        value: "",
+        onValueChange,
+      });
+
+      const inputElement = container.querySelector("input")!;
+
+      fireEvent.paste(inputElement);
+      fireEvent.change(inputElement, { target: { value: "1.234" } });
+
+      expect(onValueChange).toHaveBeenLastCalledWith("1234");
+
+      fireEvent.paste(inputElement);
+      fireEvent.change(inputElement, { target: { value: "1.234,56" } });
+
+      expect(onValueChange).toHaveBeenLastCalledWith("1234,56");
+    } finally {
+      languagesSpy.mockRestore();
+    }
+  });
 });
 
 describe("normalizeNumericInputValue", () => {
   it("maps a single alternate comma separator to dot when dot is expected", () => {
+    expect(normalizeNumericInputValue("25,", ".", "en-US")).toBe("25.");
     expect(normalizeNumericInputValue("12,", ".", "en-US")).toBe("12.");
     expect(normalizeNumericInputValue("12,34", ".", "en-US")).toBe("12.34");
+    expect(normalizeNumericInputValue("0,123", ".", "en-US")).toBe("0.123");
     expect(normalizeNumericInputValue("12.3,", ".", "en-US")).toBe("12.3");
     expect(normalizeNumericInputValue("1,234.56", ".", "en-US")).toBe(
       "1234.56",
@@ -142,7 +204,26 @@ describe("normalizeNumericInputValue", () => {
     expect(normalizeNumericInputValue("12abc,5", ".", "en-US")).toBe("12.5");
   });
 
+  it("strips thousands-grouped integers instead of treating them as decimals", () => {
+    expect(normalizeNumericInputValue("1,234", ".", "en-US")).toBe("1234");
+    expect(normalizeNumericInputValue("-1,234", ".", "en-US")).toBe("-1234");
+    expect(normalizeNumericInputValue("1.234", ",", "de-DE")).toBe("1234");
+  });
+
+  it("strips non-locale separators when alternate decimal mapping is disabled for paste", () => {
+    expect(normalizeNumericInputValue("1,234", ".", "en-US", false)).toBe(
+      "1234",
+    );
+    expect(normalizeNumericInputValue("12,34", ".", "en-US", false)).toBe(
+      "1234",
+    );
+    expect(normalizeNumericInputValue("1.234", ",", "de-DE", false)).toBe(
+      "1234",
+    );
+  });
+
   it("maps a single alternate dot separator to comma when comma is expected", () => {
+    expect(normalizeNumericInputValue("25.", ",", "de-DE")).toBe("25,");
     expect(normalizeNumericInputValue("12.", ",", "de-DE")).toBe("12,");
     expect(normalizeNumericInputValue("12.34", ",", "de-DE")).toBe("12,34");
     expect(normalizeNumericInputValue("12,3.", ",", "de-DE")).toBe("12,3");
