@@ -264,6 +264,8 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 This example renames the AWS Secrets Manager keys `host`/`port`/`password` to the env vars Appsmith expects:
 
 ```yaml
+redis:
+  enabled: false   # use the remote Redis below instead of the bundled one
 externalSecrets:
   additionalSecrets:
     - name: redis

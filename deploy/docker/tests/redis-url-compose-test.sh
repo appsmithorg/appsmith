@@ -198,6 +198,8 @@ check_url_local remote "redis://:pw@redis-localhost.example.com:6379"
 check_url_local remote "rediss://:pw@127.0.0.1.example.com:6379"
 check_url_local remote "redis://[2001:db8::1]:6379"
 check_url_local remote "redis://redis.example.com:6379/0"
+check_url_local local  "redis://127.0.0.1:6379/0?clientName=worker@east"
+check_url_local remote "redis://redis.example.com:6379?x=a@127.0.0.1"
 
 # 18. The composed URL survives the reload done by run-with-env.sh (docker.env with its
 #     localhost default first, then pre-define.json), using the real loader.

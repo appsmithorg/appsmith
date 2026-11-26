@@ -44,8 +44,9 @@ redis_host_is_local() {
 # True when the host part of a Redis URL is local (see redis_host_is_local).
 redis_url_is_local() {
   local rest="${1#*://}"
+  # Isolate the authority first, so an "@" in the path or query is not taken as userinfo.
+  rest="${rest%%[/?#]*}"
   rest="${rest##*@}"
-  rest="${rest%%[/?]*}"
   if [[ "$rest" == \[* ]]; then
     rest="${rest%%]*}]"
   else
