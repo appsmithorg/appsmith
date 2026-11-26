@@ -63,6 +63,7 @@ jobs:
       - name: Notify on push failure
         if: env.PUSH_FAILURE == 'true'
         env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}
           SLACK_MESSAGE: "Push to pg branch failed: ${{ env.PUSH_ERROR_MESSAGE }}"
         run: |
           # Format the Slack message
@@ -75,13 +76,14 @@ jobs:
           )"
 
           # Send the message to Slack
-          curl -sS "${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}" \
+          curl -sS "$SLACK_WEBHOOK" \
             --header "Content-Type: application/json; charset=utf-8" \
             --data-raw "$body"
 
       - name: Notify on merge conflicts
         if: env.MERGE_CONFLICT == 'true'
         env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}
           REPOSITORY_URL: ${{ github.repositoryUrl }}
           CONFLICTING_COMMIT: ${{ env.CONFLICTING_COMMIT }}
         run: |
@@ -102,6 +104,6 @@ jobs:
           )"
 
           curl --version
-          curl -sS "${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}" \
+          curl -sS "$SLACK_WEBHOOK" \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
