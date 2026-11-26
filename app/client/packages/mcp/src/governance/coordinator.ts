@@ -1,5 +1,13 @@
 import { randomUUID } from "node:crypto";
 
+import {
+  compileJsObject,
+  jsBodyHash,
+  MAX_CLASSIFIED_BODY_BYTES,
+  parseStoredJsDefinition,
+  type JsObjectDefinition,
+} from "../builder/jsObject.js";
+
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -55,6 +63,10 @@ export interface DestructiveConfirmationBinding {
   operation: string;
   revision: string;
   digest: string;
+  // Optional confirm-time context stored inside the one-time confirmation (see PreparedConfirmation.context). Must
+  // be JSON-serializable and must NOT be the only thing that authorizes the operation: the digest/revision binding
+  // stays the security control, the context merely reconstructs what the prompt and execution need.
+  context?: Record<string, unknown>;
 }
 
 export interface ConsumeDestructiveConfirmation
@@ -78,9 +90,10 @@ export interface McpGovernanceCoordinatorOptions {
 export const DEFAULT_CHANGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 
 // The lock is held across the caller's mutate(), so it MUST outlive the slowest governed mutation or a second
-// agent can acquire it mid-flight and lose an update. The slowest is a git commit (GIT_COMMIT_TIMEOUT_MS, 120s
-// in app.ts), so this sits above that with headroom rather than the 30s that used to expire underneath it.
-export const DEFAULT_LOCK_TTL_MS = 150_000;
+// agent can acquire it mid-flight and lose an update. The slowest is create_branch: a refs re-read
+// (REQUEST_TIMEOUT_MS, 30s) followed by create-ref (GIT_CREATE_REF_TIMEOUT_MS, 120s in app.ts); a commit is
+// bounded by GIT_COMMIT_TIMEOUT_MS (120s). This sits above that 150s sum with headroom.
+export const DEFAULT_LOCK_TTL_MS = 180_000;
 
 export class McpGovernanceCoordinator {
   private readonly lockTtlMs: number;
@@ -207,6 +220,34 @@ export class McpGovernanceCoordinator {
     return confirmation !== undefined && confirmation.actorId === actorId;
   }
 
+  // NON-consuming, actor-bound read of the whole confirmation (context included) for the confirm step. Readable
+  // from ANY replica because it lives in the store, not in the memory of the pod that ran prepare. A foreign,
+  // expired, consumed, or unknown confirmationId reads nothing.
+  async readDestructiveConfirmation(
+    confirmationId: string,
+    actorId: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    const confirmation = await this.store.peekConfirmation(confirmationId);
+
+    return confirmation !== undefined && confirmation.actorId === actorId
+      ? confirmation
+      : undefined;
+  }
+
+  // Drops a confirmation that can no longer succeed (its bound revision drifted) so a later confirm reads
+  // "missing" instead of re-running the drift checks. Actor-bound: only the preparer can discard their own token.
+  // The token would otherwise simply expire unconsumed — this is housekeeping, not a security control.
+  async discardDestructiveConfirmation(
+    confirmationId: string,
+    actorId: string,
+  ): Promise<void> {
+    const confirmation = await this.store.peekConfirmation(confirmationId);
+
+    if (confirmation !== undefined && confirmation.actorId === actorId) {
+      await this.store.consumeConfirmation(confirmationId);
+    }
+  }
+
   async consumeDestructiveConfirmation(
     request: ConsumeDestructiveConfirmation,
   ): Promise<PreparedConfirmation> {
@@ -233,5 +274,87 @@ export class McpGovernanceCoordinator {
     }
 
     return confirmation;
+  }
+
+  // Whether JS objects can be written in the readable layout: the store must keep their definitions, because a
+  // readable body carries no marker.
+  get supportsJsDefinitions(): boolean {
+    return (
+      typeof this.store.saveJsDefinition === "function" &&
+      typeof this.store.findJsDefinitions === "function"
+    );
+  }
+
+  // Records the definition a readable body was compiled from. Called BEFORE the body is written: if the record
+  // cannot be saved, the write does not happen, so a readable body never exists without its definition.
+  async saveJsDefinition(
+    organizationId: string,
+    body: string,
+    definition: JsObjectDefinition,
+  ): Promise<void> {
+    if (!this.store.saveJsDefinition) {
+      throw new Error("this governance store does not keep JS definitions");
+    }
+
+    if (organizationId === "") {
+      throw new Error("JS definitions are stored per organization");
+    }
+
+    if (Buffer.byteLength(body, "utf8") > MAX_CLASSIFIED_BODY_BYTES) {
+      throw new Error("the compiled JS object is larger than 256 KB");
+    }
+
+    const json = JSON.stringify(definition);
+
+    // Saved exactly as every pod will read it back, so the body cannot read as MCP-written on one pod and as
+    // editor-written on another.
+    const stored = parseStoredJsDefinition(json);
+
+    if (stored === undefined) {
+      throw new Error("the JS-object definition does not match its schema");
+    }
+
+    // The record is trusted by hash alone when it is read back, so it must describe exactly this body.
+    if (compileJsObject(stored, { readable: true }) !== body) {
+      throw new Error("the JS-object definition does not compile to this body");
+    }
+
+    await this.store.saveJsDefinition({
+      organizationId,
+      codeHash: jsBodyHash(body),
+      definition: json,
+      createdAt: this.now(),
+    });
+  }
+
+  // The organization's stored definitions of the given bodies, by body hash. A body with no record (or with a
+  // record that no longer parses) is absent, so it reads as editor-authored.
+  async loadJsDefinitions(
+    organizationId: string,
+    bodies: readonly string[],
+  ): Promise<Map<string, JsObjectDefinition>> {
+    const found = new Map<string, JsObjectDefinition>();
+
+    if (
+      !this.store.findJsDefinitions ||
+      organizationId === "" ||
+      bodies.length === 0
+    ) {
+      return found;
+    }
+
+    const hashes = [...new Set(bodies.map(jsBodyHash))];
+    const records = await this.store.findJsDefinitions(organizationId, hashes);
+
+    for (const record of records) {
+      const definition =
+        record.organizationId === organizationId
+          ? parseStoredJsDefinition(record.definition)
+          : undefined;
+
+      if (definition !== undefined) found.set(record.codeHash, definition);
+    }
+
+    return found;
   }
 }

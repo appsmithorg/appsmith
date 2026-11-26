@@ -10,30 +10,22 @@ const makeUser = (overrides: Partial<User>): User =>
   }) as User;
 
 describe("shouldTrackUser", () => {
-  it("tracks a non-anonymous user regardless of the block flag", () => {
+  it("tracks a signed-in user", () => {
     const user = makeUser({ isAnonymous: false, username: "user@example.com" });
 
-    expect(shouldTrackUser(user, false)).toBe(true);
-    expect(shouldTrackUser(user, true)).toBe(true);
+    expect(shouldTrackUser(user)).toBe(true);
   });
 
-  it("tracks an anonymous user when telemetry is on and the flag is off", () => {
+  it("does not track an anonymous user, even with telemetry on", () => {
     const user = makeUser({ isAnonymous: true, enableTelemetry: true });
 
-    expect(shouldTrackUser(user, false)).toBe(true);
+    expect(shouldTrackUser(user)).toBe(false);
   });
 
-  it("does not track an anonymous user when the block flag is on (even with telemetry on)", () => {
-    // Regression guard: previously an active license bypassed the flag here.
-    const user = makeUser({ isAnonymous: true, enableTelemetry: true });
-
-    expect(shouldTrackUser(user, true)).toBe(false);
-  });
-
-  it("does not track an anonymous user when telemetry is off", () => {
+  it("does not track an anonymous user with telemetry off", () => {
     const user = makeUser({ isAnonymous: true, enableTelemetry: false });
 
-    expect(shouldTrackUser(user, false)).toBe(false);
+    expect(shouldTrackUser(user)).toBe(false);
   });
 
   it("treats a user named anonymousUser as anonymous", () => {
@@ -43,6 +35,6 @@ describe("shouldTrackUser", () => {
       enableTelemetry: true,
     });
 
-    expect(shouldTrackUser(user, true)).toBe(false);
+    expect(shouldTrackUser(user)).toBe(false);
   });
 });

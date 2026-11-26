@@ -274,10 +274,19 @@ public enum AppsmithError {
             "Duplicate key",
             ErrorType.BAD_REQUEST,
             null),
+    STALE_LAYOUT_UPDATE(
+            409,
+            AppsmithErrorCode.STALE_LAYOUT_UPDATE.getCode(),
+            "The layout of page {0} changed after it was read. Read the layout again and retry the update.",
+            AppsmithErrorAction.DEFAULT,
+            "Layout changed",
+            ErrorType.BAD_REQUEST,
+            null),
     USER_ALREADY_EXISTS_SIGNUP(
             409,
             AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(),
-            "There is already an account registered with this email {0}. Please sign in instead.",
+            "There is already an account registered with this email {0}. Please sign in instead, or use \"Forgot"
+                    + " password\" to set a password.",
             AppsmithErrorAction.DEFAULT,
             "Account already exists with this email",
             ErrorType.BAD_REQUEST,
@@ -515,6 +524,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Datasource cannot be deleted",
             ErrorType.BAD_REQUEST,
+            null),
+    DATASOURCE_CREDENTIALS_REQUIRED(
+            400,
+            AppsmithErrorCode.DATASOURCE_CREDENTIALS_REQUIRED.getCode(),
+            "The datasource connection settings changed. Re-enter the credentials and try again.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource credentials required",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
             null),
     DEPRECATED_DATASOURCE_PLUGIN(
             400,

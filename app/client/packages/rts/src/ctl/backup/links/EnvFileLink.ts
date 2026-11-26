@@ -1,6 +1,7 @@
 import type { Link } from ".";
 import type { BackupState } from "../BackupState";
 import fsPromises from "fs/promises";
+import { serializeEnvFile, writeEnvFile } from "../../env-file";
 
 const SECRETS_WARNING = `
 ***************************** IMPORTANT!!! *****************************
@@ -23,19 +24,27 @@ export class EnvFileLink implements Link {
       "/appsmith-stacks/configuration/docker.env",
       { encoding: "utf8" },
     );
-    let cleanedContent = removeSensitiveEnvData(content);
+    const cleanedContent = removeSensitiveEnvData(content);
+    const values: Record<string, string> = {};
 
     if (this.state.isEncryptionEnabled) {
-      cleanedContent +=
-        "\nAPPSMITH_ENCRYPTION_SALT=" +
-        process.env.APPSMITH_ENCRYPTION_SALT +
-        "\nAPPSMITH_ENCRYPTION_PASSWORD=" +
+      values.APPSMITH_ENCRYPTION_SALT = process.env.APPSMITH_ENCRYPTION_SALT;
+      values.APPSMITH_ENCRYPTION_PASSWORD =
         process.env.APPSMITH_ENCRYPTION_PASSWORD;
+
+      if (
+        !values.APPSMITH_ENCRYPTION_SALT ||
+        !values.APPSMITH_ENCRYPTION_PASSWORD
+      ) {
+        throw new Error(
+          "Encryption password and salt are required for an encrypted backup.",
+        );
+      }
     }
 
-    await fsPromises.writeFile(
+    await writeEnvFile(
       this.state.backupRootPath + "/docker.env",
-      cleanedContent,
+      await serializeEnvFile(cleanedContent, values),
     );
     console.log("Exporting docker environment file done.");
   }

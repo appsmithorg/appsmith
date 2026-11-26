@@ -9,7 +9,7 @@ import { MongoRedisGovernanceStore } from "./store.js";
 //   APPSMITH_MONGODB_URI=mongodb://127.0.0.1:27017 APPSMITH_REDIS_URL=redis://127.0.0.1:6379 \
 //     corepack yarn workspace appsmith-mcp test:unit src/governance/store.integration.test.ts
 const mongoUrl =
-  process.env.APPSMITH_MONGODB_URI ?? process.env.APPSMITH_DB_URL;
+  process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGODB_URI;
 const redisUrl = process.env.APPSMITH_REDIS_URL;
 // Temporarily disabled: do not hit live Mongo/Redis from the MCP unit/CI run.
 const describeIf = describe.skip;

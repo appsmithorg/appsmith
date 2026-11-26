@@ -39,6 +39,8 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -71,7 +73,6 @@ import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -397,54 +398,46 @@ public class UserServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    @ParameterizedTest
+    @EnumSource(
+            value = LoginSource.class,
+            names = {"FORM", "GOOGLE"})
     @WithMockAppsmithUser
-    public void signUpViaFormLoginIfAlreadyInvited() {
-        User newUser = new User();
-        newUser.setEmail("alreadyInvited@alreadyInvited.com");
-        newUser.setIsEnabled(false);
-
-        userRepository.save(newUser).block();
+    void should_refuseSignup_when_emailHasAccountThatIsNotActive(LoginSource source) {
+        // Given
+        String organizationId =
+                organizationService.getCurrentUserOrganizationId().block();
+        User pendingUser = new User();
+        pendingUser.setEmail("pending-" + UUID.randomUUID() + "@example.com");
+        pendingUser.setIsEnabled(false);
+        pendingUser.setOrganizationId(organizationId);
+        User savedUser = userRepository.save(pendingUser).block();
 
         User signupUser = new User();
-        signupUser.setEmail(newUser.getEmail());
+        signupUser.setEmail(savedUser.getEmail());
         signupUser.setPassword("password");
-        signupUser.setSource(LoginSource.FORM);
+        signupUser.setSource(source);
 
-        Mono<User> userMono = userService.create(signupUser);
+        try {
+            // When
+            Mono<User> userMono = userService.create(signupUser);
 
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
-                    assertEquals(newUser.getEmail().toLowerCase(), user.getEmail());
-                    assertEquals(LoginSource.FORM, user.getSource());
-                    assertThat(user.getIsEnabled()).isTrue();
-                })
-                .verifyComplete();
-    }
+            // Then
+            StepVerifier.create(userMono)
+                    .expectErrorSatisfies(error -> {
+                        assertThat(error).isInstanceOf(AppsmithException.class);
+                        assertThat(((AppsmithException) error).getError())
+                                .isEqualTo(AppsmithError.USER_ALREADY_EXISTS_SIGNUP);
+                    })
+                    .verify();
 
-    @Test
-    @WithMockAppsmithUser
-    public void signUpViaGoogleIfAlreadyInvited() {
-        User newUser = new User();
-        newUser.setEmail("alreadyInvited@google-gmail.com");
-        newUser.setIsEnabled(false);
-
-        userRepository.save(newUser).block();
-
-        User signupUser = new User();
-        signupUser.setEmail(newUser.getEmail());
-        signupUser.setPassword("password");
-        signupUser.setSource(LoginSource.GOOGLE);
-
-        Mono<User> userMono = userService.create(signupUser);
-
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
-                    assertEquals(newUser.getEmail().toLowerCase(), user.getEmail());
-                    assertEquals(LoginSource.GOOGLE, user.getSource());
-                    assertTrue(user.getIsEnabled());
-                })
-                .verifyComplete();
+            User afterSignup = userRepository.findById(savedUser.getId()).block();
+            assertThat(afterSignup).isNotNull();
+            assertThat(afterSignup.getIsEnabled()).isFalse();
+            assertThat(afterSignup.getPassword()).isNull();
+        } finally {
+            userRepository.deleteById(savedUser.getId()).block();
+        }
     }
 
     @Test
@@ -474,19 +467,23 @@ public class UserServiceTest {
                 })
                 .block();
 
-        // Now Sign Up as the new user
+        // Now try to sign up as the invited user
         User signUpUser = new User();
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono = userService.createUser(signUpUser).map(UserSignupDTO::getUser);
 
+        // Signup does not activate the invited account
         StepVerifier.create(invitedUserSignUpMono)
-                .assertNext(user -> {
-                    assertTrue(user.getIsEnabled());
-                    assertTrue(passwordEncoder.matches("123456", user.getPassword()));
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && AppsmithError.USER_ALREADY_EXISTS_SIGNUP.equals(((AppsmithException) throwable).getError()))
+                .verify();
+
+        User invitedUser =
+                userRepository.findByEmail(newUserEmail.toLowerCase()).block();
+        assertThat(invitedUser.getIsEnabled()).isFalse();
+        assertThat(invitedUser.getPassword()).isNull();
 
         workspaceMono
                 .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
@@ -611,6 +608,27 @@ public class UserServiceTest {
                             List.of(
                                     UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
                             userProfileDTO.getRoles());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_returnOrganizationId_when_buildingUserProfile() {
+        // Given
+        Mono<String> currentOrganizationIdMono = organizationService.getCurrentUserOrganizationId();
+
+        // When
+        Mono<UserProfileDTO> userProfileDTOMono =
+                sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
+
+        // Then
+        StepVerifier.create(Mono.zip(currentOrganizationIdMono, userProfileDTOMono))
+                .assertNext(tuple -> {
+                    String currentOrganizationId = tuple.getT1();
+                    UserProfileDTO userProfileDTO = tuple.getT2();
+                    assertThat(currentOrganizationId).isNotBlank();
+                    assertThat(userProfileDTO.getOrganizationId()).isEqualTo(currentOrganizationId);
                 })
                 .verifyComplete();
     }

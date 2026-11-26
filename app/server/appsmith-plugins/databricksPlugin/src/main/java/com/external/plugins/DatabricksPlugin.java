@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -39,12 +39,13 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_INVALID_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.external.plugins.exceptions.DatabricksErrorMessages.INVALID_JDBC_URL_ERROR_MSG;
 import static com.external.plugins.exceptions.DatabricksErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
 import static com.external.plugins.exceptions.DatabricksPluginError.QUERY_EXECUTION_FAILED;
 
 public class DatabricksPlugin extends BasePlugin {
 
-    private static final String JDBC_DRIVER = "com.databricks.client.jdbc.Driver";
+    private static final String JDBC_URL_PREFIX = "jdbc:databricks://";
     public static final int VALIDITY_CHECK_TIMEOUT = 5;
     private static final int INITIAL_ROWLIST_CAPACITY = 50;
     private static final int CATALOG_INDEX = 2;
@@ -72,6 +73,16 @@ public class DatabricksPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class DatabricksPluginExecutor implements PluginExecutor<Connection> {
+
+        private final Driver jdbcDriver;
+
+        public DatabricksPluginExecutor() {
+            this(new com.databricks.client.jdbc.Driver());
+        }
+
+        DatabricksPluginExecutor(Driver jdbcDriver) {
+            this.jdbcDriver = jdbcDriver;
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -182,12 +193,6 @@ public class DatabricksPlugin extends BasePlugin {
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Databricks plugin.");
-            // Ensure the databricks JDBC driver is loaded.
-            try {
-                Class.forName(JDBC_DRIVER);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
 
             BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
 
@@ -244,9 +249,18 @@ public class DatabricksPlugin extends BasePlugin {
                 url = "";
             }
 
+            if (!StringUtils.hasText(url) || !url.startsWith(JDBC_URL_PREFIX)) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, INVALID_JDBC_URL_ERROR_MSG));
+            }
+
             return (Mono<Connection>) Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
-                        Connection connection = DriverManager.getConnection(url, p);
+                        Connection connection = jdbcDriver.connect(url, p);
+                        if (connection == null) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, INVALID_JDBC_URL_ERROR_MSG);
+                        }
 
                         // Execute statements to default catalog and schema for all queries on this datasource.
                         if (FORM_PROPERTIES_CONFIGURATION.equals(datasourceConfiguration

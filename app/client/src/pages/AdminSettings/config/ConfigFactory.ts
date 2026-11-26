@@ -49,6 +49,7 @@ export class ConfigFactory {
       needsRefresh: config.needsRefresh,
       needsRestart: config.needsRestart,
       isFeatureEnabled: config.isFeatureEnabled,
+      bottomComponent: config.bottomComponent,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),
       ),

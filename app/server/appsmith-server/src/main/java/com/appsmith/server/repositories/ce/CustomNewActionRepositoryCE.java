@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
+import org.bson.Document;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -87,4 +88,22 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Flux<NewAction> findAllByIdIn(Iterable<String> ids);
 
     Mono<Long> countByDeletedAtNull();
+
+    /**
+     * Counts actions that are not deleted in edit mode, grouped by plugin type, for support diagnostics. Each document
+     * holds {@code _id}, the stored plugin type string or null, and {@code count}. The plugin type is not converted to
+     * {@code PluginType}, so a stored value outside the enum does not fail the aggregation.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Flux<Document> countEditableByPluginTypeForDiagnostics();
+
+    /**
+     * Returns the IDs, as hex strings, of the datasources that a live, editable action references. An action counts when
+     * {@code deleted} is not true, neither {@code deletedAt} nor {@code unpublishedAction.deletedAt} holds a date, and its
+     * embedded datasource has an {@code _id}.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics();
 }

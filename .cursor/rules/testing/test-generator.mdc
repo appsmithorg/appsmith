@@ -40,31 +40,51 @@ describe("Button", () => {
 });
 ```
 
-## Backend Test Pattern (JUnit + Reactive)
+## Backend Test Pattern (JUnit 5 + Reactive)
+
+Conventions for new Java tests, including their scope, are in `app/server/AGENTS.md`.
 
 ```java
-@SpringBootTest
-public class UserServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
 
-    @Autowired
-    private UserService userService;
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserServiceImpl userService;
 
     @Test
-    public void testCreateUser_ValidInput_ReturnsCreatedUser() {
+    void should_returnCreatedUser_when_inputIsValid() {
+        // Given
         User user = new User("test@example.com", "password");
-        StepVerifier.create(userService.createUser(user))
-                .assertNext(result -> {
-                    assertNotNull(result.getId());
-                    assertEquals("test@example.com", result.getEmail());
+        when(userRepository.save(user)).thenReturn(Mono.just(user.withId("u1")));
+
+        // When
+        Mono<User> result = userService.createUser(user);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(created -> {
+                    assertThat(created.getId()).isEqualTo("u1");
+                    assertThat(created.getEmail()).isEqualTo("test@example.com");
                 })
                 .verifyComplete();
     }
 
     @Test
-    public void testCreateUser_DuplicateEmail_ThrowsException() {
+    void should_failWithDuplicateEmail_when_emailAlreadyRegistered() {
+        // Given
         User user = new User("existing@example.com", "password");
-        StepVerifier.create(userService.createUser(user))
-                .expectError(AppsmithException.class)
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Mono.just(user));
+
+        // When
+        Mono<User> result = userService.createUser(user);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorMatches(e -> e instanceof AppsmithException
+                        && e.getMessage().contains("existing@example.com"))
                 .verify();
     }
 }

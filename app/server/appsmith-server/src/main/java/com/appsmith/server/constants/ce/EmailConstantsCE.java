@@ -10,11 +10,13 @@ public class EmailConstantsCE {
     public static final String EMAIL_ROLE_VIEWER_TEXT = "an " + FieldName.VIEWER.toLowerCase();
     public static final String PRIMARY_LINK_URL = "primaryLinkUrl";
     public static final String PRIMARY_LINK_TEXT = "primaryLinkText";
-    public static final String PRIMARY_LINK_TEXT_USER_SIGNUP = "Sign up now";
+    public static final String PRIMARY_LINK_TEXT_USER_SIGNUP = "Set up your account";
     public static final String PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_CE = "Join your Appsmith instance";
     public static final String PRIMARY_LINK_TEXT_WORKSPACE_REDIRECTION = "Go to your Appsmith workspace";
 
-    public static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
+    // Opens the login page, where a person who was invited activates the account with single sign-on or with
+    // the password reset link.
+    public static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/login?activation=true&email=%s";
     public static final String INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE =
             "You’re invited to the Appsmith workspace. \uD83E\uDD73";
     public static final String FORGOT_PASSWORD_EMAIL_SUBJECT = "Reset your Appsmith password";

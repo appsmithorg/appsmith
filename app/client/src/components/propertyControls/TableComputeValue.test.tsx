@@ -1,4 +1,5 @@
 import ComputeTablePropertyControlV2 from "./TableComputeValue";
+import { getEditActionColumnDynamicProperties } from "widgets/TableWidgetV2/widget/utilities";
 
 describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
   const tableName = "Table1";
@@ -100,5 +101,34 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
     expect(
       ComputeTablePropertyControlV2.getInputComputedValue(computedValue),
     ).toBe(`{{${complexInput}}}`);
+  });
+
+  it("6. should unwrap legacy processedTableData.map bindings without the IIFE fallback", () => {
+    const legacyBinding = `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( !${tableName}.updatedRowIndices.includes(currentIndex)))}}`;
+
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(legacyBinding),
+    ).toBe(`{{ !${tableName}.updatedRowIndices.includes(currentIndex)}}`);
+  });
+
+  it("7. should return the original value when a map binding has no recognizable end marker", () => {
+    const incompleteBinding = `{{${tableName}.processedTableData.map((currentRow, currentIndex) => (currentRow.price`;
+
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(incompleteBinding),
+    ).toBe(incompleteBinding);
+  });
+
+  it("8. should unwrap Save/Discard Disabled bindings produced by the edit-action generator", () => {
+    const { isDiscardDisabled, isSaveDisabled } =
+      getEditActionColumnDynamicProperties(tableName);
+    const expected = `{{!${tableName}.updatedRowIndices.includes(currentIndex)}}`;
+
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(isSaveDisabled),
+    ).toBe(expected);
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(isDiscardDisabled),
+    ).toBe(expected);
   });
 });

@@ -51,13 +51,16 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -103,7 +106,7 @@ public class PageServiceTest {
     @Autowired
     ApplicationService applicationService;
 
-    @Autowired
+    @MockitoSpyBean
     NewPageService newPageService;
 
     @Autowired
@@ -482,6 +485,37 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectRenameAndKeepPageName_when_newNameIsNotValidPageName() {
+        // Given
+        setupTestApplication();
+        PageDTO testPage = new PageDTO();
+        testPage.setName("Page Before Rename");
+        testPage.setApplicationId(application.getId());
+        PageDTO createdPage = applicationPageService.createPage(testPage).block();
+        PageDTO rename = new PageDTO();
+        rename.setName("..");
+
+        // When
+        Mono<PageDTO> result = newPageService.updatePage(createdPage.getId(), rename);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(
+                        error -> assertThat(error)
+                                .isInstanceOf(AppsmithException.class)
+                                .hasMessage(
+                                        AppsmithError.GENERIC_BAD_REQUEST.getMessage(
+                                                "The page name is not valid. "
+                                                        + "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, cannot start or end with a dot, cannot be longer than 255 characters, and cannot be a reserved device name such as CON or NUL.")))
+                .verify();
+        StepVerifier.create(newPageService.findPageById(createdPage.getId(), READ_PAGES, false))
+                .assertNext(page -> assertThat(page.getName()).isEqualTo("Page Before Rename"))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -773,6 +807,55 @@ public class PageServiceTest {
                             .isEqualTo(page.getId());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void clonePage_pageReadsDoNotScaleWithActionCount() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        setupTestApplication();
+        final String pageId = application.getPages().get(0).getId();
+
+        // Clone the page while it has no actions to learn how many times a clone reads the cloned page on its own.
+        Mockito.clearInvocations(newPageService);
+        final PageDTO clonedWithoutActions =
+                applicationPageService.clonePage(pageId).block();
+        assertThat(clonedWithoutActions).isNotNull();
+        final int readsWithoutActions = countPageReads(clonedWithoutActions.getId());
+
+        Datasource datasource = new Datasource();
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setName("datasource for clone page reads test");
+        Plugin installedPlugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installedPlugin.getId());
+        for (int i = 0; i < 3; i++) {
+            ActionDTO action = new ActionDTO();
+            action.setName("clonePageAction" + i);
+            action.setActionConfiguration(new ActionConfiguration());
+            action.setDatasource(datasource);
+            action.setPageId(pageId);
+            layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        }
+
+        Mockito.clearInvocations(newPageService);
+        final PageDTO clonedWithActions =
+                applicationPageService.clonePage(pageId).block();
+        assertThat(clonedWithActions).isNotNull();
+
+        // Creating each cloned action must reuse the page the clone already loaded. A read per action keeps one
+        // full page document, DSL included, live per in-flight action.
+        assertThat(countPageReads(clonedWithActions.getId())).isEqualTo(readsWithoutActions);
+        assertThat(readsWithoutActions).isGreaterThanOrEqualTo(1);
+    }
+
+    private int countPageReads(String pageId) {
+        ArgumentCaptor<String> pageIdCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(newPageService, Mockito.atLeast(0))
+                .findById(pageIdCaptor.capture(), Mockito.any(AclPermission.class));
+        return (int) pageIdCaptor.getAllValues().stream().filter(pageId::equals).count();
     }
 
     @Test

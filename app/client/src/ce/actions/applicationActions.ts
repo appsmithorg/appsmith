@@ -114,6 +114,13 @@ export const updateCurrentApplicationIcon = (icon: IconNames) => {
   };
 };
 
+export const updateCurrentApplicationDescription = (description: string) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_DESCRIPTION_UPDATE,
+    payload: description,
+  };
+};
+
 export const updateCurrentApplicationEmbedSetting = (
   embedSetting: AppEmbedSetting,
 ) => {

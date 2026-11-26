@@ -191,6 +191,13 @@ public class JsonSchemaMigration {
                 });
 
                 applicationJson.setServerSchemaVersion(12);
+            case 12:
+                // Server version 13 rewrites edition-specific action references into their portable form. The
+                // bump makes Git-connected applications pick the rewrite up through the server autocommit.
+                migrateApplicationJsonMono = migrateApplicationJsonMono.flatMap(
+                        migratedJson -> jsonSchemaMigrationHelper.migrateActionReferencesToPortableForm(
+                                baseApplicationId, migratedJson));
+                applicationJson.setServerSchemaVersion(13);
             default:
         }
 

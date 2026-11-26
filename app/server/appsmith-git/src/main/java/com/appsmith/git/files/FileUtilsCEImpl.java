@@ -13,6 +13,7 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.git.helpers.RepositoryPathValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.tracing.Span;
 import lombok.Getter;
@@ -85,6 +86,11 @@ public class FileUtilsCEImpl implements FileInterface {
 
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN =
             Pattern.compile("(.*?)\\.(md|MD|git|gitignore|github|yml|yaml)$");
+
+    /** Bounded retries so a failed delete cannot spin forever on the elastic pool. */
+    private static final int DELETE_MAX_ATTEMPTS = 3;
+
+    private static final long DELETE_RETRY_DELAY_MS = 100L;
 
     protected final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -235,12 +241,17 @@ public class FileUtilsCEImpl implements FileInterface {
         filePathsFromFS.remove(README_FILE_NAME);
         filePathsFromFS.removeAll(filesPathsFromDB);
 
+        // Resolve every path before the first delete or write, so that a path outside the repository
+        // directory fails the whole operation and leaves the file system unchanged.
+        Map<String, Path> deleteTargets = resolveDeleteTargets(baseRepo, filePathsFromFS);
+        Map<String, Path> writeTargets = resolveWriteTargets(baseRepo, filesPathsFromDB);
+
         // Delete all the files because they are no longer needed
         // This covers both older structures of storing files and,
         // legitimate changes in the artifact that might cause deletions
         filePathsFromFS.stream().parallel().forEach(filePath -> {
             try {
-                Files.deleteIfExists(baseRepo.resolve(filePath));
+                Files.deleteIfExists(deleteTargets.get(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
                 log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
@@ -267,7 +278,7 @@ public class FileUtilsCEImpl implements FileInterface {
                     if (resourceUpdated) {
                         log.debug("Resource updated: {}", key.getFilePath());
                         String filePath = key.getFilePath();
-                        saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
+                        saveResourceCommon(entry.getValue(), writeTargets.get(filePath));
 
                         return filePath;
                     }
@@ -299,12 +310,17 @@ public class FileUtilsCEImpl implements FileInterface {
         filesInRepo.removeAll(updatedFilesToBeSerialized);
         filesInRepo.remove(README_FILE_NAME);
 
+        // Resolve every path before the first delete or write, so that a path outside the repository
+        // directory fails the whole operation and leaves the file system unchanged.
+        Map<String, Path> deleteTargets = resolveDeleteTargets(baseRepo, filesInRepo);
+        Map<String, Path> writeTargets = resolveWriteTargets(baseRepo, updatedFilesToBeSerialized);
+
         // Delete all the files because they are no longer needed
         // This covers both older structures of storing files and,
         // legitimate changes in the artifact that might cause deletions
         filesInRepo.stream().parallel().forEach(filePath -> {
             try {
-                Files.deleteIfExists(baseRepo.resolve(filePath));
+                Files.deleteIfExists(deleteTargets.get(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
                 log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
@@ -328,7 +344,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
                     if (resourceUpdated) {
                         String filePath = key.getFilePath();
-                        saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
+                        saveResourceCommon(entry.getValue(), writeTargets.get(filePath));
 
                         return filePath;
                     }
@@ -336,6 +352,22 @@ public class FileUtilsCEImpl implements FileInterface {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+    }
+
+    private static Map<String, Path> resolveWriteTargets(Path baseRepo, Set<String> filePaths) {
+        Map<String, Path> targets = new HashMap<>();
+        for (String filePath : filePaths) {
+            targets.put(filePath, RepositoryPathValidator.resolveForWrite(baseRepo, filePath));
+        }
+        return targets;
+    }
+
+    private static Map<String, Path> resolveDeleteTargets(Path baseRepo, Set<String> filePaths) {
+        Map<String, Path> targets = new HashMap<>();
+        for (String filePath : filePaths) {
+            targets.put(filePath, RepositoryPathValidator.resolveForDelete(baseRepo, filePath));
+        }
+        return targets;
     }
 
     /**
@@ -602,35 +634,85 @@ public class FileUtilsCEImpl implements FileInterface {
     @Override
     public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
         // Remove the complete directory from path: baseRepo/workspaceId/defaultApplicationId
-        File file = Paths.get(gitServiceConfig.getGitRootPath())
-                .resolve(baseRepoSuffix)
-                .getParent()
-                .toFile();
-        while (file.exists()) {
-            FileSystemUtils.deleteRecursively(file);
-        }
-        return Mono.just(Boolean.TRUE);
+        return Mono.fromCallable(() -> {
+                    Path repoParent = Paths.get(gitServiceConfig.getGitRootPath())
+                            .resolve(baseRepoSuffix)
+                            .getParent();
+                    deleteDirectoryWithRetry(repoParent);
+                    return Boolean.TRUE;
+                })
+                .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) {
         return Mono.fromCallable(() -> {
-            File[] files = Paths.get(gitServiceConfig.getGitRootPath())
-                    .resolve(baseRepoSuffix)
-                    .toFile()
-                    .listFiles();
-            for (File file : files) {
-                if (!ALLOWED_FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()
-                        && !file.getName().equals("LICENSE")) {
-                    // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
-                    while (file.exists()) {
-                        FileSystemUtils.deleteRecursively(file);
+                    File[] files = Paths.get(gitServiceConfig.getGitRootPath())
+                            .resolve(baseRepoSuffix)
+                            .toFile()
+                            .listFiles();
+                    for (File file : files) {
+                        if (!ALLOWED_FILE_EXTENSION_PATTERN
+                                        .matcher(file.getName())
+                                        .matches()
+                                && !file.getName().equals("LICENSE")) {
+                            // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
+                            deleteDirectoryWithRetry(file.toPath());
+                            return false;
+                        }
                     }
-                    return false;
+                    return true;
+                })
+                .subscribeOn(scheduler);
+    }
+
+    /**
+     * Deletes {@code path} using the Path overload of {@link FileSystemUtils#deleteRecursively(Path)},
+     * which throws on failure. Retries a small number of times with a short delay so transient FS
+     * locks can clear, then fails. Avoids the File overload's boolean return, which previously
+     * powered an infinite {@code while (exists)} loop when delete kept failing.
+     */
+    void deleteDirectoryWithRetry(Path path) throws IOException {
+        deleteDirectoryWithRetry(path, DELETE_MAX_ATTEMPTS, DELETE_RETRY_DELAY_MS);
+    }
+
+    /**
+     * Package-visible overload for tests that need a zero delay.
+     */
+    void deleteDirectoryWithRetry(Path path, int maxAttempts, long retryDelayMs) throws IOException {
+        if (path == null || !Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+            return;
+        }
+        if (maxAttempts < 1) {
+            throw new IllegalArgumentException("maxAttempts must be >= 1");
+        }
+
+        IOException lastFailure = null;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                FileSystemUtils.deleteRecursively(path);
+                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+                    return;
+                }
+                lastFailure = new IOException("Directory still exists after delete: " + path);
+            } catch (IOException e) {
+                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+                    return;
+                }
+                lastFailure = e;
+            }
+
+            if (attempt < maxAttempts) {
+                try {
+                    Thread.sleep(retryDelayMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while retrying delete of " + path, ie);
                 }
             }
-            return true;
-        });
+        }
+
+        throw lastFailure != null ? lastFailure : new IOException("Failed to delete directory: " + path);
     }
 
     /**

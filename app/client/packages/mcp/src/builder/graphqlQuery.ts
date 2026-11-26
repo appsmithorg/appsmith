@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // D4 create_graphql_query — a STRUCTURED GraphQL builder. A GraphQL operation is itself a query language, so unlike
 // SQL/Mongo the compiler cannot synthesize the whole operation; instead it accepts the operation STRING plus a
@@ -55,7 +55,6 @@ const propertyPath = z
 
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 // Belt-and-suspenders [council R2]: every compiler-emitted widget binding must match this exact shape (identity dot
 // property-path), mirroring restApi.ts's SAFE_BINDING. The bindingIdentifier/propertyPath charsets already guarantee
 // it; this is a final assertion so a future charset change can't silently loosen the emitted binding.

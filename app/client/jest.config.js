@@ -10,7 +10,7 @@ module.exports = {
     "jest-canvas-mock",
     "<rootDir>/test/__mocks__/reactMarkdown.tsx",
   ],
-  roots: ["<rootDir>/src"],
+  roots: ["<rootDir>/src", "<rootDir>/cypress/scripts"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": [
       "ts-jest",
@@ -53,6 +53,9 @@ module.exports = {
     "@design-system/widgets-old":
       "<rootDir>/node_modules/@design-system/widgets-old",
     "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
+    // The ESM entry is "type": "module"; Jest loads the CommonJS build of the same native entry.
+    "^@zip.js/zip.js/index-native.js$":
+      "<rootDir>/node_modules/@zip.js/zip.js/index-native.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
     // contains sources that are transpiled to ES5. As Jest does not transpile our sources to ES5,
     // this results in mixing ES6 and ES5 code and causes errors like:

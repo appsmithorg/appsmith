@@ -56,6 +56,7 @@ import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 import static com.appsmith.server.constants.FieldName.WIDGET_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WIDGET_NAME;
 import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwantedFieldsFromBaseDomain;
+import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.validateGitFilePathSegment;
 
 @Slf4j
 @Component
@@ -120,6 +121,8 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                 .forEach(newPage -> {
                     removeUnwantedFieldsFromPage(newPage);
                     PageDTO pageDTO = newPage.getUnpublishedPage();
+                    // Validate before the page layout is modified, so a rejected name leaves the page unchanged
+                    validateGitFilePathSegment(pageDTO.getName(), "Page");
                     JSONObject dsl = pageDTO.getLayouts().get(0).getDsl();
                     // Get MainContainer widget data, remove the children and club with Canvas.json file
                     JSONObject mainContainer = new JSONObject(dsl);
@@ -215,6 +218,11 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                 .map(Map.Entry::getValue)
                 .map(pageObject -> objectMapper.convertValue(pageObject, NewPage.class))
                 .collect(Collectors.toList());
+        pageList.forEach(newPage -> {
+            if (newPage != null && newPage.getUnpublishedPage() != null) {
+                validateGitFilePathSegment(newPage.getUnpublishedPage().getName(), "Page");
+            }
+        });
         artifactExchangeJson.setContextList(pageList);
 
         // widgets

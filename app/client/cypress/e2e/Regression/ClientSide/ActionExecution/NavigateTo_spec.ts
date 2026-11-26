@@ -59,6 +59,17 @@ describe(
         cy.log("deploy url is" + $url);
         expect($url).to.contain("test=123");
       });
+      agHelper.AssertText(WIDGETSKIT.textWidgetContainer, "text", "123");
+
+      // Browser Back/Forward must refresh appsmith.URL.queryParams
+      cy.go("back");
+      cy.url().should("not.include", "test=123");
+      agHelper.AssertText(WIDGETSKIT.textWidgetContainer, "text", "");
+
+      cy.go("forward");
+      cy.url().should("include", "test=123");
+      agHelper.AssertText(WIDGETSKIT.textWidgetContainer, "text", "123");
+
       deployMode.NavigateBacktoEditor();
       propPane.DeleteWidgetFromPropertyPane("Button1");
     });

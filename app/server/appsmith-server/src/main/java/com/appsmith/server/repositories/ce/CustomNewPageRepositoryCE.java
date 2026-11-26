@@ -3,10 +3,12 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +50,40 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
+    /**
+     * Sets the dependency map of the unpublished page. The update applies only when the current user has
+     * {@link AclPermission#MANAGE_PAGES} on the page.
+     *
+     * @return the number of pages matched: 1 when the page was updated, 0 otherwise
+     */
     Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
+
+    /**
+     * Writes the unpublished page only if the page's `updatedAt` still equals {@code expectedUpdatedAt}.
+     *
+     * <p>The write sets `unpublishedPage` and `updatedAt = newUpdatedAt`. It also sets `gitSyncId` when
+     * {@code gitSyncId} is not null. The query checks the permission and skips deleted pages.
+     *
+     * @return the number of matched pages: 1 when written, 0 when the page is missing, not permitted, or changed.
+     */
+    Mono<Integer> updateUnpublishedPageIfUnchanged(
+            String pageId,
+            Instant expectedUpdatedAt,
+            Instant newUpdatedAt,
+            PageDTO unpublishedPage,
+            String gitSyncId,
+            AclPermission permission);
 
     Flux<NewPage> findByApplicationId(String applicationId);
 
     Mono<Long> countByDeletedAtNull();
+
+    /**
+     * Counts pages that are not deleted in edit mode, for support diagnostics.
+     *
+     * <p>No ACL. Call only behind the super-user check in {@code SupportDiagnosticsServiceCEImpl}.
+     */
+    Mono<Long> countEditableForDiagnostics();
 
     Mono<NewPage> findByUniquePageSlug(
             String applicationId, String uniquePageName, AclPermission permission, boolean viewMode);

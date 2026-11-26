@@ -1,7 +1,6 @@
 import React from "react";
 
 import BaseWidget from "widgets/BaseWidget";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -88,11 +87,6 @@ export class WDSCustomWidget extends BaseWidget<
         },
         globalContext: context,
       });
-
-      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_TRIGGER_EVENT", {
-        widgetId: this.props.widgetId,
-        eventName,
-      });
     }
   };
 
@@ -100,10 +94,6 @@ export class WDSCustomWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("model", {
       ...this.props.model,
       ...data,
-    });
-
-    AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
-      widgetId: this.props.widgetId,
     });
   };
 

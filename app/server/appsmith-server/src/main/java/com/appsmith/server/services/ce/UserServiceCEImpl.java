@@ -231,6 +231,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             // thenReturn(true) still emits the same generic success (HTTP 200, {"data": true}) that
                             // the valid path returns. This makes the response for an unknown email indistinguishable
                             // from a known one, so an unauthenticated caller cannot enumerate registered accounts.
+                            // A system-generated account never signs in, so it gets no reset link and the same
+                            // generic success.
+                            .filter(user -> !TRUE.equals(user.getIsSystemGenerated()))
                             .flatMap(user -> {
                                 // an user found with the provided email address
                                 // Generate the password reset link for the user
@@ -400,6 +403,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)));
                 })
+                .flatMap(this::checkAccountCanBeActivatedByPasswordReset)
                 .zipWith(organizationMono)
                 .flatMap(tuple -> {
                     User userFromDb = tuple.getT1();
@@ -456,6 +460,25 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
+    /**
+     * A password reset also activates an account that is not yet enabled. A system-generated account is never
+     * activated, and an account that is not yet enabled is activated only when signup is allowed for it.
+     */
+    private Mono<User> checkAccountCanBeActivatedByPasswordReset(User userFromDb) {
+        if (TRUE.equals(userFromDb.getIsSystemGenerated())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET));
+        }
+        if (userFromDb.isEnabled()) {
+            return Mono.just(userFromDb);
+        }
+        return isSignupAllowed(userFromDb).flatMap(isSignupAllowed -> {
+            if (TRUE.equals(isSignupAllowed)) {
+                return Mono.just(userFromDb);
+            }
+            return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, userFromDb.getUsername()));
+        });
+    }
+
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
@@ -483,11 +506,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
                     return Mono.just(crudUser);
                 })
-                .then(Mono.zip(
-                        userWithOrgMono.flatMap(userWithOrg -> repository.findByEmailAndOrganizationId(
-                                user.getUsername(), userWithOrg.getOrganizationId())),
-                        userDataService.getForUserEmail(user.getUsername())))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
+                // The user is identified to analytics on their first login (AuthenticationSuccessHandlerCE), not
+                // here: users created by invites or provisioning may never sign in, and each identify call makes
+                // them a tracked user.
+                .then(userWithOrgMono.flatMap(userWithOrg ->
+                        repository.findByEmailAndOrganizationId(user.getUsername(), userWithOrg.getOrganizationId())));
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
@@ -520,36 +543,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
-        // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
+        // If the user doesn't exist, create the user. If the user exists, refuse the signup
         return organizationService
                 .getCurrentUserOrganizationId()
                 .flatMap(organizationId -> {
                     return repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
                             user.getUsername(), organizationId);
                 })
-                .flatMap(savedUser -> {
-                    if (!savedUser.isEnabled()) {
-                        return isSignupAllowed(user).flatMap(isSignupAllowed -> {
-                            if (isSignupAllowed) {
-                                // First enable the user
-                                savedUser.setIsEnabled(true);
-                                savedUser.setSource(user.getSource());
-                                // In case of form login, store the encrypted password.
-                                savedUser.setPassword(user.getPassword());
-                                return repository.save(savedUser).map(updatedUser -> {
-                                    UserSignupDTO userSignupDTO = new UserSignupDTO();
-                                    userSignupDTO.setUser(updatedUser);
-                                    return userSignupDTO;
-                                });
-                            }
-
-                            return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED, user.getUsername()));
-                        });
-                    }
-
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
-                })
+                // Signup creates an account only for an email that has none. An account that already exists is
+                // activated by the password reset link or by single sign-on. The one exception is the first
+                // account of an instance, see activateConfiguredAdminOnInstanceWithNoActiveAccount.
+                .flatMap(savedUser -> activateConfiguredAdminOnInstanceWithNoActiveAccount(savedUser, user))
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
                             .flatMap(savedUser -> {
@@ -602,6 +606,58 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 return pair.getT2();
                             });
                 }));
+    }
+
+    /**
+     * An operator can name the admin emails in the instance configuration before anyone has joined. The instance
+     * then holds an account for each of those emails that is not enabled, and no account that is. Signup with one
+     * of those emails activates that account, so the operator can reach a new instance that has no mail and no
+     * single sign-on. As soon as one person has an active account, signup refuses every email that has an account.
+     */
+    private Mono<UserSignupDTO> activateConfiguredAdminOnInstanceWithNoActiveAccount(
+            User savedUser, User signupRequest) {
+        Mono<UserSignupDTO> refusal =
+                Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
+
+        if (savedUser.isEnabled()
+                || TRUE.equals(savedUser.getIsSystemGenerated())
+                || !isConfiguredAdminEmail(savedUser.getEmail())) {
+            return refusal;
+        }
+
+        return repository.hasNoActivatedUser().flatMap(hasNoActivatedUser -> {
+            if (!TRUE.equals(hasNoActivatedUser)) {
+                return refusal;
+            }
+            return isSignupAllowed(signupRequest).flatMap(isSignupAllowed -> {
+                if (!TRUE.equals(isSignupAllowed)) {
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.SIGNUP_DISABLED, signupRequest.getUsername()));
+                }
+                // Only one signup can enable the account. A signup that finds it already enabled is refused.
+                return repository
+                        .activatePendingAccount(
+                                savedUser.getId(), signupRequest.getPassword(), signupRequest.getSource())
+                        .flatMap(activated -> {
+                            if (!TRUE.equals(activated)) {
+                                return refusal;
+                            }
+                            return repository
+                                    .findById(savedUser.getId())
+                                    .map(updatedUser -> {
+                                        UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                        userSignupDTO.setUser(updatedUser);
+                                        return userSignupDTO;
+                                    })
+                                    .switchIfEmpty(refusal);
+                        });
+            });
+        });
+    }
+
+    /** Whether the email is one of the configured admin emails, whatever case the operator typed. */
+    private boolean isConfiguredAdminEmail(String email) {
+        return commonConfig.getAdminEmails().stream().anyMatch(adminEmail -> adminEmail.equalsIgnoreCase(email));
     }
 
     /**
@@ -821,6 +877,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     profile.setEmail(userFromDb.getEmail());
                     profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
+                    profile.setOrganizationId(userFromDb.getOrganizationId());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
@@ -841,9 +898,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return cacheablePylonHelper
                             .getEmailHash(userFromDb)
                             .doOnNext(profile::setEmailVerificationHash)
-                            .then(Mono.defer(
-                                    () -> pacConfigurationService.setRolesAndGroups(profile, userFromDb, true)));
+                            .then(Mono.defer(() -> setRolesAndGroups(profile, userFromDb)));
                 });
+    }
+
+    protected Mono<UserProfileDTO> setRolesAndGroups(UserProfileDTO profile, User user) {
+        return pacConfigurationService.setRolesAndGroups(profile, user, true);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {

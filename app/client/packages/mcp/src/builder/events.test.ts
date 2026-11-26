@@ -1,3 +1,4 @@
+import { applyWidgetPatch } from "./editPatch.js";
 import {
   applyEvent,
   compileEventBinding,
@@ -34,6 +35,194 @@ function widget(
     ...overrides,
   };
 }
+
+describe("APP-16324 F11: navigate with URL parameters", () => {
+  // Security review: navigateTo treats a target that is not a page as a URL. "1572395042" + "?x=1.55" passes its URL
+  // check (the dot comes from the param) and https:// makes it the IP 93.184.216.34, an open redirect.
+  it("refuses a navigate target that reads as an IP address", () => {
+    for (const navigate of ["1572395042", "0x5db8d822"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: { navigate, params: { x: { literal: 1.55 } } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses an Object.prototype name as a table column parameter", () => {
+    for (const column of ["constructor", "__proto__", "prototype"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: {
+            navigate: "Details",
+            params: { id: { table: "Table1", column } },
+          },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  // Oracle: Home's "Details" button opens Ticket Details with ?id= set to the selected row's zid.
+  it("passes the selected row's column as a query parameter", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "DetailsButton",
+      event: "onClick",
+      action: {
+        navigate: "Ticket Details",
+        params: { id: { table: "Table1", column: "zid" } },
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toBe(
+      `{{ navigateTo('Ticket Details', { id: Table1.selectedRow?.["zid"] }, 'SAME_WINDOW') }}`,
+    );
+  });
+
+  it("emits literal and widget-property parameters in order", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: {
+          q: { widget: "SearchInput", property: "text" },
+          page: { literal: 2 },
+          archived: { literal: false },
+          tab: { literal: "open" },
+          col: { table: "Orders", column: "order id" },
+        },
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toBe(
+      `{{ navigateTo('Search', { q: SearchInput.text, page: 2, archived: false, tab: "open", col: Orders.selectedRow?.["order id"] }, 'SAME_WINDOW') }}`,
+    );
+  });
+
+  it("keeps a run follow-up navigate with parameters", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Save",
+      event: "onClick",
+      action: {
+        run: "SaveTicket",
+        onSuccess: [
+          {
+            navigate: "Ticket Details",
+            params: { id: { widget: "IdInput", property: "text" } },
+          },
+        ],
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toContain(
+      "navigateTo('Ticket Details', { id: IdInput.text }, 'SAME_WINDOW')",
+    );
+  });
+
+  it("reports parameter widgets and tables to the dangling-reference guard", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: {
+          q: { widget: "SearchInput", property: "text" },
+          id: { table: "Table1", column: "zid" },
+        },
+      },
+    }).action;
+
+    expect(eventReferences(action)).toEqual([
+      { kind: "page", name: "Search" },
+      { kind: "widget", name: "SearchInput" },
+      { kind: "widget", name: "Table1", table: true },
+    ]);
+  });
+
+  it.each([
+    ["a key that is not an identifier", { "my-id": { literal: 1 } }],
+    // Parsed from JSON, as a tool call arrives: an object literal's __proto__ would set the prototype, not a key.
+    ["a prototype key", JSON.parse('{"__proto__": {"literal": 1}}')],
+    ["a constructor key", { constructor: { literal: 1 } }],
+    ["a literal with a single quote", { id: { literal: "a'); evil(); ('" } }],
+    // The brace rule rejects these first; the cases below reach the binding-syntax check on its own.
+    ["a literal with a binding pair", { id: { literal: "{{evil()}}" } }],
+    ["a column with a binding pair", { id: { table: "T", column: "}}{{x" } }],
+    ["a literal with a backtick", { id: { literal: "a`b" } }],
+    ["a literal with ${", { id: { literal: "a${b" } }],
+    ["a literal with U+2028", { id: { literal: "a b" } }],
+    ["a column with a backtick", { id: { table: "T", column: "a`b" } }],
+    ["a column with a single quote", { id: { table: "T", column: "it's" } }],
+    // Appsmith splits a binding by counting braces even inside strings, so the handler would never run.
+    ["a literal with an unbalanced brace", { id: { literal: "x}" } }],
+    ["a column with a brace", { id: { table: "T", column: "{a" } }],
+    ["a widget property with a call", { id: { widget: "W", property: "a()" } }],
+    ["a null literal", { id: { literal: null } }],
+    ["an unknown value shape", { id: { query: "Q" } }],
+    [
+      "more than 10 parameters",
+      Object.fromEntries(
+        Array.from({ length: 11 }, (_, i) => [`p${i}`, { literal: i }]),
+      ),
+    ],
+  ])("rejects %s", (_label, params) => {
+    const result = wireEventSpecSchema.safeParse({
+      widget: "Go",
+      event: "onClick",
+      action: { navigate: "Search", params },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts exactly 10 parameters", () => {
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "Go",
+        event: "onClick",
+        action: {
+          navigate: "Search",
+          params: Object.fromEntries(
+            Array.from({ length: 10 }, (_, i) => [`p${i}`, { literal: i }]),
+          ),
+        },
+      }).success,
+    ).toBe(true);
+  });
+
+  it('JSON-encodes " and \\ in a literal so they stay inside the string', () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: { q: { literal: 'say "hi" \\ there' } },
+      },
+    }).action;
+    const binding = compileEventBinding(action);
+    const objectText = /navigateTo\('Search', (\{.*\}), 'SAME_WINDOW'\)/.exec(
+      binding,
+    )?.[1];
+
+    expect(binding).toBe(
+      `{{ navigateTo('Search', { q: "say \\"hi\\" \\\\ there" }, 'SAME_WINDOW') }}`,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    expect(new Function(`return (${objectText});`)()).toEqual({
+      q: 'say "hi" \\ there',
+    });
+  });
+
+  it("keeps a navigate without params unchanged", () => {
+    expect(compileEventBinding({ navigate: "Details Page" })).toBe(
+      "{{ navigateTo('Details Page', {}, 'SAME_WINDOW') }}",
+    );
+  });
+});
 
 describe("compileEventBinding — closed vocabulary", () => {
   it("emits the correct binding for each action kind", () => {
@@ -141,6 +330,112 @@ describe("compileEventBinding — closed vocabulary", () => {
         onError: [{ showAlert: "Failed", style: "error" }],
       }),
     ).toBe("{{ save.run().catch(() => { showAlert('Failed', 'error'); }) }}");
+  });
+});
+
+describe("call — invoke a restricted JS-object function", () => {
+  it("emits Object.function() from two validated identifiers, as a primary and as a follow-up", () => {
+    expect(
+      compileEventBinding({
+        call: { object: "BannerAdmin", function: "save" },
+      }),
+    ).toBe("{{ BannerAdmin.save() }}");
+    expect(
+      compileEventBinding({
+        run: "SaveBanner",
+        onSuccess: [
+          { call: { object: "BannerAdmin", function: "refresh" } },
+          { closeModal: "EditModal" },
+        ],
+      }),
+    ).toBe(
+      "{{ SaveBanner.run().then(() => { BannerAdmin.refresh(); closeModal('EditModal'); }) }}",
+    );
+    expect(
+      eventReferences({ call: { object: "BannerAdmin", function: "save" } }),
+    ).toEqual([{ kind: "jsFunction", name: "BannerAdmin", member: "save" }]);
+    expect(
+      eventActionKinds({ call: { object: "BannerAdmin", function: "save" } }),
+    ).toEqual(["call"]);
+  });
+
+  it("passes scalar literals and widget-property refs as arguments, JSON-encoded / validated", () => {
+    expect(
+      compileEventBinding({
+        call: {
+          object: "BannerAdmin",
+          function: "splitLines",
+          args: [
+            { widget: "inpInstanceAllow", property: "text" },
+            'x"y',
+            3,
+            true,
+            null,
+          ],
+        },
+      }),
+    ).toBe(
+      '{{ BannerAdmin.splitLines(inpInstanceAllow.text, "x\\"y", 3, true, null) }}',
+    );
+    expect(
+      eventReferences({
+        call: {
+          object: "BannerAdmin",
+          function: "save",
+          args: [{ widget: "Form1", property: "data" }],
+        },
+      }),
+    ).toEqual([
+      { kind: "jsFunction", name: "BannerAdmin", member: "save" },
+      { kind: "widget", name: "Form1" },
+    ]);
+
+    for (const args of [
+      ["{{ evil }}"],
+      [{ widget: "W", property: "a[0]" }],
+      [{ widget: "W" }],
+      ["`x`"],
+      ["x}"],
+      ["{x"],
+      Array(6).fill(1),
+    ]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Btn",
+          event: "onClick",
+          action: { call: { object: "O", function: "f", args } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("rejects anything that is not a plain identifier pair — no arguments, chains, or expressions", () => {
+    for (const call of [
+      { object: "BannerAdmin.save", function: "x" },
+      { object: "BannerAdmin", function: "save()" },
+      { object: "BannerAdmin", function: "save('a')" },
+      { object: "window", function: "location.href" },
+      { object: "{{evil}}", function: "save" },
+      { object: "Banner Admin", function: "save" },
+      { object: "1Banner", function: "save" },
+      { object: "BannerAdmin" },
+      { object: "BannerAdmin", function: "save", args: "not-a-list" },
+      { object: "BannerAdmin", function: "save", args: [{ raw: "1+1" }] },
+      // An expression argument is a grammar tree: raw JavaScript is not one of its shapes.
+      {
+        object: "BannerAdmin",
+        function: "save",
+        args: [{ expr: { js: "1+1" } }],
+      },
+    ]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Btn",
+          event: "onClick",
+          action: { call },
+        }).success,
+      ).toBe(false);
+    }
   });
 });
 
@@ -748,4 +1043,218 @@ describe("eventReferences / widgetExists", () => {
     expect(widgetExists(dsl, "EditModal")).toBe(true);
     expect(widgetExists(dsl, "Nope")).toBe(false);
   });
+});
+
+describe("APP-16381: change events, expression arguments and table column clicks", () => {
+  const parse = (spec: unknown) => wireEventSpecSchema.parse(spec);
+
+  it("wires radio and checkbox-group selection changes and multiselect option changes", () => {
+    for (const [type, event] of [
+      ["RADIO_GROUP_WIDGET", "onSelectionChange"],
+      ["CHECKBOX_GROUP_WIDGET", "onSelectionChange"],
+      ["MULTI_SELECT_WIDGET_V2", "onOptionChange"],
+    ] as const) {
+      const dsl = page([widget({ widgetId: "Ctl", type })]);
+      const { binding, dsl: next } = applyEvent(
+        dsl,
+        parse({ widget: "Ctl", event, action: { reset: "NewEnd" } }),
+      );
+
+      expect(binding).toBe("{{ resetWidget('NewEnd', true) }}");
+      expect(next.children?.[0][event]).toBe(binding);
+      expect(next.children?.[0].dynamicTriggerPathList).toEqual([
+        { key: event },
+      ]);
+    }
+
+    expect(() =>
+      applyEvent(
+        page([widget({ widgetId: "Ctl", type: "SELECT_WIDGET" })]),
+        parse({
+          widget: "Ctl",
+          event: "onSelectionChange",
+          action: { reset: "X" },
+        }),
+      ),
+    ).toThrow(/not supported on SELECT_WIDGET/);
+  });
+
+  it("passes an expression argument to a JS function, and reports what it reads", () => {
+    const spec = parse({
+      widget: "Btn",
+      event: "onClick",
+      action: {
+        call: {
+          object: "Licenses",
+          function: "extend",
+          args: [
+            {
+              expr: {
+                fn: "addYears",
+                args: [
+                  { table: "Tbl", column: "end date", row: "triggered" },
+                  1,
+                ],
+              },
+            },
+            { expr: { query: "GetLicense", field: "id" } },
+            { expr: { user: "email" } },
+          ],
+        },
+      },
+    });
+    const binding = compileEventBinding(spec.action);
+
+    expect(binding).toMatch(/^\{\{ Licenses\.extend\(/);
+    expect(binding).toContain('Tbl.triggeredRow["end date"]');
+    expect(binding).toContain("GetLicense.data?.id");
+    expect(binding).toContain("appsmith.user.email");
+    expect(eventReferences(spec.action)).toEqual([
+      { kind: "jsFunction", name: "Licenses", member: "extend" },
+      { kind: "widget", name: "Tbl", table: true },
+      { kind: "query", name: "GetLicense", readOnly: true },
+    ]);
+  });
+
+  it("encodes a single quote in a literal argument, and refuses one in an expression or a call or brace inside one", () => {
+    const binding = compileEventBinding(
+      parse({
+        widget: "Btn",
+        event: "onClick",
+        action: { call: { object: "O", function: "f", args: ["O'Brien"] } },
+      }).action,
+    );
+
+    // Valid JS for the same string, with no quote character in the stored text for the modal-graph scan to misread.
+    expect(binding).toBe('{{ O.f("O\\u0027Brien") }}');
+    expect(new Function("return " + binding.slice(7, -4))()).toBe("O'Brien");
+
+    for (const arg of [
+      { expr: { fn: "concat", args: ["it's", "x"] } },
+      { expr: { fn: "concat", args: ["{", "x"] } },
+      { expr: { call: "save" } },
+    ]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Btn",
+          event: "onClick",
+          action: { call: { object: "O", function: "f", args: [arg] } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  function tableWith(columns: Record<string, unknown>): WidgetNode {
+    return page([
+      widget({
+        widgetId: "Tbl",
+        type: "TABLE_WIDGET_V2",
+        primaryColumns: columns,
+      }),
+    ]);
+  }
+
+  it("wires a button column's onClick and registers the nested trigger path", () => {
+    const dsl = tableWith({
+      extend: { id: "extend", columnType: "button" },
+      name: { id: "name", columnType: "text" },
+    });
+    const { binding, dsl: next } = applyEvent(
+      dsl,
+      parse({
+        widget: "Tbl",
+        column: "extend",
+        event: "onClick",
+        action: { showModal: "ExtendModal" },
+      }),
+    );
+    const table = next.children?.[0] as WidgetNode & {
+      primaryColumns: Record<string, Record<string, unknown>>;
+    };
+
+    expect(table.primaryColumns.extend.onClick).toBe(binding);
+    expect(table.onClick).toBeUndefined();
+    expect(table.dynamicTriggerPathList).toEqual([
+      { key: "primaryColumns.extend.onClick" },
+    ]);
+    // The caller's DSL is unchanged.
+    expect(
+      (dsl.children?.[0].primaryColumns as Record<string, object>).extend,
+    ).not.toHaveProperty("onClick");
+  });
+
+  it("refuses a column wiring on a non-button column, a missing column, another event or another widget", () => {
+    const dsl = tableWith({ name: { columnType: "text" } });
+    const wire = (over: Record<string, unknown>, target = dsl) =>
+      applyEvent(
+        target,
+        parse({
+          widget: "Tbl",
+          column: "name",
+          event: "onClick",
+          action: { showModal: "M" },
+          ...over,
+        }),
+      );
+
+    expect(() => wire({})).toThrow(/only button and iconButton columns/);
+    expect(() => wire({ column: "missing" })).toThrow(
+      /column "missing" was not found/,
+    );
+    expect(() => wire({ event: "onRowSelected" })).toThrow(
+      /wired with event "onClick"/,
+    );
+    expect(() =>
+      wire({}, page([widget({ widgetId: "Tbl", type: "BUTTON_WIDGET" })])),
+    ).toThrow(/can only be wired on a TABLE_WIDGET_V2/);
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "Tbl",
+        column: "__proto__",
+        event: "onClick",
+        action: { showModal: "M" },
+      }).success,
+    ).toBe(false);
+  });
+});
+
+it("wires a button column whose sanitized numeric key grows to 65 characters", () => {
+  const key = "1".repeat(64);
+  const id = `_${key}`;
+  const dsl = applyWidgetPatch(
+    page([
+      widget({
+        widgetId: "t",
+        widgetName: "Licenses",
+        type: "TABLE_WIDGET_V2",
+      }),
+    ]),
+    {
+      operations: [
+        {
+          kind: "addColumn",
+          name: "Licenses",
+          column: { key, type: "button", buttonLabel: "Save" },
+        },
+      ],
+    },
+  ).dsl;
+  const wired = applyEvent(
+    dsl,
+    wireEventSpecSchema.parse({
+      widget: "Licenses",
+      column: id,
+      event: "onClick",
+      action: { showAlert: "Saved" },
+    }),
+  );
+
+  expect(
+    (
+      wired.dsl.children![0].primaryColumns as Record<
+        string,
+        { onClick: string }
+      >
+    )[id].onClick,
+  ).toContain("showAlert");
 });

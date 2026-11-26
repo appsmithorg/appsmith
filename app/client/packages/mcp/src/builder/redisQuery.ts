@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // D3 create_redis_query — a STRUCTURED Redis command builder, the KV analog of create_query / create_mongo_query.
 // The agent never authors a raw Redis command string or raw `{{ }}` bindings. The compiler emits the Redis plugin's
@@ -31,7 +31,6 @@ const redisKey = z
 // cannot open a `{{ }}` binding or a quoted-string tokenization branch.
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const redisLiteral = z
   .string()
   .min(1)

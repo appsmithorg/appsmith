@@ -1,3 +1,4 @@
+import type { TinyMCE } from "tinymce";
 import {
   agHelper,
   locators,
@@ -7,6 +8,32 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+
+declare global {
+  interface Window {
+    tinymce: TinyMCE;
+  }
+}
+
+function getActiveEditor(win: Window) {
+  const editor = win.tinymce.activeEditor;
+
+  if (!editor) {
+    throw new Error("TinyMCE active editor is missing");
+  }
+
+  return editor;
+}
+
+function firstFamily(font: string) {
+  return font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
+}
+
+function fontFamilyAtCaret(editor: ReturnType<typeof getActiveEditor>) {
+  return firstFamily(
+    editor.dom.getStyle(editor.selection.getNode(), "font-family", true) || "",
+  );
+}
 
 describe(
   "Rich Text Editor widget Tests",
@@ -49,6 +76,7 @@ describe(
     });
 
     it("3. Verify applying style in one line should be observed in next line", function () {
+      agHelper.GetNClick(locators._richText_ToolbarOverflow);
       agHelper.GetNClick(locators._richText_Text_Color("Black"));
       agHelper.GetNClick(locators._richText_color("Red"));
       agHelper
@@ -83,6 +111,323 @@ describe(
             1,
           );
         });
+    });
+
+    it("4. Verify applying a font family from the toolbar writes font-family into the editor HTML", function () {
+      let htmlBefore = "";
+
+      cy.window().then((win) => {
+        htmlBefore = getActiveEditor(win).getContent().toLowerCase();
+        expect(htmlBefore).to.not.contain("font-family");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("ArialText");
+
+        const htmlAfter = editor.getContent().toLowerCase();
+
+        expect(htmlAfter).to.not.equal(htmlBefore);
+        expect(htmlAfter).to.contain("font-family");
+        expect(htmlAfter).to.contain("arial");
+      });
+    });
+
+    it("5. Verify choosing a font with a collapsed caret applies to the next typed text", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+        expect(editor.getContent().toLowerCase()).to.not.contain("georgia");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Georgia"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Georgia",
+      );
+      cy.window().then((win) => {
+        expect(getActiveEditor(win).getContent().toLowerCase()).to.not.contain(
+          "georgia",
+        );
+      });
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("GeorgiaText");
+        expect(editor.getContent().toLowerCase()).to.contain("georgia");
+      });
+    });
+
+    it("6. Verify moving the caret after picking a font does not apply it at the new location", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+        expect(editor.getContent().toLowerCase()).to.not.contain("courier");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Courier New"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Courier New",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+        const body = editor.getBody();
+
+        expect(editor.getContent().toLowerCase()).to.not.contain("courier");
+        // Stay collapsed: select-all would clear pending for a different reason.
+        editor.selection.setCursorLocation(body.firstChild || body, 0);
+      });
+      cy.get(locators._richText_FontFamily).should(
+        "not.have.attr",
+        "aria-label",
+        "Font Courier New",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("NoCourier");
+
+        expect(editor.getContent().toLowerCase()).to.contain("nocourier");
+        expect(fontFamilyAtCaret(editor)).to.not.match(/courier/);
+      });
+    });
+
+    it("7. Verify picking Arial inside Arial Black text applies Arial to the next insert", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial Black"));
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        expect(editor.getContent().toLowerCase()).to.contain("arial black");
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Arial",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("ArialNotBlack");
+
+        expect(editor.getContent().toLowerCase()).to.contain("arialnotblack");
+        expect(fontFamilyAtCaret(editor)).to.eq("arial");
+      });
+    });
+
+    it("8. Verify a font picked before typing survives a freshly pushed default text", function () {
+      // A default text the editor has to re-serialize (forced_root_block adds
+      // the <p>), which is what used to leave the react wrapper pushing the
+      // stale value back and wiping the caret format.
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        "Default text with no font",
+      );
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Verdana"));
+      // Outlast the wrapper's 200ms rollback timer without typing.
+      agHelper.Sleep(600);
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Verdana",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("VerdanaAfterPush");
+
+        expect(editor.getContent().toLowerCase()).to.contain(
+          "verdanaafterpush",
+        );
+        expect(fontFamilyAtCaret(editor)).to.eq("verdana");
+      });
+    });
+
+    it("9. Verify picking a font with the caret inside a word does not restyle that word", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p>Hello World</p>");
+
+        const textNode = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+          throw new Error("Expected a text node in the RTE");
+        }
+
+        editor.selection.setCursorLocation(textNode, 2);
+        expect(editor.selection.isCollapsed()).to.eq(true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Impact"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Impact",
+      );
+      cy.window().then((win) => {
+        const html = getActiveEditor(win).getContent().toLowerCase();
+
+        expect(html).to.contain("hello");
+        expect(html).to.not.contain("impact");
+      });
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("NEW");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(html).to.match(/<span[^>]*impact[^>]*>new<\/span>/);
+        expect(html).to.contain("llo world");
+        expect(fontFamilyAtCaret(editor)).to.match(/impact/);
+      });
+    });
+
+    it("10. Verify leaving the editor after a collapsed font pick restores the Font label", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Georgia"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Georgia",
+      );
+      agHelper.ClickOutside();
+      // Unstyled Times is rematched to Times New Roman (same stack as
+      // Default). The regression is Georgia sticking after leave.
+      cy.get(locators._richText_FontFamily)
+        .invoke("attr", "aria-label")
+        .should("be.oneOf", ["Font Default", "Font Times New Roman"]);
+    });
+
+    it("12. Verify returning to the start after cancelling a collapsed font pick does not keep that font", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p>Hello World</p>");
+
+        const text = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!text || text.nodeType !== Node.TEXT_NODE) {
+          throw new Error("Expected a text node at the start of the paragraph");
+        }
+
+        editor.selection.setCursorLocation(text, 0);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Courier New"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Courier New",
+      );
+      agHelper.ClickOutside();
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+
+        const text = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!text) {
+          throw new Error("Expected paragraph content after leave");
+        }
+
+        editor.selection.setCursorLocation(text, 0);
+      });
+      cy.window().should((win) => {
+        expect(fontFamilyAtCaret(getActiveEditor(win))).to.not.match(/courier/);
+      });
+      cy.get(locators._richText_FontFamily)
+        .invoke("attr", "aria-label")
+        .should("not.eq", "Font Courier New");
+    });
+
+    it("11. Verify moving off an empty paragraph after a collapsed font pick keeps that paragraph", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p><br></p><p><br></p>");
+
+        const first = editor.getBody().querySelector("p");
+
+        if (!first) {
+          throw new Error("Expected two empty paragraphs");
+        }
+
+        editor.selection.setCursorLocation(first, 0);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+        const paragraphs = editor.getBody().querySelectorAll("p");
+
+        expect(paragraphs.length).to.eq(2);
+        editor.selection.setCursorLocation(paragraphs[1], 0);
+      });
+      // NodeChange clears pending on a 0ms timeout; TinyMCE deletes leftover
+      // empty #_mce_caret blocks on the next keydown.
+      agHelper.Sleep(50);
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.fire("keydown", { keyCode: 83 });
+        editor.insertContent("SecondLine");
+
+        expect(editor.getBody().querySelectorAll("p").length).to.eq(2);
+        expect(editor.getContent().toLowerCase()).to.contain("secondline");
+        expect(editor.getContent().toLowerCase()).to.not.contain("arial");
+
+        const first = editor.getBody().querySelector("p");
+
+        if (!first) {
+          throw new Error("Expected the first empty paragraph to remain");
+        }
+
+        editor.selection.setCursorLocation(first, 0);
+        editor.insertContent("FirstLine");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(editor.getBody().querySelectorAll("p").length).to.eq(2);
+        expect(html).to.contain("firstline");
+        expect(html).to.contain("secondline");
+        expect(html).to.not.contain("arial");
+        expect(fontFamilyAtCaret(editor)).to.not.match(/arial/);
+      });
     });
   },
 );

@@ -1,0 +1,616 @@
+[
+  {
+    "name": "00_GetStructure_empty",
+    "kind": "structure"
+  },
+  {
+    "name": "01_CreateTable",
+    "action": "CreateTable",
+    "body": {
+      "TableName": "Music",
+      "AttributeDefinitions": [
+        { "AttributeName": "Artist", "AttributeType": "S" },
+        { "AttributeName": "SongTitle", "AttributeType": "S" }
+      ],
+      "KeySchema": [
+        { "AttributeName": "Artist", "KeyType": "HASH" },
+        { "AttributeName": "SongTitle", "KeyType": "RANGE" }
+      ],
+      "BillingMode": "PAY_PER_REQUEST"
+    }
+  },
+  {
+    "name": "02_CreateTable_provisionedThroughput",
+    "action": "CreateTable",
+    "body": {
+      "TableName": "Provisioned",
+      "AttributeDefinitions": [{ "AttributeName": "Id", "AttributeType": "S" }],
+      "KeySchema": [{ "AttributeName": "Id", "KeyType": "HASH" }],
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+      }
+    }
+  },
+  {
+    "name": "03_CreateTable_globalSecondaryIndex",
+    "action": "CreateTable",
+    "body": {
+      "TableName": "Indexed",
+      "AttributeDefinitions": [
+        { "AttributeName": "Id", "AttributeType": "S" },
+        { "AttributeName": "Kind", "AttributeType": "S" }
+      ],
+      "KeySchema": [{ "AttributeName": "Id", "KeyType": "HASH" }],
+      "BillingMode": "PAY_PER_REQUEST",
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "KindIndex",
+          "KeySchema": [{ "AttributeName": "Kind", "KeyType": "HASH" }],
+          "Projection": { "ProjectionType": "ALL" }
+        }
+      ]
+    }
+  },
+  {
+    "name": "04_PutItem_allAttributeKinds",
+    "action": "PutItem",
+    "body": {
+      "TableName": "Music",
+      "Item": {
+        "Artist": { "S": "A" },
+        "SongTitle": { "S": "S1" },
+        "Year": { "N": "2015" },
+        "Price": { "N": "1.99" },
+        "Cover": { "B": "image-bytes" },
+        "Explicit": { "BOOL": false },
+        "Remastered": { "BOOL": true },
+        "Producer": { "NULL": true },
+        "Tags": { "SS": ["pop", "rock"] },
+        "ChartPositions": { "NS": ["1", "4", "12"] },
+        "Samples": { "BS": ["sample-1", "sample-2"] },
+        "Album": {
+          "M": {
+            "Title": { "S": "Somewhat Famous" },
+            "Formats": { "L": [{ "S": "CD" }, { "S": "Vinyl" }] },
+            "Label": { "M": { "Name": { "S": "Acme" } } }
+          }
+        },
+        "Credits": {
+          "L": [
+            { "M": { "Role": { "S": "Writer" }, "Name": { "S": "Jane" } } },
+            { "S": "Session band" },
+            { "N": "3" },
+            { "BOOL": true },
+            { "NULL": true },
+            { "SS": ["a", "b"] },
+            { "L": [{ "S": "nested" }] }
+          ]
+        },
+        "EmptyList": { "L": [] },
+        "EmptyMap": { "M": {} }
+      },
+      "ReturnValues": "ALL_OLD",
+      "ReturnConsumedCapacity": "TOTAL"
+    }
+  },
+  {
+    "name": "05_PutItem_second",
+    "action": "PutItem",
+    "body": {
+      "TableName": "Music",
+      "Item": {
+        "Artist": { "S": "A" },
+        "SongTitle": { "S": "S2" },
+        "Year": { "N": "2016" },
+        "Plays": { "N": "10" }
+      }
+    }
+  },
+  {
+    "name": "06_PutItem_third",
+    "action": "PutItem",
+    "body": {
+      "TableName": "Music",
+      "Item": {
+        "Artist": { "S": "A" },
+        "SongTitle": { "S": "S3" },
+        "Year": { "N": "2017" }
+      }
+    }
+  },
+  {
+    "name": "07_PutItem_otherArtist",
+    "action": "PutItem",
+    "body": {
+      "TableName": "Music",
+      "Item": {
+        "Artist": { "S": "B" },
+        "SongTitle": { "S": "S1" },
+        "Year": { "N": "2012" }
+      }
+    }
+  },
+  {
+    "name": "08_GetItem_allAttributeKinds",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S1" } },
+      "ConsistentRead": true,
+      "ReturnConsumedCapacity": "TOTAL"
+    }
+  },
+  {
+    "name": "09_GetItem_projection",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S1" } },
+      "ProjectionExpression": "#yr, Album.Title, Credits[0]",
+      "ExpressionAttributeNames": { "#yr": "Year" }
+    }
+  },
+  {
+    "name": "10_GetItem_missingItem",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "Nobody" }, "SongTitle": { "S": "None" } }
+    }
+  },
+  {
+    "name": "11_Query_firstPage",
+    "action": "Query",
+    "body": {
+      "TableName": "Music",
+      "KeyConditionExpression": "Artist = :artist",
+      "ExpressionAttributeValues": { ":artist": { "S": "A" } },
+      "ProjectionExpression": "Artist, SongTitle, #yr",
+      "ExpressionAttributeNames": { "#yr": "Year" },
+      "Limit": 2,
+      "ReturnConsumedCapacity": "TOTAL"
+    }
+  },
+  {
+    "name": "12_Query_nextPage",
+    "action": "Query",
+    "body": {
+      "TableName": "Music",
+      "KeyConditionExpression": "Artist = :artist",
+      "ExpressionAttributeValues": { ":artist": { "S": "A" } },
+      "ProjectionExpression": "Artist, SongTitle, #yr",
+      "ExpressionAttributeNames": { "#yr": "Year" },
+      "Limit": 2,
+      "ExclusiveStartKey": {
+        "Artist": { "S": "A" },
+        "SongTitle": { "S": "S2" }
+      }
+    }
+  },
+  {
+    "name": "13_Query_filterDescending",
+    "action": "Query",
+    "body": {
+      "TableName": "Music",
+      "KeyConditionExpression": "Artist = :artist AND SongTitle BETWEEN :from AND :to",
+      "FilterExpression": "#yr > :year",
+      "ExpressionAttributeNames": { "#yr": "Year" },
+      "ExpressionAttributeValues": {
+        ":artist": { "S": "A" },
+        ":from": { "S": "S1" },
+        ":to": { "S": "S3" },
+        ":year": { "N": "2015" }
+      },
+      "ScanIndexForward": false,
+      "Select": "COUNT"
+    }
+  },
+  {
+    "name": "14_Scan_firstPage",
+    "action": "Scan",
+    "body": {
+      "TableName": "Music",
+      "ProjectionExpression": "Artist, SongTitle",
+      "Limit": 2
+    }
+  },
+  {
+    "name": "15_Scan_nextPage",
+    "action": "Scan",
+    "body": {
+      "TableName": "Music",
+      "ProjectionExpression": "Artist, SongTitle",
+      "Limit": 2,
+      "ExclusiveStartKey": {
+        "Artist": { "S": "A" },
+        "SongTitle": { "S": "S2" }
+      }
+    }
+  },
+  {
+    "name": "16_Scan_filter",
+    "action": "Scan",
+    "body": {
+      "TableName": "Music",
+      "FilterExpression": "Remastered = :remastered AND contains(Tags, :tag)",
+      "ExpressionAttributeValues": {
+        ":remastered": { "BOOL": true },
+        ":tag": { "S": "rock" }
+      },
+      "ProjectionExpression": "Artist, SongTitle, Tags, ChartPositions, Samples, Cover"
+    }
+  },
+  {
+    "name": "17_UpdateItem",
+    "action": "UpdateItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S2" } },
+      "UpdateExpression": "SET AlbumTitle = :title, Album = :album REMOVE #yr ADD Tags :tags, Plays :inc",
+      "ConditionExpression": "attribute_exists(Artist)",
+      "ExpressionAttributeNames": { "#yr": "Year" },
+      "ExpressionAttributeValues": {
+        ":title": { "S": "Louder Than Ever" },
+        ":album": {
+          "M": {
+            "Formats": { "L": [{ "S": "Digital" }] },
+            "Cover": { "B": "cover-bytes" }
+          }
+        },
+        ":tags": { "SS": ["indie"] },
+        ":inc": { "N": "1" }
+      },
+      "ReturnValues": "ALL_NEW"
+    }
+  },
+  {
+    "name": "18_UpdateItem_conditionalCheckFailed",
+    "action": "UpdateItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S2" } },
+      "UpdateExpression": "SET Plays = :zero",
+      "ConditionExpression": "Plays > :many",
+      "ExpressionAttributeValues": {
+        ":zero": { "N": "0" },
+        ":many": { "N": "1000" }
+      }
+    }
+  },
+  {
+    "name": "19_DeleteItem",
+    "action": "DeleteItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S3" } },
+      "ReturnValues": "ALL_OLD"
+    }
+  },
+  {
+    "name": "20_BatchWriteItem",
+    "action": "BatchWriteItem",
+    "body": {
+      "RequestItems": {
+        "Music": [
+          {
+            "PutRequest": {
+              "Item": {
+                "Artist": { "S": "C" },
+                "SongTitle": { "S": "S1" }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "20b_BatchWriteItem_binary",
+    "action": "BatchWriteItem",
+    "body": {
+      "RequestItems": {
+        "Music": [
+          {
+            "PutRequest": {
+              "Item": {
+                "Artist": { "S": "E" },
+                "SongTitle": { "S": "S1" },
+                "Cover": { "B": "aGVsbG8=" },
+                "Samples": { "BS": ["aGk=", "dGhlcmU="] },
+                "Album": { "M": { "Art": { "B": "YXJ0" } } }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "20c_GetItem_batchWrittenBinary",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Music",
+      "Key": { "Artist": { "S": "E" }, "SongTitle": { "S": "S1" } }
+    }
+  },
+  {
+    "name": "21_BatchGetItem",
+    "action": "BatchGetItem",
+    "body": {
+      "RequestItems": {
+        "Music": {
+          "Keys": [
+            { "Artist": { "S": "A" }, "SongTitle": { "S": "S2" } },
+            { "Artist": { "S": "B" }, "SongTitle": { "S": "S1" } }
+          ],
+          "ProjectionExpression": "Artist, SongTitle, Plays"
+        }
+      },
+      "ReturnConsumedCapacity": "TOTAL"
+    }
+  },
+  {
+    "name": "22_TransactGetItems",
+    "action": "TransactGetItems",
+    "body": {
+      "TransactItems": [
+        {
+          "Get": {
+            "TableName": "Music",
+            "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S2" } },
+            "ProjectionExpression": "Artist, Plays"
+          }
+        },
+        {
+          "Get": {
+            "TableName": "Music",
+            "Key": { "Artist": { "S": "B" }, "SongTitle": { "S": "S1" } }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "23_TransactWriteItems_updateAndConditionCheck",
+    "action": "TransactWriteItems",
+    "body": {
+      "TransactItems": [
+        {
+          "Update": {
+            "TableName": "Music",
+            "Key": { "Artist": { "S": "A" }, "SongTitle": { "S": "S2" } },
+            "UpdateExpression": "SET Plays = Plays + :inc",
+            "ExpressionAttributeValues": { ":inc": { "N": "1" } }
+          }
+        },
+        {
+          "ConditionCheck": {
+            "TableName": "Music",
+            "Key": { "Artist": { "S": "B" }, "SongTitle": { "S": "S1" } },
+            "ConditionExpression": "attribute_exists(Artist)"
+          }
+        }
+      ],
+      "ClientRequestToken": "local-token-1"
+    }
+  },
+  {
+    "name": "24_TransactWriteItems_put",
+    "action": "TransactWriteItems",
+    "body": {
+      "TransactItems": [
+        {
+          "Put": {
+            "TableName": "Music",
+            "Item": { "Artist": { "S": "D" }, "SongTitle": { "S": "S1" } }
+          }
+        }
+      ],
+      "ClientRequestToken": "local-token-2"
+    }
+  },
+  {
+    "name": "25_TransactWriteItems_canceled",
+    "action": "TransactWriteItems",
+    "body": {
+      "TransactItems": [
+        {
+          "ConditionCheck": {
+            "TableName": "Music",
+            "Key": { "Artist": { "S": "B" }, "SongTitle": { "S": "S1" } },
+            "ConditionExpression": "attribute_not_exists(Artist)"
+          }
+        }
+      ],
+      "ClientRequestToken": "local-token-3"
+    }
+  },
+  {
+    "name": "26_DescribeTable",
+    "action": "DescribeTable",
+    "body": { "TableName": "Music" }
+  },
+  {
+    "name": "27_ListTables_firstPage",
+    "action": "ListTables",
+    "body": { "Limit": 1 }
+  },
+  {
+    "name": "28_ListTables_nextPage",
+    "action": "ListTables",
+    "body": { "ExclusiveStartTableName": "Indexed" }
+  },
+  {
+    "name": "29_ListTables_noBody",
+    "action": "ListTables",
+    "body": null
+  },
+  {
+    "name": "30_UpdateTimeToLive",
+    "action": "UpdateTimeToLive",
+    "body": {
+      "TableName": "Music",
+      "TimeToLiveSpecification": { "Enabled": true, "AttributeName": "ttl" }
+    }
+  },
+  {
+    "name": "31_DescribeTimeToLive",
+    "action": "DescribeTimeToLive",
+    "body": { "TableName": "Music" }
+  },
+  {
+    "name": "32_TagResource",
+    "action": "TagResource",
+    "body": {
+      "ResourceArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+      "Tags": [
+        { "Key": "Owner", "Value": "blueTeam" },
+        { "Key": "Stage", "Value": "prod" }
+      ]
+    }
+  },
+  {
+    "name": "33_ListTagsOfResource",
+    "action": "ListTagsOfResource",
+    "body": {
+      "ResourceArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music"
+    }
+  },
+  {
+    "name": "34_UntagResource",
+    "action": "UntagResource",
+    "body": {
+      "ResourceArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+      "TagKeys": ["Stage"]
+    }
+  },
+  {
+    "name": "35_UpdateTable_billingMode",
+    "action": "UpdateTable",
+    "body": {
+      "TableName": "Indexed",
+      "AttributeDefinitions": [{ "AttributeName": "Id", "AttributeType": "S" }],
+      "GlobalSecondaryIndexUpdates": [
+        { "Delete": { "IndexName": "KindIndex" } }
+      ]
+    }
+  },
+  {
+    "name": "36_DescribeLimits",
+    "action": "DescribeLimits",
+    "body": null
+  },
+  {
+    "name": "37_DescribeEndpoints",
+    "action": "DescribeEndpoints",
+    "body": null
+  },
+  {
+    "name": "38_CreateBackup_unsupportedLocally",
+    "action": "CreateBackup",
+    "body": { "TableName": "Music", "BackupName": "MusicBackup" }
+  },
+  {
+    "name": "39_GetItem_missingTable",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Missing",
+      "Key": { "Artist": { "S": "A" } }
+    }
+  },
+  {
+    "name": "40_GetItem_invalidJson",
+    "action": "GetItem",
+    "rawBody": "{ \"TableName\": "
+  },
+  {
+    "name": "41_NotAnAction",
+    "action": "NotAnAction",
+    "body": { "TableName": "Music" }
+  },
+  {
+    "name": "42_MissingAction",
+    "action": "",
+    "body": { "TableName": "Music" }
+  },
+  {
+    "name": "43_GetStructure",
+    "kind": "structure"
+  },
+  {
+    "name": "44_TestDatasource",
+    "kind": "testDatasource"
+  },
+  {
+    "name": "45_DeleteTable",
+    "action": "DeleteTable",
+    "body": { "TableName": "Music" }
+  },
+  {
+    "name": "46_GetStructure_afterDelete",
+    "kind": "structure"
+  },
+  {
+    "name": "47_CreateTable_binary",
+    "action": "CreateTable",
+    "body": {
+      "TableName": "Binary",
+      "AttributeDefinitions": [{ "AttributeName": "Id", "AttributeType": "S" }],
+      "KeySchema": [{ "AttributeName": "Id", "KeyType": "HASH" }],
+      "BillingMode": "PAY_PER_REQUEST"
+    }
+  },
+  {
+    "name": "48_PutItem_binaryInListAndMap",
+    "action": "PutItem",
+    "body": {
+      "TableName": "Binary",
+      "Item": {
+        "Id": { "S": "put" },
+        "Covers": { "L": [{ "B": "aGVsbG8=" }, { "S": "not binary" }] },
+        "Album": { "M": { "Art": { "B": "aGVsbG8=" } } }
+      }
+    }
+  },
+  {
+    "name": "49_StoredBinary_putItem",
+    "kind": "storedBinary",
+    "table": "Binary",
+    "id": "put"
+  },
+  {
+    "name": "50_TransactWriteItems_binaryInPut",
+    "action": "TransactWriteItems",
+    "body": {
+      "TransactItems": [
+        {
+          "Put": {
+            "TableName": "Binary",
+            "Item": { "Id": { "S": "transact" }, "Cover": { "B": "aGVsbG8=" } }
+          }
+        }
+      ],
+      "ClientRequestToken": "local-token-4"
+    }
+  },
+  {
+    "name": "51_StoredBinary_transactWriteItems",
+    "kind": "storedBinary",
+    "table": "Binary",
+    "id": "transact"
+  },
+  {
+    "name": "52_GetItem_transactWriteItemsBinary",
+    "action": "GetItem",
+    "body": {
+      "TableName": "Binary",
+      "Key": { "Id": { "S": "transact" } }
+    }
+  },
+  {
+    "name": "53_DeleteTable_binary",
+    "action": "DeleteTable",
+    "body": { "TableName": "Binary" }
+  }
+]

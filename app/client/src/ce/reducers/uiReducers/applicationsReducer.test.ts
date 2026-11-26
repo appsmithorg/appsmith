@@ -97,3 +97,64 @@ describe("applicationsReducer isSavingHtmlLang flag", () => {
     ).toBe(false);
   });
 });
+
+describe("applicationsReducer isSavingAppDescription flag", () => {
+  const update = (payload: Record<string, unknown>) =>
+    reducer(
+      { ...initialState, currentApplication: { id: "app1" } },
+      { type: ReduxActionTypes.UPDATE_APPLICATION, payload },
+    );
+
+  it("is set for a description save", () => {
+    expect(
+      update({ id: "app1", description: "Locker system" })
+        .isSavingAppDescription,
+    ).toBe(true);
+  });
+
+  it("is set for an explicit clear (empty string)", () => {
+    expect(update({ id: "app1", description: "" }).isSavingAppDescription).toBe(
+      true,
+    );
+  });
+
+  it("is not set for a name-only save", () => {
+    expect(
+      update({ id: "app1", name: "New name" }).isSavingAppDescription,
+    ).toBe(false);
+  });
+
+  it("is reset on UPDATE_APPLICATION_SUCCESS and _ERROR", () => {
+    const saving = { ...initialState, isSavingAppDescription: true };
+
+    expect(
+      reducer(saving, {
+        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+        payload: {},
+      }).isSavingAppDescription,
+    ).toBe(false);
+    expect(
+      reducer(saving, {
+        type: ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR,
+        payload: {},
+      }).isSavingAppDescription,
+    ).toBe(false);
+  });
+});
+
+describe("applicationsReducer CURRENT_APPLICATION_DESCRIPTION_UPDATE", () => {
+  it("sets description on currentApplication, preserving siblings", () => {
+    const state = {
+      ...initialState,
+      currentApplication: { id: "app1", name: "App", description: "old" },
+    };
+
+    const next = reducer(state, {
+      type: ReduxActionTypes.CURRENT_APPLICATION_DESCRIPTION_UPDATE,
+      payload: "new description",
+    });
+
+    expect(next.currentApplication.description).toBe("new description");
+    expect(next.currentApplication.name).toBe("App");
+  });
+});

@@ -126,6 +126,37 @@ class AIConfigServiceCEImplTest {
                 .verifyComplete();
     }
 
+    /**
+     * The EE OrganizationServiceImpl.findById overrides the CE version and returns Mono.empty()
+     * instead of Mono.error(NO_RESOURCE_FOUND) when the caller lacks MANAGE_ORGANIZATION.
+     * getAIConfig must handle both signals so that non-admin users receive the enablement flags
+     * regardless of which edition's findById is in the DI context (APP-16012).
+     */
+    @Test
+    void getAIConfig_nonManagerReceivesStatus_whenFindByIdCompletesEmpty() {
+        Organization organization = new Organization();
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setIsAIAssistantEnabled(true);
+        aiConfig.setAiProvider(AIProvider.CLAUDE);
+        aiConfig.setClaudeApiKey("sk-secret");
+        configuration.setAiAssistantConfig(aiConfig);
+        organization.setOrganizationConfiguration(configuration);
+
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-1"));
+        // Simulate the EE override: returns empty instead of signaling an error.
+        when(organizationService.findById("org-1", MANAGE_ORGANIZATION)).thenReturn(Mono.empty());
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
+
+        StepVerifier.create(aiConfigService.getAIConfig())
+                .assertNext(response -> {
+                    assertThat(response).containsEntry("isAIAssistantEnabled", true);
+                    assertThat(response).containsEntry("hasClaudeApiKey", true);
+                    assertThat(response).doesNotContainKey("claudeApiKey");
+                })
+                .verifyComplete();
+    }
+
     @Test
     void updateAIConfig_emitsAnalytics_whenAnalyticsActive_andEnabled() {
         when(analyticsService.isActive()).thenReturn(true);

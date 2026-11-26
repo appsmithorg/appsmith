@@ -4,7 +4,12 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { BaseCellComponentProps } from "../Constants";
-import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
+import { getTableCellActionIconSize } from "../Constants";
+import {
+  ActionCellWrapper,
+  CellWrapper,
+  IconButtonWrapper,
+} from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
 interface RenderIconButtonProps extends BaseCellComponentProps {
@@ -51,6 +56,8 @@ function IconButton(props: {
     }
   };
 
+  const actionIconSize = getTableCellActionIconSize(props.compactMode);
+
   return (
     <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
@@ -68,6 +75,8 @@ function IconButton(props: {
         hasOnClickAction
         icon={props.iconName}
         loading={loading}
+        minHeight={actionIconSize}
+        minWidth={actionIconSize}
         onClick={handleClick}
       />
     </IconButtonWrapper>
@@ -114,7 +123,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     );
 
   return (
-    <CellWrapper
+    <ActionCellWrapper
       allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
       compactMode={compactMode}
@@ -144,6 +153,6 @@ export function IconButtonCell(props: RenderIconButtonProps) {
           />
         );
       })}
-    </CellWrapper>
+    </ActionCellWrapper>
   );
 }

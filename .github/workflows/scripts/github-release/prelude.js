@@ -1,6 +1,7 @@
-const { exec } = require("child_process");
+// Plain version tags only, like 'v1.22', 'v1.22.33' or 'v1.9.37.1'.
+const VERSION_PATTERN = /^v\d+(\.\d+)*$/;
 
-module.exports = async function ({ core, context }, imageRepo) {
+module.exports = async function ({ core, context, github }, imageRepo) {
   core.summary.addTable([
     [{ data: "PWD", header: true }, process.cwd()],
     [{ data: "GITHUB_REF", header: true }, context.ref],
@@ -17,15 +18,15 @@ module.exports = async function ({ core, context }, imageRepo) {
   const thisVersion = context.ref.replace("refs/tags/", "");
   core.setOutput("tag", thisVersion);
 
-  // The latest version of Appsmith available, including the 'v' prefix, including the currently tagged version.
-  const latestVersion = await getLatestTag();
-
   // The docker tags to be pushed to the registry.
   const dockerTags = [
     `${imageRepo}:${thisVersion}`,
   ];
 
-  if (latestVersion === thisVersion) {
+  const skipLatestReason = await getSkipLatestReason({ context, github }, thisVersion);
+  if (skipLatestReason) {
+    core.notice(`Not tagging ${imageRepo}:latest: ${skipLatestReason}`);
+  } else {
     dockerTags.push(`${imageRepo}:latest`);
   }
 
@@ -36,18 +37,37 @@ module.exports = async function ({ core, context }, imageRepo) {
   core.summary.write();
 }
 
-function getLatestTag() {
-  return new Promise((resolve, reject) => {
-    exec("git tag --list --sort=-version:refname 'v*' | head -1", (error, stdout, stderr) => {
-      if (error) {
-        reject(`exec error: ${error}`);
-        return;
-      }
-      if (stderr) {
-        reject(`stderr: ${stderr}`);
-        return;
-      }
-      resolve(stdout.trim());
-    });
+// The checkout holds only the tag being released, so the comparison must use the published releases.
+async function getSkipLatestReason({ context, github }, thisVersion) {
+  if (!VERSION_PATTERN.test(thisVersion)) {
+    return `${thisVersion} is not a plain version number.`;
+  }
+
+  const releases = await github.paginate(github.rest.repos.listReleases, {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    per_page: 100,
   });
+
+  const higherRelease = releases.find(
+    (release) =>
+      !release.draft &&
+      !release.prerelease &&
+      VERSION_PATTERN.test(release.tag_name) &&
+      compareVersions(release.tag_name, thisVersion) > 0,
+  );
+
+  return higherRelease && `${higherRelease.tag_name} is a higher published release than ${thisVersion}.`;
+}
+
+function compareVersions(a, b) {
+  const aParts = a.slice(1).split(".").map(Number);
+  const bParts = b.slice(1).split(".").map(Number);
+  for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+    const diff = (aParts[i] ?? 0) - (bParts[i] ?? 0);
+    if (diff !== 0) {
+      return diff;
+    }
+  }
+  return 0;
 }

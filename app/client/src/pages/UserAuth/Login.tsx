@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Redirect, useLocation } from "react-router-dom";
-import { connect, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
-import { reduxForm, formValueSelector, isDirty } from "redux-form";
+import { reduxForm, formValueSelector, initialize, isDirty } from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
@@ -19,6 +19,8 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   LOGIN_PAGE_LOGIN_BUTTON_TEXT,
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
+  LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE,
+  LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE,
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
@@ -96,8 +98,11 @@ type ValidateProps = {
   { emailValue: string; isPasswordFieldDirty?: boolean }
 >;
 
+export const ACCOUNT_ACTIVATION_QUERY_PARAM = "activation";
+
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
+  const dispatch = useDispatch();
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
@@ -118,7 +123,25 @@ export function Login(props: LoginFormProps) {
   );
   let showError = false;
   let errorMessage = "";
+  const isAccountActivation =
+    queryParams.get(ACCOUNT_ACTIVATION_QUERY_PARAM) === "true";
+  const activationEmail = isAccountActivation ? queryParams.get("email") : null;
   const currentUser = useSelector(getCurrentUser);
+
+  // An invitation link opens this page with the invited email. The form starts with that email, and starts
+  // again with the new email when the page moves to another invitation link.
+  useEffect(
+    function startFormWithInvitedEmail() {
+      if (activationEmail) {
+        dispatch(
+          initialize(LOGIN_FORM_NAME, {
+            [LOGIN_FORM_EMAIL_FIELD_NAME]: activationEmail,
+          }),
+        );
+      }
+    },
+    [activationEmail, dispatch],
+  );
 
   // This is mainly used to send an message to the agents extension to
   //  show the screen when the user is not logged in
@@ -160,7 +183,7 @@ export function Login(props: LoginFormProps) {
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
 
   if (props.emailValue && !isEmptyString(props.emailValue)) {
-    forgotPasswordURL += `?email=${props.emailValue}`;
+    forgotPasswordURL += `?email=${encodeURIComponent(props.emailValue)}`;
   }
 
   const getPrimaryLoginURL = () => {
@@ -276,6 +299,28 @@ export function Login(props: LoginFormProps) {
           {!!errorMessage && errorMessage !== "true"
             ? getSafeErrorMessage(errorMessage)
             : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
+        </Callout>
+      )}
+      {isAccountActivation && !showError && (
+        <Callout
+          data-testid="t--account-activation-note"
+          kind="info"
+          links={
+            isFormLoginEnabled
+              ? [
+                  {
+                    children: createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT),
+                    to: forgotPasswordURL,
+                  },
+                ]
+              : undefined
+          }
+        >
+          {createMessage(
+            isFormLoginEnabled
+              ? LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE
+              : LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE,
+          )}
         </Callout>
       )}
       {socialLoginList.length > 0 && (

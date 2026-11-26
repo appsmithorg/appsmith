@@ -101,11 +101,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Dump the client payload context
-        env:
-          PAYLOAD_CONTEXT: ${{ toJson(github.event) }}
-        run: echo "$PAYLOAD_CONTEXT"
-
       - name: Setup node
         if: needs.ci-test.result != 'success'
         uses: actions/setup-node@v4

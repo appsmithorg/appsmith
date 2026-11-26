@@ -4,7 +4,6 @@ import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { setDataUrl } from "ee/sagas/PageSagas";
 import { getAppMode } from "ee/selectors/applicationSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Page } from "entities/Page";
@@ -40,11 +39,6 @@ export default function* navigateActionSaga(
   if (page) {
     const currentPageId: string = yield select(getCurrentPageId);
 
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      pageName: pageNameOrUrl,
-      pageParams: params,
-    });
-
     const appMode: APP_MODE = yield select(getAppMode);
     const urlBuilder = appMode === APP_MODE.EDIT ? builderURL : viewerURL;
     const path = urlBuilder({
@@ -56,10 +50,7 @@ export default function* navigateActionSaga(
       yield call(pushToHistory, path);
 
       if (currentPageId === page.pageId) {
-        yield call(setDataUrl);
-        yield put({
-          type: ReduxActionTypes.TRIGGER_EVAL,
-        });
+        yield call(syncUrlDataWithLocation);
       }
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
@@ -77,7 +68,9 @@ export default function* navigateActionSaga(
     let url = pageNameOrUrl + getQueryStringfromObject(params);
 
     if (!isValidURL(url)) {
-      const looksLikeURL = matchesURLPattern(url);
+      // Check the target alone, without its query or fragment. A param value such as "report.pdf" must not make an
+      // unknown page name look like a domain, whether it is passed in params or written into the target.
+      const looksLikeURL = matchesURLPattern(pageNameOrUrl.split(/[?#]/)[0]);
 
       // Filter out cases like navigateTo("1");
       if (!looksLikeURL)
@@ -102,10 +95,19 @@ export default function* navigateActionSaga(
         params,
       },
     });
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: pageNameOrUrl,
-    });
   }
+}
+
+/**
+ * Refreshes `appsmith.URL` from `window.location` and re-evaluates the data tree.
+ * Needed whenever the URL changes without a page fetch (same-page `navigateTo`,
+ * browser Back/Forward), since `SET_URL_DATA` alone does not trigger evaluation.
+ */
+export function* syncUrlDataWithLocation() {
+  yield call(setDataUrl);
+  yield put({
+    type: ReduxActionTypes.TRIGGER_EVAL,
+  });
 }
 
 export function* navigateToAnyPageInApplication(

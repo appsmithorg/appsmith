@@ -69,6 +69,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on if your team uses it, or use "Forgot password" to set a password.`;
+export const LOGIN_PAGE_ACCOUNT_ACTIVATION_SSO_NOTE = () =>
+  `Your account is not active yet. Sign in with single sign-on to activate it.`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your account`;
@@ -498,8 +502,35 @@ export const CREATE_NEW_AI_SECTION_HEADER = () => "AI Integrations";
 // Appsmith AI deprecation (release 2.3): update this date if the shutdown date moves
 export const APPSMITH_AI_KILL_DATE = "September 30, 2026";
 export const APPSMITH_AI_DEPRECATION_MESSAGE = () =>
-  `Appsmith AI is deprecated and will stop working on ${APPSMITH_AI_KILL_DATE}. Migrate to OpenAI, Anthropic, or Google AI with your own API key. Uploaded files (file context) will not be available after this date.`;
+  `Appsmith AI stopped working on ${APPSMITH_AI_KILL_DATE}. Its queries no longer run, and uploaded files (file context) are no longer available. Migrate to OpenAI, Anthropic, or Google AI with your own API key, then delete this query or datasource.`;
 export const APPSMITH_AI_DEPRECATION_LEARN_MORE = () => "Learn how to migrate";
+// Editor banner shown while an app still has Appsmith AI queries
+const pluralQueries = (count: number) => (count === 1 ? "query" : "queries");
+const itOrThem = (count: number) => (count === 1 ? "it" : "them");
+
+export const APPSMITH_AI_QUERIES_BANNER_MESSAGE = (count: number) =>
+  `${count} Appsmith AI ${pluralQueries(count)} in this app stopped working on ${APPSMITH_AI_KILL_DATE}. ${count === 1 ? "It no longer appears" : "They no longer appear"} in the query list.`;
+export const APPSMITH_AI_QUERIES_BANNER_NO_PERMISSION = (count: number) =>
+  `Ask a developer who can delete queries to delete ${itOrThem(count)}.`;
+export const APPSMITH_AI_QUERIES_DELETE = (count: number) =>
+  `Delete ${count} ${pluralQueries(count)}`;
+export const APPSMITH_AI_QUERIES_DELETE_TITLE = (count: number) =>
+  `Delete ${count} Appsmith AI ${pluralQueries(count)}?`;
+export const APPSMITH_AI_QUERIES_DELETE_DESCRIPTION = (count: number) =>
+  `This deletes ${count === 1 ? "this query" : "these queries"} from every page of the app. You can't undo this. Widgets and JS objects that use ${itOrThem(count)} show errors until you update them.`;
+export const APPSMITH_AI_QUERIES_DELETE_DATASOURCES = () =>
+  "Appsmith AI datasources that no other query uses are deleted too. A datasource that the deployed app still uses stays.";
+export const APPSMITH_AI_QUERIES_DELETE_PARTIAL = (
+  deletable: number,
+  total: number,
+) =>
+  `You can delete ${deletable} of ${total}. Ask a developer who can delete queries to delete the rest.`;
+export const APPSMITH_AI_QUERIES_DELETE_LIST_LABEL = () =>
+  "Appsmith AI queries to delete";
+export const APPSMITH_AI_QUERIES_DELETE_CONFIRM = () => "Delete";
+export const APPSMITH_AI_QUERIES_DELETE_CANCEL = () => "Cancel";
+export const APPSMITH_AI_QUERIES_DELETED = (count: number) =>
+  `Deleted ${count} Appsmith AI ${pluralQueries(count)}.`;
 export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
 export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
   "Select a sample datasource or connect your own";
@@ -525,9 +556,9 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
 export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+  `Responsive apps are not compatible with widgets from the classic layout system`;
 export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps using the classic layout system are not compatible with Anvil α widgets`;
+  `Apps using the classic layout system are not compatible with responsive widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -1834,9 +1865,9 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+  `Uploaded file must be in .PNG or .JPG format`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `.SVG, .PNG, or .JPG only • Max 2MB`;
+  `.PNG or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
   "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
@@ -2082,8 +2113,15 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, description and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_LABEL = () => "App description";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER = () =>
+  "Shown under the app name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG = (max: number) =>
+  `Description cannot exceed ${max} characters`;
+export const APP_CARD_DESCRIPTION_PLACEHOLDER = () => "Add a description";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
@@ -2091,7 +2129,7 @@ export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 export const GENERAL_SETTINGS_APP_LANGUAGE_LABEL = () => "HTML language";
 export const GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP = () =>
-  "Sets the lang attribute on the published app. This tells browsers what language your content is in and prevents unwanted auto-translation. Use a BCP 47 code (e.g. en, de, fr, ja).";
+  "Sets the lang attribute on the published app. This tells browsers what language your content is in, prevents unwanted auto-translation, and sets the FilePicker upload dialog language when a matching translation is available. Use a BCP 47 code (e.g. en, de, fr, ja).";
 export const GENERAL_SETTINGS_APP_LANGUAGE_INVALID = () =>
   "Enter a valid language code (e.g. en, de, fr-CA)";
 export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
@@ -2245,6 +2283,12 @@ export const APP_NAVIGATION_SETTING = {
   showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  showShareAppLabel: () => "Show share",
+  showShareAppTooltip: () =>
+    "Toggle to show the share button in the published app.",
+  showAllAppsLabel: () => "Show all apps",
+  showAllAppsTooltip: () =>
+    "Toggle to show the all apps button in the published app.",
   logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
   logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
   showLogoLabel: () => "Show logo",
@@ -2290,7 +2334,7 @@ export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
-export const BUILD_RESPONSIVE = () => "Build responsive apps";
+export const BUILD_RESPONSIVE = () => "Build with auto-layout";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto-layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
@@ -2629,6 +2673,7 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalHeading: () => "Export",
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
+    selectAll: () => "Select All",
     sections: {
       jsObjects: () => "JS objects",
       databases: () => "Databases",
@@ -2792,6 +2837,7 @@ export const EMPTY_CANVAS_HINTS = {
 };
 
 export const BETA_TAG = () => `Beta`;
+export const PREVIEW_TAG = () => `Preview`;
 
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
 
@@ -2934,6 +2980,8 @@ export const AUTH_LOGIN_TOO_MANY_ATTEMPTS = () =>
   "Too many login attempts. Please try again after some time.";
 export const AUTH_ACCOUNT_SUSPENDED_FOR_RATE_LIMIT = () =>
   "Your account is suspended for 24 hours. Please reset your password to continue";
+export const AUTH_SIGNUP_TOO_MANY_ATTEMPTS = () =>
+  "Too many sign-up attempts from your network. Please try again after some time.";
 export const AUTH_INVALID_CREDENTIALS = () =>
   "Invalid credentials provided. Did you input the credentials correctly?";
 export const AUTH_UNAUTHORIZED = () => "Unauthorized access";
@@ -2975,3 +3023,91 @@ export const MULTI_ORG_FOOTER_CREATE_ORG_RIGHT_TEXT = () =>
   "Create an organization";
 
 export const PENDING_INVITATIONS = () => "Pending invitations";
+
+export const SUPPORT_DIAGNOSTICS = {
+  title: () => "Support",
+  subText: () =>
+    "Review the details collected about this instance, then download a ZIP to attach to a support ticket. Nothing is sent to Appsmith automatically.",
+  sectionTitles: {
+    INSTANCE: () => "Instance and runtime",
+    DEPLOYMENT: () => "Deployment and infrastructure",
+    FEATURE_FLAGS: () => "Feature flags and entitlements",
+    APPLICATIONS: () => "Applications and pages",
+    DATASOURCES: () => "Datasources and integrations",
+    WORKFLOWS: () => "Workflows and automation",
+    IDENTITY: () => "Identity, access and governance",
+    AI_MCP: () => "AI and MCP",
+    HEALTH: () => "Platform health",
+  },
+  include: (title: string) => `Include ${title} in ZIP`,
+  includeShort: () => "Include in ZIP",
+  selectAll: () => "Select all",
+  clearAll: () => "Clear all",
+  excludedHelp: () =>
+    "Sections you leave out still show on this page but are not added to the ZIP.",
+  statusTags: {
+    waiting: () => "Waiting",
+    collecting: () => "Collecting…",
+    collected: () => "Collected",
+    notSupported: () => "Not available",
+    notLicensed: () => "Not in plan",
+    unknown: () => "Unknown",
+    failed: () => "Failed",
+    timedOut: () => "Timed out",
+    busy: () => "Busy",
+  },
+  refresh: () => "Refresh",
+  retry: () => "Retry",
+  refreshSection: (title: string) => `Refresh ${title}`,
+  retrySection: (title: string) => `Retry ${title}`,
+  busy: () => "Another collection is running. Try again in a moment.",
+  failed: () => "This section could not be collected.",
+  timeout: () => "Collection took longer than 10 seconds.",
+  unknown: () => "Appsmith could not determine this section.",
+  licenseUnknown: () =>
+    "Appsmith could not check your license for this section.",
+  notSupported: () => "Not available in this edition.",
+  notLicensed: () => "Not included in your plan.",
+  failedExport: () =>
+    "If included, the ZIP records only that this section could not be collected.",
+  progress: (done: number, total: number) =>
+    `Collected ${done} of ${total} sections.`,
+  progressDone: () => "All sections collected.",
+  progressFinished: () => "Collection finished.",
+  progressFailed: (count: number) =>
+    count === 1
+      ? "1 section could not be collected."
+      : `${count} sections could not be collected.`,
+  password: () => "Password (optional)",
+  passwordHelp: () =>
+    "12 to 128 characters. The password stays in this browser. Send it to support separately from the ZIP, and use a random password.",
+  passwordInvalid: () =>
+    "Use 12 to 128 characters, or leave the password empty.",
+  showPassword: () => "Show password",
+  hidePassword: () => "Hide password",
+  aesNote: () => "Password-protected ZIPs need 7-Zip, Keka, or WinZip to open.",
+  aesWarning: () =>
+    "The built-in Windows and macOS archive tools cannot open this ZIP.",
+  download: (count: number) => {
+    if (count === 0) return "Download ZIP";
+
+    return count === 1
+      ? "Download ZIP (1 section)"
+      : `Download ZIP (${count} sections)`;
+  },
+  noneSelected: () => "Include at least one section in the ZIP.",
+  waitForCollection: () =>
+    "Wait for the included sections to finish collecting.",
+  tooLarge: () =>
+    "The report is larger than 1 MB. Leave out some sections and try again.",
+  zipFailed: () => "The ZIP could not be created. Try again.",
+  saved: (fileName: string) =>
+    `Saved ${fileName}. Attach it to your support ticket.`,
+  savedEncrypted: (fileName: string) =>
+    `Saved ${fileName}. Attach it to your support ticket, and send the password to support another way.`,
+  auditFailed: () =>
+    "The ZIP was saved, but this download could not be recorded.",
+  listFailed: () => "Could not load the diagnostics.",
+  forbidden: () => "Only instance administrators can use this page.",
+  loading: () => "Loading diagnostics",
+};

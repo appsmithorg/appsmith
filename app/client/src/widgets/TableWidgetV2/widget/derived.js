@@ -155,6 +155,20 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
+    /* With auto height the widget grows to fit its rows, so the page size comes from Rows per page instead of the height. Auto layout children never use auto height. */
+    if (
+      !props.isFlexChild &&
+      (props.dynamicHeight === "AUTO_HEIGHT" ||
+        props.dynamicHeight === "AUTO_HEIGHT_WITH_LIMITS")
+    ) {
+      const MAX_AUTO_HEIGHT_ROW_COUNT = 200;
+      const autoHeightRowCount = Math.floor(Number(props.autoHeightRowCount));
+
+      return autoHeightRowCount >= 1
+        ? Math.min(autoHeightRowCount, MAX_AUTO_HEIGHT_ROW_COUNT)
+        : 10;
+    }
+
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
@@ -289,11 +303,36 @@ export default {
       return [];
     }
 
+    /*
+     * Used only for search/filter/sort — never for rendering (XSS).
+     * Under linkedom (evaluation worker), DOMParser often returns empty
+     * textContent for tagged HTML and throws for plain text; the strip-tags
+     * fallback is the real production path for tagged cells.
+     */
+    const stripHtmlTags = (value) => {
+      if (typeof value !== "string") {
+        return "";
+      }
+
+      return value
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
     const getTextFromHTML = (html) => {
       if (!html) return "";
 
       if (typeof html === "object") {
         html = JSON.stringify(html);
+      }
+
+      /*
+       * Plain-text fast path: linkedom's DOMParser throws on non-HTML strings
+       * when accessing doc.body. Skip parsing when there are no tags.
+       */
+      if (typeof html === "string" && !/<[^>]*>/.test(html)) {
+        return html;
       }
 
       try {
@@ -307,19 +346,10 @@ export default {
 
         /*
          * Fallback when DOMParser returns empty (e.g. parsing quirk in some envs).
-         * Used only for search/filter/sort - never for rendering. Strip tags to get
-         * plain text so table search still works. Output must not be rendered (XSS).
          */
-        if (typeof html === "string") {
-          return html
-            .replace(/<[^>]*>/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-        }
-
-        return "";
+        return stripHtmlTags(html);
       } catch (e) {
-        return "";
+        return stripHtmlTags(html);
       }
     };
 
@@ -782,6 +812,14 @@ export default {
     const hiddenColumns = Object.values(props.primaryColumns)
       .filter((column) => !column.isVisible)
       .map((column) => column.alias);
+    /*
+     * HTML columns also stash plain text on __htmlExtractedText_*__ keys.
+     * Omitting only the alias is not enough — those keys must be omitted too
+     * or hidden HTML columns would still match search.
+     */
+    const hiddenHtmlExtractedTextKeys = Object.values(props.primaryColumns)
+      .filter((column) => !column.isVisible && column.columnType === "html")
+      .map((column) => getKeyForExtractedTextFromHTML(column.alias));
     const systemColumns = ["__originalIndex__"];
 
     const finalTableData = sortedTableData.filter((row) => {
@@ -915,7 +953,14 @@ export default {
 
       if (searchKey) {
         const combinedRowContent = [
-          ...Object.values(_.omit(displayedRow, hiddenColumns, systemColumns)),
+          ...Object.values(
+            _.omit(
+              displayedRow,
+              hiddenColumns,
+              hiddenHtmlExtractedTextKeys,
+              systemColumns,
+            ),
+          ),
           ...Object.values(
             _.omit(originalRow, [
               ...hiddenColumns,

@@ -1,7 +1,25 @@
-import { getTestPayloadFromCollectionData } from "./actionExecutionUtils";
+import {
+  getTestPayloadFromCollectionData,
+  shouldLogActionExecution,
+} from "./actionExecutionUtils";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { APP_MODE } from "entities/App";
 import { PluginType } from "entities/Plugin";
 import configureStore from "redux-mock-store";
+
+describe("shouldLogActionExecution", () => {
+  it("does not report executions in published apps", () => {
+    expect(shouldLogActionExecution(APP_MODE.PUBLISHED)).toBe(false);
+  });
+
+  it("reports executions in the editor", () => {
+    expect(shouldLogActionExecution(APP_MODE.EDIT)).toBe(true);
+  });
+
+  it("reports executions when the app mode is unknown", () => {
+    expect(shouldLogActionExecution(undefined)).toBe(true);
+  });
+});
 
 describe("getTestPayloadFromCollectionData", () => {
   beforeAll(() => {

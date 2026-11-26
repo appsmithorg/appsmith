@@ -26,6 +26,7 @@ import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
+import { ViewerEditionExtensions } from "ee/pages/AppViewer/ViewerEditionExtensions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { fetchPublishedPageResources } from "actions/pageActions";
@@ -52,6 +53,8 @@ import { getRenderPage } from "selectors/evaluationSelectors";
 import type { ReactNode } from "react";
 import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useWDSThemeProps } from "ee/hooks/useWDSThemeProps";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -86,13 +89,7 @@ const DEFAULT_FONT_NAME = "System Default";
 function WDSThemeProviderWithTheme({ children }: { children: ReactNode }) {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
-  const wdsThemeProps = {
-    borderRadius: themeSetting.borderRadius,
-    seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase(),
-    userSizing: themeSetting.sizing,
-    userDensity: themeSetting.density,
-  } as Parameters<typeof useTheme>[0];
+  const wdsThemeProps = useWDSThemeProps(themeSetting);
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
   return <WDSThemeProvider theme={theme}>{children}</WDSThemeProvider>;
@@ -225,6 +222,15 @@ function AppViewer(props: Props) {
     };
   }, [resolvedBasePageId]);
 
+  // The engine sets PUBLISHED mode on entry; the viewer owns that state for its whole lifetime.
+  // Clear it on unmount so builder telemetry resumes once the user leaves the published app by any
+  // route (back button, logo, "All apps", or direct navigation), not just a single button.
+  useEffect(function clearAnalyticsAppModeOnUnmount() {
+    return () => {
+      AnalyticsUtil.setAppMode(undefined);
+    };
+  }, []);
+
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");
 
@@ -280,6 +286,7 @@ function AppViewer(props: Props) {
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
+          {isInitialized && <ViewerEditionExtensions />}
           <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
             {!hideWatermark && (
               <a

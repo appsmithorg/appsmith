@@ -22,7 +22,7 @@ describe(
       cy.get(commonlocators.filePickerUploadButton).click();
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
-        "1 files selected",
+        "1 file selected",
       );
       cy.get(Layoutpage.tabWidget).contains("Tab 2").click({ force: true });
       cy.get(Layoutpage.tabWidget)
@@ -34,7 +34,7 @@ describe(
         .should("have.class", "is-selected");
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
-        "1 files selected",
+        "1 file selected",
       );
     });
   },

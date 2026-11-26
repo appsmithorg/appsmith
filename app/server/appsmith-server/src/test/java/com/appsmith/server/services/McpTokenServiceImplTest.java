@@ -1,5 +1,9 @@
 package com.appsmith.server.services;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.McpConfig;
 import com.appsmith.server.domains.McpKey;
@@ -14,10 +18,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.McpTokenCache;
 import com.appsmith.server.helpers.McpTokenUtils;
+import com.appsmith.server.helpers.McpUserKeyCodec;
 import com.appsmith.server.repositories.McpKeyRepository;
 import com.appsmith.server.repositories.McpTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ce.McpTokenServiceCEImpl;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -36,6 +44,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +102,8 @@ class McpTokenServiceImplTest {
     private User user;
     private McpKey persistedKey;
     private McpToken persistedToken;
+    private Logger serviceLogger;
+    private ListAppender<ILoggingEvent> logAppender;
 
     private static final Organization organization = new Organization();
     private static final OrganizationConfiguration organizationConfiguration = new OrganizationConfiguration();
@@ -126,6 +137,14 @@ class McpTokenServiceImplTest {
         user.setEmail("actor@example.com");
         user.setOrganizationId("orgId");
         user.setIsEnabled(true);
+    }
+
+    // Detaches the log capture that captureServiceLogs attached, so it never leaks into another test.
+    @AfterEach
+    void tearDownLogCapture() {
+        if (serviceLogger != null && logAppender != null) {
+            serviceLogger.detachAppender(logAppender);
+        }
     }
 
     @Test
@@ -493,6 +512,91 @@ class McpTokenServiceImplTest {
     }
 
     @Test
+    void should_returnOwnerWithoutStoreRead_whenAuthenticateCachedHashMatches() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenCache.get(generated.id()))
+                .thenReturn(Mono.just(new McpTokenCache.Entry(
+                        user.getId(), persistedToken.getTokenHash(), persistedToken.getExpiresAt())));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(service.authenticateCached(generated.token()))
+                .expectNext(user)
+                .verifyComplete();
+
+        verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+    }
+
+    // authenticateCached never reads the store, so a cache miss, a wrong secret, an expired entry or a disabled user
+    // completes empty and leaves the decision to the charged path.
+    @Test
+    void should_completeEmptyWithoutStoreRead_whenAuthenticateCachedCannotAccept() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        McpTokenCache.Entry live =
+                new McpTokenCache.Entry(user.getId(), persistedToken.getTokenHash(), persistedToken.getExpiresAt());
+        McpTokenCache.Entry expired = new McpTokenCache.Entry(
+                user.getId(), persistedToken.getTokenHash(), Instant.now().minusSeconds(60));
+
+        // Cache miss.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.empty());
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Wrong secret for a live entry.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(live));
+        StepVerifier.create(service.authenticateCached("mcp_" + generated.id() + "_wrong-secret"))
+                .verifyComplete();
+
+        // Expired entry.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(expired));
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Disabled user.
+        user.setIsEnabled(false);
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(live));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Blank or malformed keys.
+        StepVerifier.create(service.authenticateCached(null)).verifyComplete();
+        StepVerifier.create(service.authenticateCached("not-an-mcp-key")).verifyComplete();
+
+        verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+    }
+
+    // The fast path trusts the cache alone, so revoke must remove the entry it reads. This backs the cache with a map
+    // so the same put, get and evict calls the service makes decide the outcome.
+    @Test
+    void should_refuseFastPath_whenTokenIsRevoked() {
+        Map<String, McpTokenCache.Entry> cache = new HashMap<>();
+        when(mcpTokenCache.put(anyString(), any())).thenAnswer(invocation -> {
+            cache.put(invocation.getArgument(0), invocation.getArgument(1));
+            return Mono.empty();
+        });
+        when(mcpTokenCache.get(anyString()))
+                .thenAnswer(invocation -> Mono.justOrEmpty(cache.get(invocation.<String>getArgument(0))));
+        when(mcpTokenCache.evict(anyString())).thenAnswer(invocation -> {
+            cache.remove(invocation.<String>getArgument(0));
+            return Mono.empty();
+        });
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+
+        StepVerifier.create(service.authenticateCached(generated.token()))
+                .expectNext(user)
+                .verifyComplete();
+
+        when(mcpKeyRepository.findByIdAndUserIdAndRevokedAtIsNull(generated.id(), user.getId()))
+                .thenReturn(Mono.just(persistedKey));
+        when(mcpTokenRepository.findFirstByMcpKeyIdAndStatusOrderByCreatedAtDesc(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Mono.just(persistedToken));
+        StepVerifier.create(service.revoke(user, generated.id()))
+                .expectNext(true)
+                .verifyComplete();
+
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+        assertThat(cache).doesNotContainKey(generated.id());
+    }
+
+    @Test
     void should_fallBackToStoreAndRefillCache_whenCacheMisses() {
         McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
         when(mcpTokenCache.get(generated.id())).thenReturn(Mono.empty());
@@ -548,6 +652,159 @@ class McpTokenServiceImplTest {
 
         StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
         verify(userRepository, never()).findById(anyString());
+    }
+
+    @Test
+    void should_logNoActiveToken_when_keyHasNoActiveToken() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.empty());
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+
+        // Then
+        assertSingleSafeRejection(logs, "NO_ACTIVE_TOKEN", generated);
+        verify(userRepository, never()).findById(anyString());
+    }
+
+    @Test
+    void should_logSecretMismatch_when_secretDoesNotMatchActiveToken() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        String wrongKey = generated.token().substring(0, generated.token().length() - 1);
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(wrongKey)).verifyComplete();
+
+        // Then
+        String message = assertSingleSafeRejection(logs, "SECRET_MISMATCH", generated);
+        assertThat(message).contains("presentedLength=" + wrongKey.length()).contains("userId=-");
+        verify(userRepository, never()).findById(anyString());
+    }
+
+    @Test
+    void should_logExpiredWithExpiry_when_matchingTokenHasExpired() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        Instant expiredAt = Instant.now().minusSeconds(60);
+        persistedToken.setExpiresAt(expiredAt);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+
+        // Then
+        String message = assertSingleSafeRejection(logs, "EXPIRED", generated);
+        assertThat(message).contains("userId=" + user.getId()).contains("expiresAt=" + expiredAt);
+    }
+
+    @Test
+    void should_logUserDisabled_when_tokenOwnerIsDisabled() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        user.setIsEnabled(false);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+
+        // Then
+        assertSingleSafeRejection(logs, "USER_DISABLED", generated);
+    }
+
+    @Test
+    void should_logMcpDisabled_when_organizationHasMcpTurnedOff() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        mcpConfig.setEnabled(false);
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(generated.token()))
+                .expectError(AppsmithException.class)
+                .verify();
+
+        // Then
+        assertSingleSafeRejection(logs, "MCP_DISABLED", generated);
+    }
+
+    @Test
+    void should_logMalformedWithoutAnyOfTheValue_when_keyIsMalformed() {
+        // Given
+        String malformed = "mcp_not-a-key-id_some-secret-value";
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(malformed)).verifyComplete();
+
+        // Then
+        assertThat(logs.list).hasSize(1);
+        String message = logs.list.get(0).getFormattedMessage();
+        assertThat(message)
+                .contains("reason=MALFORMED_TOKEN")
+                .contains("keyIdPrefix=invalid")
+                .contains("presentedLength=" + malformed.length())
+                .doesNotContain("not-a-key-id")
+                .doesNotContain("some-secret-value");
+    }
+
+    @Test
+    void should_logNothing_when_storeAcceptsKey() {
+        // Given
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        ListAppender<ILoggingEvent> logs = captureServiceLogs();
+
+        // When
+        StepVerifier.create(service.authenticate(generated.token()))
+                .expectNext(user)
+                .verifyComplete();
+
+        // Then
+        assertThat(logs.list).isEmpty();
+    }
+
+    // Attaches a list appender to the service logger for one test. The appender is detached in tearDownLogCapture.
+    private ListAppender<ILoggingEvent> captureServiceLogs() {
+        serviceLogger = (Logger) LoggerFactory.getLogger(McpTokenServiceCEImpl.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        serviceLogger.addAppender(logAppender);
+        return logAppender;
+    }
+
+    // Checks for exactly one rejection line with the given reason, the 10-character key id prefix, and no secret or
+    // full key id. Returns the line for further checks.
+    private static String assertSingleSafeRejection(
+            ListAppender<ILoggingEvent> logs, String reason, McpTokenResponseDTO generated) {
+        assertThat(logs.list).hasSize(1);
+        ILoggingEvent event = logs.list.get(0);
+        String message = event.getFormattedMessage();
+        String secret = McpUserKeyCodec.expand(generated.token()).secret();
+
+        assertThat(event.getLevel()).isEqualTo(Level.WARN);
+        assertThat(message)
+                .contains("reason=" + reason)
+                .contains("keyIdPrefix=" + generated.id().substring(0, 10) + ",")
+                .doesNotContain(generated.id())
+                .doesNotContain(secret);
+        return message;
     }
 
     private McpTokenResponseDTO createToken(String name, Integer keySpanDays) {

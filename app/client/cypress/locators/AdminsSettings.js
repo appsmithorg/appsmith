@@ -12,7 +12,7 @@ export default {
   formloginButton: ".t--settings-sub-category-form-login",
   readMoreLink: ".t--read-more-link",
   subTextLink: ".t--sub-text-link",
-  versionTab: ".t--settings-category-version",
+  versionTab: ".t--settings-category-admin-central",
   backButton: ".t--admin-settings-back-button",
   saveButton: ".t--admin-settings-save-button",
   resetButton: ".t--admin-settings-reset-button",
@@ -93,4 +93,13 @@ export default {
   staticUrlConfirmationCancel: "[data-testid='t--static-url-confirmation-cancel']",
   pageSettingsName: "#t--page-settings-name",
   pageSettingsStaticPageSlug: "#t--page-settings-static-page-slug",
+  // Support diagnostics page
+  supportDiagnosticsTab: ".t--settings-category-support",
+  supportDiagnosticsDownload: "[data-testid='t--support-diagnostics-download']",
+  supportDiagnosticsClearAll: "[data-testid='t--support-diagnostics-clear-all']",
+  supportDiagnosticsAnyCard: "[data-testid^='t--support-diagnostics-card-']",
+  supportDiagnosticsCard: (sectionId) =>
+    "[data-testid='t--support-diagnostics-card-" + sectionId + "']",
+  supportDiagnosticsDownloadReason:
+    "[data-testid='t--support-diagnostics-download-reason']",
 };

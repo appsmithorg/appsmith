@@ -61,7 +61,8 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
             String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
 
         Mono<Datasource> datasourceMonoCached = datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .findById(datasourceId, datasourcePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .cache();
 
         Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached

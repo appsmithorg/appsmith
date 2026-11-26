@@ -15,7 +15,9 @@ import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,6 +72,20 @@ public class ApplicationTemplateServicePublishTemplateTest {
     @AfterAll
     public static void tearDown() throws IOException {
         mockCloudServices.shutdown();
+    }
+
+    // The tests point the shared CloudServicesConfig bean at this class's server. Put the URL back, so later
+    // test classes that reuse the cached Spring context do not call a server that has shut down.
+    private String originalCloudServicesBaseUrl;
+
+    @BeforeEach
+    void rememberCloudServicesBaseUrl() {
+        originalCloudServicesBaseUrl = cloudServicesConfig.getBaseUrl();
+    }
+
+    @AfterEach
+    void restoreCloudServicesBaseUrl() {
+        cloudServicesConfig.setBaseUrl(originalCloudServicesBaseUrl);
     }
 
     private Application setUpTestApplicationForWorkspace(String workspaceId) {

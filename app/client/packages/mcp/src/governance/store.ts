@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { MongoClient, type Collection } from "mongodb";
 import { createClient, createCluster } from "redis";
+import type { RelayRedis } from "../session/relay.js";
+import type { SessionRedis } from "../session/store.js";
 
 export interface McpChangeRecord {
   id: string;
@@ -29,6 +31,20 @@ export interface PreparedConfirmation {
   revision: string;
   digest: string;
   expiresAt: Date;
+  // Facts the confirm step needs that the digest alone cannot carry back (e.g. the exact commit message and
+  // branch the digest binds, and a display name for the prompt). Persisted WITH the one-time confirmation so
+  // any replica can serve the confirm — never process memory. See DestructiveConfirmationBinding.context.
+  context?: Record<string, unknown>;
+}
+
+// The definition behind a readable JS-object body (see rememberJsDefinition in builder/jsObject.ts). A readable body
+// carries no marker, so the definition an agent edits is kept here, keyed by the SHA-256 of the exact body text.
+// `definition` is the JSON text of the definition.
+export interface McpJsDefinitionRecord {
+  organizationId: string;
+  codeHash: string;
+  definition: string;
+  createdAt: Date;
 }
 
 export interface McpGovernanceStore {
@@ -66,6 +82,13 @@ export interface McpGovernanceStore {
     organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]>;
+  // Optional: a store without them makes the server keep writing JS objects in the original one-line layout, whose
+  // marker carries the definition inside the body. Both are scoped to the caller's organization.
+  saveJsDefinition?(record: McpJsDefinitionRecord): Promise<void>;
+  findJsDefinitions?(
+    organizationId: string,
+    codeHashes: readonly string[],
+  ): Promise<McpJsDefinitionRecord[]>;
 }
 
 const LOCK_PREFIX = "appsmith:mcp:lock:";
@@ -92,10 +115,47 @@ interface GovernanceRedis {
   ): Promise<unknown>;
 }
 
+// node-redis emits `error` for runtime socket failures (and reconnects on its own); with no listener the event
+// throws and takes the process down, which under supervisord's retry budget can leave MCP in FATAL.
+interface RedisEvents {
+  on(event: "error", listener: (error: Error) => void): unknown;
+}
+
+// Everything this package ever calls on a node-redis client (standalone or cluster): the governance subset above
+// plus the session-store and relay subsets. One honest cast in createRedisClientFromUrl instead of one per consumer.
+export type RedisConnection = GovernanceRedis &
+  SessionRedis &
+  RelayRedis &
+  RedisEvents;
+
+// JSON turns expiresAt into an ISO string; the confirm step compares it as a Date (readDestructiveConfirmation),
+// so every read out of Redis revives it. A malformed stored value reads as missing (fail-closed).
+function reviveConfirmation(value: string): PreparedConfirmation | undefined {
+  let parsed: PreparedConfirmation;
+
+  try {
+    parsed = JSON.parse(value) as PreparedConfirmation;
+  } catch {
+    return undefined;
+  }
+
+  if (typeof parsed?.id !== "string" || typeof parsed.actorId !== "string") {
+    return undefined;
+  }
+
+  const expiresAt = new Date(parsed.expiresAt);
+
+  // An unparsable expiry would compare as "never expired" (NaN <= now is false); read it as missing instead.
+  if (Number.isNaN(expiresAt.getTime())) return undefined;
+
+  return { ...parsed, expiresAt };
+}
+
 // MCP owns these collections and keys. It never writes Appsmith product documents directly; it only records
 // governance metadata around authorized REST mutations made by the MCP service.
 export class MongoRedisGovernanceStore implements McpGovernanceStore {
   private readonly changes: Collection<McpChangeRecord>;
+  private readonly jsDefinitions: Collection<McpJsDefinitionRecord>;
 
   constructor(
     private readonly mongo: MongoClient,
@@ -108,6 +168,9 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
     this.changes = mongo
       .db(databaseName)
       .collection<McpChangeRecord>("mcp_changes");
+    this.jsDefinitions = mongo
+      .db(databaseName)
+      .collection<McpJsDefinitionRecord>("mcp_js_definitions");
   }
 
   async connect(): Promise<void> {
@@ -127,6 +190,12 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
     // Reclaims records whose stamped expiresAt has passed (see DEFAULT_CHANGE_RETENTION_MS in coordinator.ts).
     // The coordinator MUST stamp expiresAt — Mongo's TTL silently skips documents that lack the field.
     await this.changes.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+    // One record per organization and body. Records never expire: a JS object can stay unchanged for years, and
+    // without its record it reads back as editor-authored.
+    await this.jsDefinitions.createIndex(
+      { organizationId: 1, codeHash: 1 },
+      { unique: true },
+    );
   }
 
   async close(): Promise<void> {
@@ -182,7 +251,7 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
     if (typeof value !== "string") return undefined;
 
-    return JSON.parse(value) as PreparedConfirmation;
+    return reviveConfirmation(value);
   }
 
   async peekConfirmation(
@@ -193,11 +262,34 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
     if (typeof value !== "string") return undefined;
 
-    return JSON.parse(value) as PreparedConfirmation;
+    return reviveConfirmation(value);
   }
 
   async saveChange(change: McpChangeRecord): Promise<void> {
     await this.changes.insertOne(change);
+  }
+
+  async saveJsDefinition(record: McpJsDefinitionRecord): Promise<void> {
+    // The same body always comes from the same definition, so an existing record is kept as it is.
+    await this.jsDefinitions.updateOne(
+      { organizationId: record.organizationId, codeHash: record.codeHash },
+      { $setOnInsert: record },
+      { upsert: true },
+    );
+  }
+
+  async findJsDefinitions(
+    organizationId: string,
+    codeHashes: readonly string[],
+  ): Promise<McpJsDefinitionRecord[]> {
+    if (codeHashes.length === 0) return [];
+
+    return this.jsDefinitions
+      .find(
+        { organizationId, codeHash: { $in: [...codeHashes] } },
+        { projection: { _id: 0 } },
+      )
+      .toArray();
   }
 
   async getChange(
@@ -266,12 +358,12 @@ function redisScheme(url: string): string | undefined {
 // governance for any other scheme.
 export function createRedisClientFromUrl(
   redisUrl: string,
-): GovernanceRedis | undefined {
+): RedisConnection | undefined {
   const trimmed = redisUrl.trim();
   const scheme = redisScheme(trimmed);
 
   if (scheme === "redis" || scheme === "rediss") {
-    return createClient({ url: trimmed }) as GovernanceRedis;
+    return createClient({ url: trimmed }) as RedisConnection;
   }
 
   if (scheme === "redis-cluster") {
@@ -294,7 +386,7 @@ export function createRedisClientFromUrl(
         rootNodes: [
           { url: trimmed.replace(/^redis-cluster:\/\//i, "redis://") },
         ],
-      }) as GovernanceRedis;
+      }) as RedisConnection;
     }
 
     // Credentials in a root-node URL apply only to topology discovery. Put them in defaults so every discovered
@@ -311,7 +403,7 @@ export function createRedisClientFromUrl(
         ...(password ? { password } : {}),
         socket: { tls: true },
       },
-    }) as GovernanceRedis;
+    }) as RedisConnection;
   }
 
   return undefined;
@@ -320,8 +412,11 @@ export function createRedisClientFromUrl(
 export function createGovernanceStoreFromEnv():
   | MongoRedisGovernanceStore
   | undefined {
+  // Same precedence as Java (`appsmith.db.url=${APPSMITH_DB_URL:${APPSMITH_MONGODB_URI}}`) and RTS:
+  // product DB URL first, legacy Mongo URI only as fallback. Preferring MONGODB_URI used to ignore a
+  // real APPSMITH_DB_URL and still connect to a leftover localhost Mongo URI from docker.env.
   const mongoUrl =
-    process.env.APPSMITH_MONGODB_URI ?? process.env.APPSMITH_DB_URL;
+    process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGODB_URI;
   const redisUrl = process.env.APPSMITH_REDIS_URL;
 
   if (!mongoUrl || !redisUrl) return undefined;

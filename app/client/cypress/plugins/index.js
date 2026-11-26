@@ -212,10 +212,23 @@ module.exports = async (on, config) => {
   console.log("config.specPattern:", config.specPattern);
 
   if (process.env["RUNID"]) {
-    config =
-      process.env["CYPRESS_STATIC_ALLOCATION"] == "true"
-        ? await new staticSplit().splitSpecs(config)
-        : await new dynamicSplit().splitSpecs(config);
+    // cypress-repeat-pro sets cypress_repeat_k on every run. On a retry it
+    // passes the failed specs as --spec, and the plugin's specPattern
+    // constrains that list. Recomputing the split here would use weights
+    // that moved since the first run, so the retry's slice can omit the very
+    // spec being retried and Cypress finds nothing to run. Keep the full
+    // pattern and let --spec select; the first run's matrix rows already
+    // exist for the hooks to update.
+    if (Number(config.env.cypress_repeat_k) > 1) {
+      console.log(
+        "Repeat run; skipping spec allocation and running the specs Cypress was given.",
+      );
+    } else {
+      config =
+        process.env["CYPRESS_STATIC_ALLOCATION"] == "true"
+          ? await new staticSplit().splitSpecs(config)
+          : await new dynamicSplit().splitSpecs(config);
+    }
     cypressHooks(on, config);
   }
 

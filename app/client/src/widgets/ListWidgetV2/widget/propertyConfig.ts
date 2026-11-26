@@ -343,6 +343,18 @@ export const PropertyPaneContentConfig = [
     sectionName: "Item selection",
     children: [
       {
+        propertyName: "disableSelection",
+        label: "Disable selection",
+        helpText:
+          "Stops items from being selected on click and hides the pointer cursor. Clicks on child widgets still update triggeredItem.",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "defaultSelectedItem",
         helpText: "Selects Item by default by using a valid data identifier",
         label: "Default selected item",
@@ -392,7 +404,9 @@ export const PropertyPaneContentConfig = [
             currentIndex: 0,
           };
         },
-        dependencies: ["listData"],
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          props.disableSelection === true,
+        dependencies: ["listData", "disableSelection"],
       },
     ],
   },
