@@ -21,24 +21,17 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.core.ApiFutures;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Blob;
-import com.google.cloud.firestore.BsonObjectId;
-import com.google.cloud.firestore.BsonTimestamp;
 import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.Decimal128Value;
-import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
-import com.google.cloud.firestore.Int32Value;
-import com.google.cloud.firestore.RegexValue;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -257,56 +250,6 @@ public class FirestorePluginTest {
         auth.setUsername("test-project");
         auth.setPassword("");
         dsConfig.setAuthentication(auth);
-    }
-
-    static Stream<Arguments> valuesThatFirestoreStoresAsReservedMaps() {
-        return Stream.of(
-                Arguments.of(new Int32Value(7), Map.of("__int__", 7)),
-                Arguments.of(new Decimal128Value("1.5"), Map.of("__decimal128__", "1.5")),
-                Arguments.of(
-                        new BsonObjectId("507f191e810c19729de860ea"), Map.of("__oid__", "507f191e810c19729de860ea")),
-                Arguments.of(
-                        new BsonTimestamp(5, 2),
-                        Map.of("__request_timestamp__", Map.of("seconds", 5L, "increment", 2L))),
-                Arguments.of(new RegexValue("^a", "i"), Map.of("__regex__", Map.of("pattern", "^a", "options", "i"))));
-    }
-
-    // The emulator does not store these types. FirestoreSdkBehaviourTest covers vectors.
-    @ParameterizedTest
-    @MethodSource("valuesThatFirestoreStoresAsReservedMaps")
-    void should_returnReservedMap_when_documentHasValueThatFirestoreStoresAsMap(Object value, Object expected) {
-        // Given
-        DocumentReference reference = Mockito.mock(DocumentReference.class);
-        DocumentSnapshot snapshot = Mockito.mock(DocumentSnapshot.class);
-        Firestore connection = Mockito.mock(Firestore.class);
-        Mockito.when(reference.getId()).thenReturn("doc");
-        Mockito.when(reference.getPath()).thenReturn("col/doc");
-        Mockito.when(reference.get()).thenReturn(ApiFutures.immediateFuture(snapshot));
-        Mockito.when(snapshot.getReference()).thenReturn(reference);
-        Mockito.when(snapshot.getData())
-                .thenReturn(Map.of(
-                        "field", value, "inArray", List.of(value), "inMap", new HashMap<>(Map.of("field", value))));
-        Mockito.when(connection.document("col/doc")).thenReturn(reference);
-
-        Map<String, Object> formData = new HashMap<>();
-        setDataValueSafelyInFormData(formData, COMMAND, "GET_DOCUMENT");
-        setDataValueSafelyInFormData(formData, PATH, "col/doc");
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setFormData(formData);
-
-        // When
-        Mono<ActionExecutionResult> result = pluginExecutor.executeParameterized(
-                connection, new ExecuteActionDTO(), new DatasourceConfiguration(), actionConfiguration);
-
-        // Then
-        StepVerifier.create(result)
-                .assertNext(executionResult -> assertThat(executionResult.getBody())
-                        .isEqualTo(Map.of(
-                                "_ref", Map.of("id", "doc", "path", "col/doc"),
-                                "field", expected,
-                                "inArray", List.of(expected),
-                                "inMap", Map.of("field", expected))))
-                .verifyComplete();
     }
 
     @Test

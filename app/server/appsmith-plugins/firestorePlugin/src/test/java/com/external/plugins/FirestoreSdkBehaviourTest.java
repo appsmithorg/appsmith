@@ -28,6 +28,7 @@ import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -224,9 +226,13 @@ class FirestoreSdkBehaviourTest {
     private static ActionExecutionResult execute(Map<String, Object> formData, ExecuteActionDTO executeActionDTO) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
-        return pluginExecutor
-                .executeParameterized(connection, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)
-                .block(Duration.ofSeconds(TIMEOUT_SECONDS));
+        AtomicReference<ActionExecutionResult> result = new AtomicReference<>();
+        StepVerifier.create(pluginExecutor.executeParameterized(
+                        connection, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
+                .consumeNextWith(result::set)
+                .expectComplete()
+                .verify(Duration.ofSeconds(TIMEOUT_SECONDS));
+        return result.get();
     }
 
     private static ActionExecutionResult getCollectionWithWhereOrderByAndLimit() {
