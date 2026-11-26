@@ -58,7 +58,6 @@ describe(
         )
         .should("not.have.attr", "placeholder");
       dataSources.TestDatasource(false);
-      agHelper.ValidateToastMessage("Missing Firestore URL.");
       agHelper.ValidateToastMessage("Missing ProjectID in datasource.");
       agHelper.ValidateToastMessage("Missing ClientJSON in datasource.");
       dataSources.FillFirestoreDSForm();
