@@ -68,16 +68,14 @@ jobs:
           # Format the Slack message
           slack_message="${{ env.SLACK_MESSAGE }}"
 
-          # Set the Slack message body with channel ID and text
+          # Set the Slack message body
           body="$(jq -nc \
-            --arg channel C07JMLWEXDJ \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"
 
           # Send the message to Slack
-          curl -v https://slack.com/api/chat.postMessage \
-            --header "Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}" \
+          curl -sS "${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}" \
             --header "Content-Type: application/json; charset=utf-8" \
             --data-raw "$body"
 
@@ -98,15 +96,12 @@ jobs:
 
           echo "$slack_message"
 
-          # This is the ChannelId of the proj postgres channel.
           body="$(jq -nc \
-            --arg channel C07JMLWEXDJ \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"
 
           curl --version
-          curl -v https://slack.com/api/chat.postMessage \
-            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+          curl -sS "${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}" \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
