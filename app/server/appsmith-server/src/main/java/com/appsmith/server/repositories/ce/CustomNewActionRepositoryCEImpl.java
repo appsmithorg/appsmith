@@ -11,15 +11,18 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.mongodb.MongoCommandException;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.BsonMinKey;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -29,12 +32,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import static com.appsmith.server.migrations.db.ce.Migration077AddDiagnosticsIndexToNewAction.DIAGNOSTICS_EDITABLE_ACTIONS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -45,6 +50,19 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
+
+    private static final String DIAGNOSTICS_DATASOURCE_ID = NewAction.Fields.unpublishedAction + ".datasource._id";
+
+    private static final AggregationOptions DIAGNOSTICS_HINTED_OPTIONS = AggregationOptions.builder()
+            .maxTime(DiagnosticsValues.AGGREGATION_OPTIONS.getMaxTime())
+            .hint(DIAGNOSTICS_EDITABLE_ACTIONS)
+            .build();
+
+    /** The code MongoDB returns for a hint that names no index. */
+    private static final int BAD_VALUE_ERROR_CODE = 2;
+
+    /** Every BSON date is at or after this one. */
+    private static final Date EARLIEST_DATE = new Date(Long.MIN_VALUE);
 
     private final ReactiveMongoOperations mongoOperations;
 
@@ -505,31 +523,85 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Document> countEditableByPluginTypeForDiagnostics() {
-        MatchOperation editable = match(new Criteria()
-                .andOperator(
-                        notDeleted(),
-                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull()));
-        Aggregation aggregation = newAggregation(
-                        editable, group(NewAction.Fields.pluginType).count().as("count"))
-                .withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
-        // The collection name, not the domain class, keeps _id as the stored string.
-        return mongoOperations.aggregate(
-                aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class);
+        return aggregateForDiagnostics(
+                editableByPluginTypeAggregation(), countByPluginTypeAggregation(editableForDiagnostics()));
+    }
+
+    /**
+     * Every value is at or above {@code MinKey}, so the datasource condition matches every document. It lets the hinted
+     * index, which starts with the datasource ID, answer the query alone. Without the hint it would let the planner choose
+     * another index that starts with the datasource ID, which is slower than no condition. Spring Data passes
+     * {@code BsonMinKey} through and converts {@code org.bson.types.MinKey}.
+     */
+    static Aggregation editableByPluginTypeAggregation() {
+        return countByPluginTypeAggregation(new Criteria()
+                        .andOperator(where(DIAGNOSTICS_DATASOURCE_ID).gte(new BsonMinKey()), editableForDiagnostics()))
+                .withOptions(DIAGNOSTICS_HINTED_OPTIONS);
+    }
+
+    private static Aggregation countByPluginTypeAggregation(Criteria criteria) {
+        return newAggregation(
+                match(criteria), group(NewAction.Fields.pluginType).count().as("count"));
     }
 
     @Override
     public Mono<Set<String>> findReferencedDatasourceIdsForDiagnostics() {
-        String datasourceId = NewAction.Fields.unpublishedAction + ".datasource._id";
-        MatchOperation referencing = match(new Criteria()
-                .andOperator(
-                        notDeleted(),
-                        where(NewAction.Fields.unpublishedAction_deletedAt).isNull(),
-                        where(datasourceId).ne(null)));
-        Aggregation aggregation =
-                newAggregation(referencing, group(datasourceId)).withOptions(DiagnosticsValues.AGGREGATION_OPTIONS);
-        // The collection name, not the domain class, keeps _id as the stored value.
-        return mongoOperations
-                .aggregate(aggregation, mongoOperations.getCollectionName(NewAction.class), Document.class)
+        Aggregation aggregation = referencedDatasourceIdsAggregation();
+        return aggregateForDiagnostics(aggregation, aggregation)
                 .collect(HashSet::new, (ids, group) -> ids.add(group.get("_id").toString()));
+    }
+
+    static Aggregation referencedDatasourceIdsAggregation() {
+        return newAggregation(
+                        match(new Criteria()
+                                .andOperator(
+                                        editableForDiagnostics(),
+                                        where(DIAGNOSTICS_DATASOURCE_ID).ne(null))),
+                        group(DIAGNOSTICS_DATASOURCE_ID))
+                .withOptions(DIAGNOSTICS_HINTED_OPTIONS);
+    }
+
+    /**
+     * Runs {@code hinted} with its index hint. MongoDB rejects a hint for an index that does not exist, and the migration
+     * tolerates a failed build, so after a rejected hint {@code fallback} runs without one. The rejection comes before any
+     * result. Other errors, including a timeout, are not retried.
+     */
+    private Flux<Document> aggregateForDiagnostics(Aggregation hinted, Aggregation fallback) {
+        // The collection name, not the domain class, keeps _id as the stored value.
+        String collection = mongoOperations.getCollectionName(NewAction.class);
+        return mongoOperations
+                .aggregate(hinted, collection, Document.class)
+                .onErrorResume(CustomNewActionRepositoryCEImpl::isHintRejected, error -> {
+                    log.warn(
+                            "Support diagnostics aggregation with index {} was rejected with {} (code {}), retrying without it",
+                            DIAGNOSTICS_EDITABLE_ACTIONS,
+                            error.getClass().getSimpleName(),
+                            BAD_VALUE_ERROR_CODE);
+                    return mongoOperations.aggregate(
+                            fallback.withOptions(DiagnosticsValues.AGGREGATION_OPTIONS), collection, Document.class);
+                });
+    }
+
+    private static boolean isHintRejected(Throwable error) {
+        return error.getCause() instanceof MongoCommandException commandException
+                && commandException.getErrorCode() == BAD_VALUE_ERROR_CODE;
+    }
+
+    /**
+     * Matches the actions that the editor shows, with conditions that MongoDB can answer from the index of
+     * {@code Migration077AddDiagnosticsIndexToNewAction} alone. {@code {field: null}} needs the document, so:
+     * <ul>
+     *   <li>a deletion date matches when it is not a BSON date, which includes missing and null;
+     *   <li>{@code deleted} matches when it is not true. Unlike {@link #notDeleted()}, that includes an explicit null.
+     * </ul>
+     */
+    private static Criteria editableForDiagnostics() {
+        return new Criteria()
+                .andOperator(
+                        where(NewAction.Fields.deletedAt).not().gte(EARLIEST_DATE),
+                        where(NewAction.Fields.deleted).ne(true),
+                        where(NewAction.Fields.unpublishedAction_deletedAt)
+                                .not()
+                                .gte(EARLIEST_DATE));
     }
 }
