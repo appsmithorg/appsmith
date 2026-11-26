@@ -47,35 +47,64 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
         // If the request does not carry a header with key X-Appsmith-Mcp-Internal
         // which has the value same as config value for internalMCP secret, the request will
         // not be permitted.
-        if (!hasValidInternalMarker(exchange)) {
+        String clientAddress = clientAddress(exchange);
+        InternalMarkerCheck markerCheck = checkInternalMarker(
+                commonConfig.getMcpInternalSecret(),
+                exchange.getRequest().getHeaders().getFirst(FieldName.INTERNAL_MARKER));
+        if (markerCheck != InternalMarkerCheck.VALID) {
+            // The reason and client address tell support which side is wrong. A loopback address usually means the
+            // request came from the MCP service. It can come from forwarded headers, so it is a hint, not proof.
+            // The log never holds the secret or the header value.
             log.warn(
-                    "Rejecting an MCP bearer with no valid internal marker on {} {} — a raw mcp_ token used directly against /api/v1 (bypassing the loopback MCP service), or APPSMITH_MCP_INTERNAL_SECRET is unset/misconfigured",
+                    "Rejecting an MCP bearer on {} {} from {}: reason={}. {}",
                     exchange.getRequest().getMethod(),
-                    exchange.getRequest().getPath().value());
+                    exchange.getRequest().getPath().value(),
+                    clientAddress,
+                    markerCheck,
+                    markerCheck.hint);
             return Mono.empty();
         }
 
-        return Mono.just(new McpTokenAuthentication(token, clientAddress(exchange)));
+        return Mono.just(new McpTokenAuthentication(token, clientAddress));
     }
 
-    private boolean hasValidInternalMarker(ServerWebExchange exchange) {
-        if (!hasText(commonConfig.getMcpInternalSecret())) {
-            return false;
+    /**
+     * Compares the internal marker header with {@code APPSMITH_MCP_INTERNAL_SECRET}. Only {@link
+     * InternalMarkerCheck#VALID} accepts the request. The other values name why it was refused.
+     */
+    static InternalMarkerCheck checkInternalMarker(String secret, String provided) {
+        if (!hasText(secret)) {
+            return InternalMarkerCheck.SERVER_SECRET_UNSET;
         }
 
-        String provided = exchange.getRequest().getHeaders().getFirst(FieldName.INTERNAL_MARKER);
         if (!hasText(provided)) {
-            return false;
+            return InternalMarkerCheck.MARKER_HEADER_MISSING;
         }
 
         // Constant-time comparison so a caller cannot probe the secret byte-by-byte via response timing.
-        boolean digestEquals = MessageDigest.isEqual(
-                commonConfig.getMcpInternalSecret().getBytes(StandardCharsets.UTF_8),
-                provided.getBytes(StandardCharsets.UTF_8));
+        // Do not add String.equals as a fallback. It stops at the first differing character, so it would undo
+        // this protection, and it accepts nothing that this comparison rejects.
+        boolean equal = MessageDigest.isEqual(
+                secret.getBytes(StandardCharsets.UTF_8), provided.getBytes(StandardCharsets.UTF_8));
 
-        boolean compareEquals = commonConfig.getMcpInternalSecret().equals(provided);
+        return equal ? InternalMarkerCheck.VALID : InternalMarkerCheck.MARKER_MISMATCH;
+    }
 
-        return digestEquals || compareEquals;
+    enum InternalMarkerCheck {
+        VALID(""),
+        SERVER_SECRET_UNSET("The backend has no APPSMITH_MCP_INTERNAL_SECRET. Check docker.env, then turn MCP off and"
+                + " on in Admin Settings to create a new secret, and wait for the restart to finish."),
+        MARKER_HEADER_MISSING(
+                "The request has no X-Appsmith-Mcp-Internal header. Either the MCP process has no"
+                        + " APPSMITH_MCP_INTERNAL_SECRET, or a raw mcp_ token was sent straight to /api/v1. If it came from the MCP service, restart the container."),
+        MARKER_MISMATCH("The X-Appsmith-Mcp-Internal header does not match the backend's APPSMITH_MCP_INTERNAL_SECRET."
+                + " The MCP process and the backend loaded different values. Restart the container.");
+
+        private final String hint;
+
+        InternalMarkerCheck(String hint) {
+            this.hint = hint;
+        }
     }
 
     private String clientAddress(ServerWebExchange exchange) {

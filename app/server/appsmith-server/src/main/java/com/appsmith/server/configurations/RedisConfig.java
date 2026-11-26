@@ -203,7 +203,8 @@ public class RedisConfig {
     @Bean
     public ClientResources clientResources(ObservationRegistry observationRegistry, MeterRegistry meterRegistry) {
         return ClientResources.builder()
-                .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .tracing(new DeferredCompletionTracing(
+                        new MicrometerTracingAdapter(observationRegistry, "appsmith-redis")))
                 .commandLatencyRecorder(new MicrometerCommandLatencyRecorder(meterRegistry, MicrometerOptions.create()))
                 .build();
     }
