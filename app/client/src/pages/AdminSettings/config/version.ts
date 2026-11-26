@@ -15,18 +15,20 @@ import { isAirgapped } from "ee/utils/airgapHelpers";
 const isAirgappedInstance = isAirgapped();
 
 export const config: AdminConfigType = {
-  icon: "timer-2-line",
-  type: SettingCategories.VERSION,
+  icon: "info-fill",
+  type: SettingCategories.ADMIN_CENTRAL,
   categoryType: CategoryType.INSTANCE,
   controlType: SettingTypes.GROUP,
-  title: "Version",
+  title: "Admin central",
+  subText: "Important information about this Appsmith instance.",
   canSave: false,
   settings: [
     {
       id: "APPSMITH_CURRENT_VERSION",
-      category: SettingCategories.VERSION,
+      category: SettingCategories.ADMIN_CENTRAL,
       controlType: SettingTypes.TEXT,
       label: "Current version",
+      labelKind: "heading-m",
     },
     {
       id: "APPSMITH_VERSION_READ_MORE",
@@ -37,7 +39,7 @@ export const config: AdminConfigType = {
             payload: true,
           });
       },
-      category: SettingCategories.VERSION,
+      category: SettingCategories.ADMIN_CENTRAL,
       controlType: SettingTypes.CALLOUT,
       label: "Release notes",
     },

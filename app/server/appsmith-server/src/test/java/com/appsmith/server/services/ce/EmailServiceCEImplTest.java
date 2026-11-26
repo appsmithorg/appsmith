@@ -6,11 +6,14 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.notifications.EmailSender;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 class EmailServiceCEImplTest {
@@ -180,5 +184,81 @@ class EmailServiceCEImplTest {
         String workspaceId = "testWorkspaceId";
         assertThat(String.format(WORKSPACE_URL, inviteUrl, workspaceId))
                 .isEqualTo("https://example.com/applications?workspaceId=testWorkspaceId");
+    }
+
+    @Test
+    void should_linkToAccountActivation_when_workspaceInviteeHasNoActiveAccount() {
+        // Given
+        User invitingUser = new User();
+        invitingUser.setEmail("a@abc.com");
+        User invitedUser = new User();
+        invitedUser.setEmail("b@abc.com");
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setId("testWorkspaceId");
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(FieldName.ADMINISTRATOR + "role");
+        doReturn(Mono.just(true)).when(mockEmailSender).sendMail(anyString(), anyString(), anyString(), anyMap());
+
+        // When
+        StepVerifier.create(emailService.sendInviteUserToWorkspaceEmail(
+                        invitingUser, invitedUser, workspace, permissionGroup, "http://example.com", true))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Then
+        assertThat(capturePrimaryLinkUrl())
+                .isEqualTo("http://example.com/user/login?activation=true&email=b%40abc.com");
+    }
+
+    @Test
+    void should_linkToInstance_when_workspaceInviteeIsNotNew() {
+        // Given
+        User invitingUser = new User();
+        invitingUser.setEmail("a@abc.com");
+        User invitedUser = new User();
+        invitedUser.setEmail("b@abc.com");
+        Workspace workspace = new Workspace();
+        workspace.setName("testWorkspace");
+        workspace.setId("testWorkspaceId");
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(FieldName.ADMINISTRATOR + "role");
+        doReturn(Mono.just(true)).when(mockEmailSender).sendMail(anyString(), anyString(), anyString(), anyMap());
+
+        // When
+        StepVerifier.create(emailService.sendInviteUserToWorkspaceEmail(
+                        invitingUser, invitedUser, workspace, permissionGroup, "http://example.com", false))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Then
+        assertThat(capturePrimaryLinkUrl()).doesNotContain("/user/signup").doesNotContain("activation=true");
+    }
+
+    @Test
+    void should_linkToAccountActivation_when_instanceAdminInviteeHasNoActiveAccount() {
+        // Given
+        User invitingUser = new User();
+        invitingUser.setEmail("a@abc.com");
+        User invitedUser = new User();
+        invitedUser.setEmail("b@abc.com");
+        doReturn(Mono.just(true)).when(mockEmailSender).sendMail(anyString(), anyString(), anyString(), anyMap());
+
+        // When
+        StepVerifier.create(emailService.sendInstanceAdminInviteEmail(
+                        invitedUser, invitingUser, "http://example.com", true))
+                .expectNext(true)
+                .verifyComplete();
+
+        // Then
+        assertThat(capturePrimaryLinkUrl())
+                .isEqualTo("http://example.com/user/login?activation=true&email=b%40abc.com");
+    }
+
+    @SuppressWarnings("unchecked")
+    private String capturePrimaryLinkUrl() {
+        ArgumentCaptor<Map<String, String>> paramsCaptor = ArgumentCaptor.forClass(Map.class);
+        Mockito.verify(mockEmailSender).sendMail(anyString(), anyString(), anyString(), paramsCaptor.capture());
+        return paramsCaptor.getValue().get(PRIMARY_LINK_URL);
     }
 }
