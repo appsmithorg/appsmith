@@ -85,6 +85,16 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://user@domain.com/repopath.git"))
                 .isEqualTo("https://domain.com/repopath");
 
+        // single-character ssh username:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("a@example.com:user/repo.git"))
+                .isEqualTo("https://example.com/user/repo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("_@example.com:user/repo.git"))
+                .isEqualTo("https://example.com/user/repo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://a@example.com/user/repo.git"))
+                .isEqualTo("https://example.com/user/repo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://u@example.com:2222/user/repo.git"))
+                .isEqualTo("https://example.com/user/repo");
+
         AppsmithException exception = assertThrows(
                 AppsmithException.class,
                 () -> GitUtils.convertSshUrlToBrowserSupportedUrl(
