@@ -89,6 +89,15 @@
                 <artifactId>maven-shade-plugin</artifactId>
             </plugin>
             <plugin>
+                <!-- FirestoreBundledLibrariesTest loads gRPC in a second class loader. On Linux, that loads gRPC's
+                     native transport twice in one JVM, and the other tests then fail with UnsatisfiedLinkError.
+                     Each test class runs in its own JVM. -->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
