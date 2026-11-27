@@ -4,9 +4,11 @@ on:
   pull_request_target:
     types: [opened, reopened, ready_for_review, synchronize]
 
-# This workflow deliberately does not check out or execute pull-request code.
+# A repository Actions event policy allows pull_request_target for this file only.
+# GitHub blocks the trigger by default in public repositories. Keep this workflow
+# free of checkout steps, secrets, and pull-request-controlled input so the
+# exception stays justified.
 permissions:
-  contents: read
   issues: write
   pull-requests: write
 
@@ -16,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ensure contributor-state labels exist
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const labels = [
@@ -68,7 +70,7 @@ jobs:
             }
 
       - name: Mark the PR as waiting for a maintainer
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const owner = context.repo.owner;
@@ -99,7 +101,7 @@ jobs:
 
       - name: Explain the next action on a newly opened PR
         if: github.event.action == 'opened'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             await github.rest.issues.createComment({
