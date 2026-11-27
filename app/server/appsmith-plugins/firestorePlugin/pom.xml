@@ -14,12 +14,25 @@
 
     <name>firestorePlugin</name>
 
+    <!-- These overrides apply only to this plugin. PF4J loads each plugin's own copies of these libraries,
+         so they do not change the versions in server.jar or in other plugins. -->
+    <properties>
+        <!-- httpclient5 5.6.4 is the version firebase-admin declares. It depends on httpcore5 5.4.3, the version
+             the root pom pins. The Spring Boot BOM version has CVE-2026-64607.
+             Remove when the root pom or the Spring Boot BOM manages httpclient5 5.6.4 or later. -->
+        <httpclient5.version>5.6.4</httpclient5.version>
+        <!-- google-cloud-firestore declares OpenTelemetry 1.62.0 and the Spring Boot BOM manages an older version.
+             Both have CVE-2026-118259, fixed in 1.67.0.
+             Remove when google-cloud-firestore declares and the Spring Boot BOM manages 1.67.0 or later. -->
+        <opentelemetry.version>1.67.0</opentelemetry.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>9.2.0</version>
+            <version>9.12.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -29,17 +42,38 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
+                <!-- The plugin does not use Cloud Storage. -->
+                <exclusion>
+                    <groupId>com.google.cloud</groupId>
+                    <artifactId>google-cloud-storage</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
         <dependency>
-            <!-- remove after firebase-admin brings v32.0.1-jre at least -->
+            <!-- FirestoreClientCache uses Guava. firebase-admin brings 33.6.0-jre, which has CVE-2026-102554.
+                 Keep the dependency. Remove the version pin when firebase-admin brings 33.7.2-jre or later. -->
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.7.2-jre</version>
         </dependency>
 
+        <dependency>
+            <!-- The OpenTelemetry API looks up this library's classes by name. Without it here, the plugin class loader
+                 asks the server. The CE server has a copy, which comes from another class loader, so no Firestore client
+                 can be created. Keep the default scope, so that it is in the plugin jar. -->
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api-incubator</artifactId>
+            <version>${opentelemetry.version}-alpha</version>
+        </dependency>
+
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>gcloud</artifactId>
@@ -61,8 +95,29 @@
                 <artifactId>maven-shade-plugin</artifactId>
             </plugin>
             <plugin>
+                <!-- FirestoreBundledLibrariesTest loads gRPC in a second class loader. On Linux, that loads gRPC's
+                     native transport twice in one JVM, and the other tests then fail with UnsatisfiedLinkError.
+                     Each test class runs in its own JVM. -->
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <!-- FirestoreBundledLibrariesTest reads this file. -->
+                        <id>runtime-classpath</id>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <phase>generate-test-resources</phase>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputFile>${project.build.testOutputDirectory}/runtime-classpath.txt</outputFile>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>copy-dependencies</id>
                         <goals>
