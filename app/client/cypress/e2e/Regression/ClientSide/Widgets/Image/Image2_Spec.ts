@@ -10,12 +10,13 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Image widget tests",
   { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
   function () {
-    const fixtureOrigin = "http://host.docker.internal:4200";
+    const fixtureOrigin = "http://127.0.0.1:4200";
     const jpgImg = fixtureOrigin + "/453-200x300.jpg";
     const gifImg = fixtureOrigin + "/sampleGIFfile.gif";
     const svgImg = fixtureOrigin + "/kiwi.svg";
@@ -40,10 +41,10 @@ describe(
 
     beforeEach(() => {
       cy.visit(editorUrl);
-      agHelper.AddDsl("emptyDSL");
+      PageList.AddNewPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      propPane.UpdatePropertyFieldValue("Image", jpgImg);
+      propPane.UpdatePropertyFieldValue("Image", pngImg);
     });
 
     it("1. Verify Image Preview for different types of images (png, jpg, gif, svg, webp)", function () {

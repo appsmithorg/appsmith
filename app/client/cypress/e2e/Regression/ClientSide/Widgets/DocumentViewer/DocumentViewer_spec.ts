@@ -16,8 +16,8 @@ import EditorNavigation, {
 
 const ppt =
   "http://host.docker.internal:4200/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
-const pngImage = "http://host.docker.internal:4200/clouddefaultImage.png";
-const jpgImage = "http://host.docker.internal:4200/453-200x300.jpg";
+const pngImage = "http://127.0.0.1:4200/clouddefaultImage.png";
+const jpgImage = "http://127.0.0.1:4200/453-200x300.jpg";
 const pdf = "http://host.docker.internal:4200/sample-pdf-file.pdf";
 
 describe(
