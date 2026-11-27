@@ -201,7 +201,11 @@ async function extractArchive(backupFilePath: string, restoreRootPath: string) {
   console.log("Extracting the backup archive completed");
 }
 
-async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
+async function restoreDatabase(
+  restoreContentsPath: string,
+  dbUrl: string,
+  args: string[] = command_args,
+) {
   console.log("Restoring database...");
   const cmd = [
     "mongorestore",
@@ -212,7 +216,7 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
   ];
 
   try {
-    const fromDbName = await getBackupDatabaseName(restoreContentsPath);
+    const fromDbName = await getBackupDatabaseName(restoreContentsPath, args);
     const toDbName = utils.getDatabaseNameFromMongoURI(dbUrl);
 
     console.log("Restoring database from " + fromDbName + " to " + toDbName);
@@ -222,6 +226,15 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
       `--nsTo=${toDbName}.*`,
     );
   } catch (error) {
+    if (
+      args.some(
+        (arg) =>
+          arg === "--backup-db-name" || arg.startsWith("--backup-db-name="),
+      )
+    ) {
+      throw error;
+    }
+
     console.warn(
       "Error reading manifest file. Assuming same database name.",
       error,
@@ -393,26 +406,42 @@ export async function checkRestoreVersionCompatability(
   }
 }
 
-async function getBackupDatabaseName(restoreContentsPath: string) {
-  let db_name = "appsmith";
+export async function getBackupDatabaseName(
+  restoreContentsPath: string,
+  args: string[] = command_args,
+) {
+  const option = "--backup-db-name";
+  const optionPrefix = `${option}=`;
 
-  if (command_args.includes("--backup-db-name")) {
-    for (let i = 0; i < command_args.length; i++) {
-      if (command_args[i].startsWith("--backup-db-name")) {
-        db_name = command_args[i].split("=")[1];
-      }
+  for (const arg of args) {
+    if (arg === option) {
+      throw new Error(
+        `Invalid ${option} argument. Use ${option}=<name> to provide the database name.`,
+      );
     }
-  } else {
-    const manifest_data = await fsPromises.readFile(
-      restoreContentsPath + "/manifest.json",
-      { encoding: "utf8" },
-    );
-    const manifest_json = JSON.parse(manifest_data);
 
-    if ("dbName" in manifest_json) {
-      db_name = manifest_json["dbName"];
+    if (arg.startsWith(optionPrefix)) {
+      const dbName = arg.substring(optionPrefix.length);
+
+      if (!dbName) {
+        throw new Error(
+          `Invalid ${option} value. Use ${option}=<name> to provide a non-empty database name.`,
+        );
+      }
+
+      console.log("Backup Database Name: " + dbName);
+
+      return dbName;
     }
   }
+
+  const manifest_data = await fsPromises.readFile(
+    restoreContentsPath + "/manifest.json",
+    { encoding: "utf8" },
+  );
+  const manifest_json = JSON.parse(manifest_data);
+  const db_name =
+    "dbName" in manifest_json ? manifest_json["dbName"] : "appsmith";
 
   console.log("Backup Database Name: " + db_name);
 
@@ -490,13 +519,23 @@ export async function run() {
         "Restoring Appsmith instance from the backup at " + backupFilePath,
       );
       await utils.stop(["backend", "rts"]);
-      await restoreDatabase(restoreContentsPath, dbUrl);
-      await utils.execCommand([
-        "cp",
-        Constants.ENV_PATH,
-        Constants.ENV_PATH + "." + backupName,
-      ]);
-      await writeEnvFile(Constants.ENV_PATH, dockerEnvContent);
+fix/backup-db-name-arg
+
+await restoreDatabase(
+    restoreContentsPath,
+    utils.getDbUrl(),
+    command_args,
+);
+await restoreDockerEnvFile(
+    restoreContentsPath,
+    backupName,
+    overwriteEncryptionKeys,
+    command_args,
+);
+await restoreGitStorageArchive(restoreContentsPath, backupName);
+console.log("Appsmith instance successfully restored.");
+await fsPromises.rm(restoreRootPath, { recursive: true, force: true });
+ release
       await restoreGitStorageArchive(restoreContentsPath, backupName);
       console.log("Appsmith instance successfully restored.");
       await fsPromises.rm(restoreRootPath, { recursive: true, force: true });
