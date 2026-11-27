@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.appsmith</groupId>
+        <artifactId>appsmith-plugins</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <groupId>com.external.plugins</groupId>
+    <artifactId>soapPlugin</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>soapPlugin</name>
+
+    <!-- XML handling uses the JDK; HTTP, org.json and commons-text come from the provided interfaces module. -->
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty-http</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
