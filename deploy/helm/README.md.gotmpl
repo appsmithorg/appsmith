@@ -11,6 +11,36 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 
 {{ template "chart.valuesSection" . }}
 
+## External Secrets: per-key mapping
+
+`externalSecrets.additionalSecrets` creates extra `ExternalSecret` resources. Each generated Secret is loaded into the pod via `envFrom`.
+An entry's `secretStoreRef` is merged field by field over `externalSecrets.secretStoreRef`: a `name` or `kind` the entry leaves out is taken from the shared reference (then `secretstore` / `SecretStore`).
+This example renames the AWS Secrets Manager keys `host`/`port`/`password` to the env vars Appsmith expects:
+
+```yaml
+redis:
+  enabled: false   # use the remote Redis below instead of the bundled one
+externalSecrets:
+  additionalSecrets:
+    - name: redis
+      # secretStoreRef:            # optional, merged field by field over externalSecrets.secretStoreRef
+      #   name: aws-secretstore
+      #   kind: ClusterSecretStore
+      data:
+        - secretKey: APPSMITH_REDIS_HOST
+          remoteRef:
+            key: redis-prd-appsmith   # name of the secret in AWS Secrets Manager
+            property: host            # JSON property within that secret
+        - secretKey: APPSMITH_REDIS_PORT
+          remoteRef:
+            key: redis-prd-appsmith
+            property: port
+        - secretKey: APPSMITH_REDIS_PASSWORD
+          remoteRef:
+            key: redis-prd-appsmith
+            property: password
+```
+
 ## Testing
 
 The chart ships with helm-unittest tests in `tests/`. See [tests/README.md](tests/README.md) for details on running them.
