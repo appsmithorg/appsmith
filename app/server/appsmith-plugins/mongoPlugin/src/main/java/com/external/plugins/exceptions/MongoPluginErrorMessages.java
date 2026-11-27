@@ -19,6 +19,13 @@ public class MongoPluginErrorMessages {
 
     public static final String STRICT_VALUES_UNPARSABLE_ERROR_MSG = "The value of {{%s}} is not valid JSON.";
 
+    public static final String SPECIAL_TYPE_LITERAL_EXPECTED_ERROR_MSG =
+            "The value is not one complete MongoDB special data type, such as ObjectId(...).";
+
+    public static final String ARRAY_OR_OBJECT_EXPECTED_ERROR_MSG = "The value is not a JSON array or object.";
+
+    public static final String VALUE_NESTED_TOO_DEEP_ERROR_MSG = "The value is nested too deeply.";
+
     public static final String CONNECTION_STRING_PARSING_FAILED_ERROR_MSG =
             "The Appsmith server has failed to parse the Mongo connection string URI.";
 
