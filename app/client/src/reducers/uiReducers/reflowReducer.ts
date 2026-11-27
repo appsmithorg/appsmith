@@ -12,6 +12,7 @@ export const widgetReflowReducer = createReducer(initialState, {
   [ReduxActionTypes.STOP_REFLOW]: () => {
     return {
       isReflowing: false,
+      reflowingWidgets: {},
     };
   },
   [ReduxActionTypes.REFLOW_MOVE]: (
