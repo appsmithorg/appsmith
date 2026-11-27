@@ -34,8 +34,12 @@ export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
   `Default Text value must be less than Max number allowed`;
 export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
   `Default Text value must be greater than Min number allowed`;
+export const WDS_INPUT_MAX_NUM_ERROR = (max: number) =>
+  `Value must be less than or equal to ${max}`;
+export const WDS_INPUT_MIN_NUM_ERROR = (min: number) =>
+  `Value must be greater than or equal to ${min}`;
 export const INPUT_INVALID_TYPE_ERROR = () =>
-  `Type Mismatch. Please enter a valid value`;
+  `Type mismatch. Please enter a valid value`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
