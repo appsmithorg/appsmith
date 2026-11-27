@@ -94,6 +94,10 @@
             "description": "External Secrets Operator integration configuration.",
             "type": "object",
             "properties": {
+                "additionalSecrets": {
+                    "description": "List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom. An entry-level secretStoreRef is merged field by field over externalSecrets.secretStoreRef, so a missing name or kind is taken from the shared reference.",
+                    "type": "array"
+                },
                 "enabled": {
                     "description": "Enable External Secrets integration to source secrets from a remote provider.",
                     "type": "boolean"
@@ -103,8 +107,24 @@
                     "type": "string"
                 },
                 "remoteNameSecret": {
-                    "description": "Name of the secret in the external Secret provider.",
+                    "description": "Deprecated alias for externalSecrets.remoteSecretName. Used only when remoteSecretName is empty.",
                     "type": "string"
+                },
+                "remoteSecretName": {
+                    "description": "Name of the secret in the external Secret provider (legacy single-secret path, dataFrom.extract).",
+                    "type": "string"
+                },
+                "secretStoreRef": {
+                    "description": "Default SecretStore reference (name/kind) applied to every generated ExternalSecret unless overridden per entry.",
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },

@@ -362,6 +362,59 @@ tlog() { :; }
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.strip(), repr(value))
 
+    def test_composed_redis_url_reaches_services_through_run_with_env(self):
+        # Startup composes APPSMITH_REDIS_URL from APPSMITH_REDIS_HOST/PORT/PASSWORD; services
+        # are then launched by run-with-env.sh, which reloads docker.env and pre-define.json.
+        # The service must receive the composed URL, an explicit URL must still win, and
+        # without any Redis input the embedded localhost default must stay in place.
+        source = (APP / "entrypoint.sh").read_text()
+        startup = source[source.index("redis_host_is_local() {"):source.index("\nsetup_proxy_variables() {")]
+        startup += source[source.index("init_env_file() {"):source.index("\ninit_env_file\n")]
+        inspect = 'import os; print(os.environ.get("APPSMITH_REDIS_URL", ""))'
+        cases = [
+            ("host only", {"APPSMITH_REDIS_HOST": "redis.example.com"}, "redis://redis.example.com:6379"),
+            ("host and password",
+             {"APPSMITH_REDIS_HOST": "redis.example.com", "APPSMITH_REDIS_PORT": "6380",
+              "APPSMITH_REDIS_PASSWORD": "p@ss", "APPSMITH_REDIS_TLS": "true"},
+             "rediss://:p%40ss@redis.example.com:6380"),
+            ("explicit URL wins",
+             {"APPSMITH_REDIS_URL": "redis://explicit.example.com:6379",
+              "APPSMITH_REDIS_HOST": "redis.example.com"},
+             "redis://explicit.example.com:6379"),
+            ("no Redis input", {}, None),
+        ]
+        for name, external, expected in cases:
+            with self.subTest(name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                config = root / "configuration/docker.env"
+                script = startup.replace("/appsmith-stacks/configuration", str(root / "configuration"))
+                script = script.replace("/opt/appsmith/templates", str(APP / "templates"))
+                script = script.replace("/opt/appsmith/env-file.py", str(APP / "env-file.py"))
+                wrapper = (APP / "run-with-env.sh").read_text().replace(
+                    "/appsmith-stacks/configuration/docker.env", str(config)
+                ).replace('"$(dirname "$0")/load-env.sh"', f'"{APP}/load-env.sh"')
+                environment = {"PATH": os.environ["PATH"], "TMP": str(root),
+                               "APPSMITH_GIT_ROOT": str(root / "git"), **external}
+                started = subprocess.run(
+                    ["bash", "-c", 'set -e; tlog() { :; }; source "$1";\n' + script +
+                     '\ninit_env_file\ncompose_redis_url_from_parts\npersist_composed_redis_url\n',
+                     "test", str(APP / "load-env.sh")],
+                    env=environment, capture_output=True, text=True,
+                )
+                self.assertEqual(started.returncode, 0, started.stderr)
+                # supervisord starts services with the container environment, not the
+                # entrypoint's exports, so the launcher only sees the external values.
+                launched = subprocess.run(
+                    ["bash", "-c", 'tlog() { :; };\n' + wrapper, "test", "/usr/bin/python3", "-c", inspect],
+                    env=environment, capture_output=True, text=True,
+                )
+                self.assertEqual(launched.returncode, 0, launched.stderr)
+                actual = launched.stdout.splitlines()[-1]
+                if expected is None:
+                    self.assertRegex(actual, r"^redis://:[A-Za-z0-9]+@127\.0\.0\.1:6379$")
+                else:
+                    self.assertEqual(actual, expected)
+
     def test_ghsa_h6hh_restart_does_not_execute_configuration(self):
         # Exercise the production restart wrapper with isolated fixture paths.
         with tempfile.TemporaryDirectory() as directory:
