@@ -58,7 +58,7 @@ jobs:
           if [[ "$current_head_sha" != "$APPROVED_HEAD_SHA" ]]; then
             echo "::error::PR head changed after ${command_name} was issued. Re-run ${command_name} on the current commit."
             if [[ "$EVENT_ACTION" == "approve-ci-command" ]]; then
-              gh pr comment "$PR_NUMBER" --body "Approval expired: the PR head changed after \`/approve-ci\` was issued (approved \`${APPROVED_HEAD_SHA:0:7}\`, current \`${current_head_sha:0:7}\`). Please re-run \`/approve-ci\` on the latest commit. If Cypress should run on that approval, keep the \`ok-to-test\` label (and optional \`tags=\` on the command or in the PR body)."
+              gh pr comment "$PR_NUMBER" --body "Approval expired: the PR head changed after \`/approve-ci\` was issued (approved \`${APPROVED_HEAD_SHA:0:7}\`, current \`${current_head_sha:0:7}\`). Please re-run \`/approve-ci\` on the latest commit."
             fi
             exit 1
           fi
@@ -201,18 +201,15 @@ jobs:
             const repo = context.repo.repo;
             const issue_number = context.payload.client_payload.pull_request.number;
             const isApproveCi = context.payload.action === "approve-ci-command";
-
-            const labels = await github.paginate(
-              github.rest.issues.listLabelsOnIssue,
-              { owner, repo, issue_number },
-            );
-            const hasOkToTest = labels.some((label) => label.name === "ok-to-test");
             const commandTags = (
               context.payload.client_payload.slash_command?.args?.named?.tags || ""
             ).trim();
 
-            // Full Cypress only on /approve-ci when the label is present and/or tags= is given.
-            const runFull = isApproveCi && (hasOkToTest || commandTags.length > 0);
+            // /approve-ci always runs sharded Cypress; /ci-test-limit keeps the
+            // limited-tests.txt run. Only a full @tag.All run satisfies the fork
+            // merge gate (see merge-gate.js), so a smaller default would leave
+            // the gate pending after a green run.
+            const runFull = isApproveCi;
             core.setOutput("run_full_cypress", runFull ? "true" : "false");
 
             if (!runFull) {
@@ -222,56 +219,27 @@ jobs:
               return;
             }
 
-            const { data: freshPr } = await github.rest.pulls.get({
-              owner,
-              repo,
-              pull_number: issue_number,
-            });
-
-            // Precedence: command args → PR body → @tag.All (label default).
-            let bodyForParse = freshPr.body || "";
+            // Scope comes only from the maintainer's command. The PR body is
+            // written by the contributor, so tags in it are ignored.
+            let tags = "@tag.All";
             if (commandTags) {
-              bodyForParse = `/ok-to-test tags="${commandTags}"\n`;
-            }
+              const { data: freshPr } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: issue_number,
+              });
 
-            const captured = { tags: "", its: "", spec: "" };
-            let failedMessage = null;
-            const shimCore = {
-              setOutput(name, value) {
-                captured[name] = value ?? "";
-              },
-              setFailed(message) {
-                failedMessage = message;
-              },
-            };
+              const captured = { tags: "", its: "", spec: "" };
+              let failedMessage = null;
+              const shimCore = {
+                setOutput(name, value) {
+                  captured[name] = value ?? "";
+                },
+                setFailed(message) {
+                  failedMessage = message;
+                },
+              };
 
-            // Suppress write-cypress-status side effects on the fall-through path
-            // (invalid body tags → default @tag.All) so we don't warn then run All.
-            const shimGithub = commandTags
-              ? github
-              : {
-                  ...github,
-                  rest: {
-                    ...github.rest,
-                    pulls: {
-                      ...github.rest.pulls,
-                      async get(...args) {
-                        return github.rest.pulls.get(...args);
-                      },
-                      async update() {
-                        return { data: {} };
-                      },
-                    },
-                    issues: {
-                      ...github.rest.issues,
-                      async createComment() {
-                        return { data: {} };
-                      },
-                    },
-                  },
-                };
-
-            if (bodyForParse.trim()) {
               require("test-tag-parser.js")({
                 core: shimCore,
                 context: {
@@ -280,48 +248,29 @@ jobs:
                     ...context.payload,
                     pull_request: {
                       ...freshPr,
-                      body: bodyForParse,
+                      body: `/ok-to-test tags="${commandTags}"\n`,
                     },
                   },
                 },
-                github: shimGithub,
+                github,
               });
-            }
 
-            if (failedMessage) {
-              if (commandTags) {
-                // Explicit tags on the command must be valid.
+              if (failedMessage) {
                 core.setFailed(failedMessage);
                 return;
               }
-              // Unparseable PR body falls through to the label default without warning.
-              console.log(`PR body tag parse skipped: ${failedMessage}`);
+              tags = captured.tags || "@tag.All";
             }
 
-            let tags = captured.tags || "";
-            const spec = captured.spec || "";
-
-            if (!tags && !spec) {
-              tags = "@tag.All";
-            }
-
-            let cypress_matrix;
-            if (spec) {
-              cypress_matrix = "[0]";
-            } else if (tags === "@tag.All") {
-              cypress_matrix =
-                "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]";
-            } else {
-              cypress_matrix =
-                "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]";
-            }
+            const cypress_matrix =
+              tags === "@tag.All"
+                ? "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]"
+                : "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]";
 
             core.setOutput("tags", tags);
-            core.setOutput("spec", spec);
+            core.setOutput("spec", "");
             core.setOutput("cypress_matrix", cypress_matrix);
-            console.log(
-              `Cypress scope: run_full=${runFull} tags=${tags || "(none)"} spec=${spec || "(none)"}`,
-            );
+            console.log(`Cypress scope: run_full=${runFull} tags=${tags}`);
 
 
   server-build:
@@ -391,7 +340,7 @@ jobs:
 
   ci-test-full:
     needs: [file-check, cypress-scope, build-docker-image]
-    # Sharded Cypress suite for /approve-ci when ok-to-test and/or tags= are present
+    # Sharded Cypress suite for /approve-ci: @tag.All, or the command's tags=
     if: success() && needs.file-check.outputs.runId == '0' && needs.cypress-scope.outputs.run_full_cypress == 'true'
     name: ci-test-full
     uses: ./.github/workflows/ci-test-custom-script.yml
@@ -820,6 +769,7 @@ jobs:
     needs:
       [
         file-check,
+        cypress-scope,
         ci-test-limited-result,
         ci-test-full-result,
         ci-test-limited-result-existing,
@@ -839,11 +789,21 @@ jobs:
           CYPRESS_LIMITED: ${{ needs.ci-test-limited-result.result }}
           CYPRESS_FULL: ${{ needs.ci-test-full-result.result }}
           CYPRESS_EXISTING: ${{ needs.ci-test-limited-result-existing.result }}
+          CYPRESS_TAGS: ${{ needs.cypress-scope.outputs.tags }}
+          CYPRESS_SPEC: ${{ needs.cypress-scope.outputs.spec }}
         with:
           script: |
             const gate = require("merge-gate.js");
             const { owner, repo } = context.repo;
-            const { HEAD_SHA, PR_NUMBER, CYPRESS_LIMITED, CYPRESS_FULL, CYPRESS_EXISTING } = process.env;
+            const {
+              HEAD_SHA,
+              PR_NUMBER,
+              CYPRESS_LIMITED,
+              CYPRESS_FULL,
+              CYPRESS_EXISTING,
+              CYPRESS_TAGS,
+              CYPRESS_SPEC,
+            } = process.env;
             const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
 
             const pr = (
@@ -857,14 +817,22 @@ jobs:
             }
 
             // Persist the approved Cypress result on the approved head SHA, then
-            // compute the gate from external-ci-result + that result. Passing the
-            // just-computed state avoids a read-after-write race on the status.
+            // compute the gate from external-ci-result + that result. Only a
+            // green full-suite run counts; a narrower run leaves it pending.
+            // Passing the just-computed state avoids a read-after-write race on
+            // the status.
             const forkCypressState = await gate.publishForkCypress({
               github,
               owner,
               repo,
               sha: HEAD_SHA,
-              results: [CYPRESS_LIMITED, CYPRESS_FULL, CYPRESS_EXISTING],
+              run: {
+                limited: CYPRESS_LIMITED,
+                full: CYPRESS_FULL,
+                existing: CYPRESS_EXISTING,
+                tags: CYPRESS_TAGS,
+                spec: CYPRESS_SPEC,
+              },
               runUrl,
             });
 

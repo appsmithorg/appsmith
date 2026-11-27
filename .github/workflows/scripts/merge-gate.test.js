@@ -248,3 +248,107 @@ test.describe("readDocsOnly", () => {
     assert.equal(await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr }), false);
   });
 });
+
+test.describe("forkCypressVerdict", () => {
+  const run = (overrides) => ({
+    limited: "skipped",
+    full: "skipped",
+    existing: "skipped",
+    tags: gate.FULL_SUITE_TAG,
+    spec: "",
+    ...overrides,
+  });
+
+  test("a green full @tag.All run satisfies the gate", () => {
+    assert.equal(gate.forkCypressVerdict(run({ full: "success" })).state, "success");
+  });
+
+  test("a green limited run leaves the gate pending", () => {
+    const v = gate.forkCypressVerdict(run({ limited: "success", tags: "" }));
+    assert.deepEqual(v, {
+      state: "pending",
+      description: "Partial Cypress run passed; the full @tag.All suite is required",
+    });
+  });
+
+  test("a green run on an earlier image leaves the gate pending", () => {
+    assert.equal(gate.forkCypressVerdict(run({ existing: "success", tags: "" })).state, "pending");
+  });
+
+  test("a green tag-narrowed run leaves the gate pending", () => {
+    const v = gate.forkCypressVerdict(run({ full: "success", tags: "@tag.Sanity" }));
+    assert.equal(v.state, "pending");
+  });
+
+  test("a green spec-scoped run leaves the gate pending", () => {
+    const v = gate.forkCypressVerdict(run({ full: "success", spec: "cypress/e2e/a.ts" }));
+    assert.equal(v.state, "pending");
+  });
+
+  test("a red full run fails", () => {
+    assert.equal(gate.forkCypressVerdict(run({ full: "failure" })).state, "failure");
+  });
+
+  test("a red limited run fails", () => {
+    assert.equal(gate.forkCypressVerdict(run({ limited: "failure", tags: "" })).state, "failure");
+  });
+
+  test("no result job ran fails closed", () => {
+    assert.equal(gate.forkCypressVerdict(run({})).state, "failure");
+  });
+
+  test("more than one result job ran fails closed", () => {
+    const v = gate.forkCypressVerdict(run({ limited: "success", full: "success" }));
+    assert.equal(v.state, "failure");
+  });
+});
+
+test.describe("publishForkCypress", () => {
+  const fakeGithub = () => {
+    const written = [];
+    return {
+      written,
+      rest: { repos: { createCommitStatus: async (s) => written.push(s) } },
+    };
+  };
+
+  test("writes pending, not success, for a green limited run", async () => {
+    const github = fakeGithub();
+    const state = await gate.publishForkCypress({
+      github,
+      owner: "o",
+      repo: "r",
+      sha: "abc",
+      run: { limited: "success", full: "skipped", existing: "skipped", tags: "", spec: "" },
+      runUrl: "u",
+    });
+    assert.equal(state, "pending");
+    assert.equal(github.written.length, 1);
+    assert.equal(github.written[0].context, gate.FORK_CYPRESS);
+    assert.equal(github.written[0].state, "pending");
+  });
+
+  test("writes success for a green full @tag.All run", async () => {
+    const github = fakeGithub();
+    const state = await gate.publishForkCypress({
+      github,
+      owner: "o",
+      repo: "r",
+      sha: "abc",
+      run: { limited: "skipped", full: "success", existing: "skipped", tags: "@tag.All", spec: "" },
+      runUrl: "u",
+    });
+    assert.equal(state, "success");
+    assert.equal(github.written[0].description, "Full Cypress suite (@tag.All) passed");
+  });
+
+  test("a pending fork-cypress result keeps the fork gate pending", () => {
+    const r = gate.decide({
+      fork: true,
+      checkRuns: [completed("external-ci-result", "success")],
+      statuses: [],
+      forkCypressState: "pending",
+    });
+    assert.deepEqual(r, { state: "pending", description: "Waiting: approved Cypress" });
+  });
+});

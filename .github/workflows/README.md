@@ -57,6 +57,7 @@ description says that Cypress was not required:
 Any other file, including a workflow file under `.github/workflows/`, needs the full
 gate: the `ok-to-test` label and a green Cypress run. Fork PRs are not classified this
 way; they keep the credential-free validation and approved Cypress requirements. The
+approved Cypress requirement is a green full-suite (`@tag.All`) `/approve-ci` run. The
 decision lives in
 `scripts/merge-gate.js`; its unit tests run with
 `find .github/workflows/scripts -name '*.test.js' -exec node --test {} +` and in the `ci-scripts-tests` job
@@ -105,6 +106,7 @@ access on the repository, so they work on fork PRs.
 | --- | --- |
 | `/build-deploy-preview` | Builds an image and deploys a preview environment |
 | `/test-pw` | Runs the Playwright suite |
-| `/ci-test-limit` | Runs a limited Cypress set |
+| `/approve-ci` | On a fork PR, builds the approved commit and runs the full Cypress suite (`@tag.All`). `tags=` narrows the run, but only a green `@tag.All` run satisfies `ci/merge-gate` |
+| `/ci-test-limit` | Runs a limited Cypress set. Never satisfies `ci/merge-gate` |
 
 Configured in [ok-to-test.yml](ok-to-test.yml).

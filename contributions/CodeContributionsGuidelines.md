@@ -65,25 +65,24 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 #### Cypress on fork PRs (maintainer-triggered)
 
 On pull requests from forks, Cypress does **not** run when the contributor
-opens the PR or pushes new commits. The `ok-to-test` label alone also does
-nothing on a fork PR — `/approve-ci` is the trigger that starts privileged
-CI for the current commit. The label and optional `tags=` only set the
-**scope** of Cypress once that approval runs.
+opens the PR or pushes new commits. The `ok-to-test` label does nothing on a
+fork PR. `/approve-ci` is the trigger that starts privileged CI for the
+current commit.
 
-| Maintainer action | `ok-to-test` label | What runs |
+| Maintainer action | What runs | Satisfies `ci/merge-gate` |
 | --- | --- | --- |
-| `/approve-ci` | absent | Build + Docker + `limited-tests.txt` |
-| `/approve-ci` | present | Sharded Cypress, default `@tag.All` (60 shards) |
-| `/approve-ci tags="@tag.Sanity"` | either | Sanity only (20 shards) |
-| `/approve-ci tags="@tag.Git, @tag.Table"` | either | Those tags (20 shards) |
-| `/approve-ci` | present, tags also in PR body | Body tags used when the command has no `tags=` |
+| `/approve-ci` | Sharded Cypress, `@tag.All` (60 shards) | Yes, when green |
+| `/approve-ci tags="@tag.Sanity"` | Sanity only (20 shards) | No |
+| `/approve-ci tags="@tag.Git, @tag.Table"` | Those tags (20 shards) | No |
+| `/ci-test-limit` | Build + Docker + `limited-tests.txt` | No |
 
-Tag resolution precedence: **command `tags=` → PR body → label default (`@tag.All`) → limited suite**.
+Only the command sets the scope. Tags in the PR description are ignored on
+fork PRs, because the contributor writes the description. A green run with a
+narrower scope sets `ci/fork-cypress` to `pending`, so the PR cannot merge
+until a full `/approve-ci` run passes.
 
-The `ok-to-test` label persists across contributor pushes (so maintainers do
-not have to re-add it). `/approve-ci` approval does **not** — after a new
-push, a maintainer must run `/approve-ci` again. If the label is still
-present on that re-approval, Cypress runs again for the new commit.
+`/approve-ci` approval applies to one commit. After a new push, a maintainer
+must run `/approve-ci` again.
 
 When a PR is labelled `awaiting-maintainer`, the next action belongs to
 Appsmith. When it is labelled `awaiting-contributor`, the contributor should
