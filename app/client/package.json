@@ -522,6 +522,8 @@
     "body-parser@^2.2.1": "^2.4.0",
     "zod@^3.25 || ^4.0": "^4.6.6",
     "@hono/node-server": "^2.1.6",
-    "@opentelemetry/instrumentation-http": "^0.222.0"
+    "@opentelemetry/instrumentation-http": "^0.222.0",
+    "minimatch@^9.0.4": "^11.0.1",
+    "minimatch@^10.1.1": "^11.0.1"
   }
 }
