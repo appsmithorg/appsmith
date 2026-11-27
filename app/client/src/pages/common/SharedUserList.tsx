@@ -28,11 +28,11 @@ export default function SharedUserList() {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return users.map((user: any) => {
-      const name = user.name || user.username;
+      const name = user.name || user.username || "";
 
       return {
         label:
-          user.username +
+          (user.username || name) +
           (user.username === currentUser?.username ? " (You)" : ""),
         image: user.photoId
           ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`

@@ -171,7 +171,7 @@ function WorkspaceInviteUsers(props: any) {
 
                 return showUser ? (
                   <User
-                    key={user?.userGroupId ? user.userGroupId : user.username}
+                    key={user?.userGroupId ? user.userGroupId : user.userId}
                   >
                     <UserInfo>
                       {user?.userGroupId ? (

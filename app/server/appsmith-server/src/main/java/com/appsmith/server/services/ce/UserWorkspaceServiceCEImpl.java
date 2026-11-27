@@ -38,6 +38,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -240,6 +241,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
+        return fetchAllWorkspaceMembers(workspaceId).flatMap(members -> restrictMemberDetails(workspaceId, members));
+    }
+
+    /**
+     * Returns every member of the workspace, including member emails and pending invitations. The result must pass
+     * through {@link #restrictMemberDetails(String, List)} before it is returned to a user.
+     */
+    protected Mono<List<MemberInfoDTO>> fetchAllWorkspaceMembers(String workspaceId) {
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = this.getPermissionGroupsForWorkspace(workspaceId);
@@ -292,6 +301,43 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         });
 
         return sortedListMono;
+    }
+
+    /**
+     * Member emails and pending invitations are returned only to members who can assign the Developer role, which
+     * covers Administrators and Developers. Other members, such as App Viewers, still see the names, roles and photos
+     * of joined members.
+     */
+    protected Mono<List<MemberInfoDTO>> restrictMemberDetails(String workspaceId, List<MemberInfoDTO> members) {
+        Mono<Boolean> canSeeMemberDetailsMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(
+                        workspace, permissionGroupPermission.getAssignPermission()))
+                .any(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER));
+
+        return canSeeMemberDetailsMono.flatMap(canSeeMemberDetails -> {
+            if (canSeeMemberDetails) {
+                return Mono.just(members);
+            }
+
+            Set<String> userIds = members.stream()
+                    .map(MemberInfoDTO::getUserId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            return userRepository
+                    .findAllById(userIds)
+                    .filter(user -> Boolean.FALSE.equals(user.getIsEnabled()))
+                    .map(User::getId)
+                    .collect(Collectors.toSet())
+                    .map(pendingUserIds -> {
+                        List<MemberInfoDTO> visibleMembers = members.stream()
+                                .filter(member -> !pendingUserIds.contains(member.getUserId()))
+                                .collect(Collectors.toList());
+                        visibleMembers.forEach(member -> member.setUsername(null));
+                        return visibleMembers;
+                    });
+        });
     }
 
     @Override
