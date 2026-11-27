@@ -21,6 +21,8 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.rpc.ApiExceptionFactory;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
@@ -1430,6 +1432,52 @@ public class FirestorePluginTest {
         StepVerifier.create(result)
                 .assertNext(datasourceTestResult ->
                         assertThat(datasourceTestResult.getInvalids()).containsExactly(expectedError))
+                .verifyComplete();
+    }
+
+    static Stream<Arguments> permissionDeniedErrors() {
+        return Stream.of(
+                // The shape that listCollections throws: a server error that the client wraps.
+                Arguments.of(null, permissionDeniedFromServer("Missing or insufficient permissions.")),
+                Arguments.of("my-db", permissionDeniedFromServer("Missing or insufficient permissions.")),
+                Arguments.of(
+                        null,
+                        permissionDeniedFromServer(
+                                "Cloud Firestore API has not been used in project test-project before or it is disabled.")),
+                Arguments.of(
+                        null,
+                        FirestoreException.forServerRejection(
+                                Status.PERMISSION_DENIED, "Missing or insufficient permissions.")));
+    }
+
+    private static FirestoreException permissionDeniedFromServer(String reason) {
+        return FirestoreException.forApiException(ApiExceptionFactory.createException(
+                Status.PERMISSION_DENIED.withDescription(reason).asRuntimeException(),
+                GrpcStatusCode.of(Status.Code.PERMISSION_DENIED),
+                false));
+    }
+
+    // Firestore answers PERMISSION_DENIED for a service account without a Firestore role and for a project where the
+    // Firestore API is disabled.
+    @ParameterizedTest
+    @MethodSource("permissionDeniedErrors")
+    void should_returnPermissionError_when_firestoreDeniesListingCollections(
+            String databaseId, FirestoreException error) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("test-project", "{}", databaseId);
+        Firestore deniedFirestore = Mockito.mock(Firestore.class);
+        Mockito.when(deniedFirestore.listCollections()).thenThrow(error);
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(deniedFirestore).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        Mono<DatasourceTestResult> result = spyExecutor.testDatasource(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(datasourceTestResult -> assertThat(datasourceTestResult.getInvalids())
+                        .containsExactly(FirestoreErrorMessages.DS_PERMISSION_DENIED_ERROR_MSG))
                 .verifyComplete();
     }
 

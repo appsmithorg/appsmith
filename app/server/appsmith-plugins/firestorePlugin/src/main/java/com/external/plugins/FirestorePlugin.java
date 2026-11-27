@@ -26,6 +26,8 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
+import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -38,6 +40,7 @@ import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Ticker;
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
@@ -1059,6 +1062,11 @@ public class FirestorePlugin extends BasePlugin {
                             Collections.singletonList(FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
                     return datasourceTestResult;
                 }
+                // Firestore answers PERMISSION_DENIED when the service account has no Firestore role and when the
+                // Firestore API is disabled for the project.
+                if (isPermissionDenied(e)) {
+                    return new DatasourceTestResult(FirestoreErrorMessages.DS_PERMISSION_DENIED_ERROR_MSG);
+                }
                 // With a named database, the failure can come from the Database ID as well as the project.
                 return new DatasourceTestResult(
                         DEFAULT_DATABASE_ID.equals(databaseId)
@@ -1066,6 +1074,17 @@ public class FirestorePlugin extends BasePlugin {
                                 : FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID);
             }
             return new DatasourceTestResult();
+        }
+
+        /**
+         * Reads the gRPC status from the server error that the client wraps. Clients before 3.31.4 do not copy it to
+         * {@link FirestoreException#getStatus()}.
+         */
+        private static boolean isPermissionDenied(FirestoreException e) {
+            if (e.getCause() instanceof ApiException apiException) {
+                return apiException.getStatusCode().getCode() == StatusCode.Code.PERMISSION_DENIED;
+            }
+            return e.getStatus() != null && e.getStatus().getCode() == Status.Code.PERMISSION_DENIED;
         }
 
         @Override
