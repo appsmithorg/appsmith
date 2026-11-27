@@ -1,4 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Tabs widget on change of selection navigation usecases",
@@ -13,7 +14,7 @@ describe(
       _.propPane.SelectPlatformFunction("onTabSelected", "Navigate to");
       cy.wait(1000);
       _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
-      _.agHelper.EnterActionValue("Enter URL", "www.appsmith.com");
+      _.agHelper.EnterActionValue("Enter URL", testdata.externalPage);
       cy.wait(1000);
       //Publish the app and validate the navigation change on tab selection
       _.deployMode.DeployApp();
@@ -22,7 +23,7 @@ describe(
         { force: true },
         { multiple: true },
       );
-      cy.url().should("include", "appsmith");
+      cy.url().should("eq", testdata.externalPage);
       cy.go("back");
       cy.get(".t--page-switch-tab:contains('Tab 3')").should("be.visible");
     });
