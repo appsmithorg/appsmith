@@ -45,6 +45,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_DEFAULT_ORGANIZATION_SPAN;
 import static com.appsmith.external.constants.spans.OrganizationSpan.FETCH_ORGANIZATION_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_MCP_INTERNAL_SECRET;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -234,6 +235,81 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
         }
         commonConfig.setMcpInternalSecret("");
         return envManager.persistMcpInternalSecret("");
+    }
+
+    /**
+     * Repairs an instance where MCP is on but {@code APPSMITH_MCP_INTERNAL_SECRET} is empty. This happens when MCP was
+     * turned on before the secret existed, or when writing the secret to the env file failed. Without the secret the
+     * backend refuses every mcp_ bearer.
+     *
+     * <ul>
+     *   <li>MCP off in every organization: does nothing. Turning MCP off still clears the secret.
+     *   <li>No env file: logs an error. A secret held only in memory would differ from the MCP process.
+     *   <li>The env file already has a secret, for example written by another pod: uses that value.
+     *   <li>Otherwise: writes a new secret and reads it back. The backend uses only the value read back, so a failed
+     *       write leaves both processes without a secret instead of holding different values.
+     * </ul>
+     *
+     * After the repair, only the mcp supervisor program restarts, because it read the env file before the secret
+     * existed.
+     */
+    @Override
+    public Mono<Void> repairMcpInternalSecretOnStartup() {
+        if (StringUtils.hasText(commonConfig.getMcpInternalSecret())) {
+            return Mono.empty();
+        }
+        return retrieveAll()
+                .any(OrganizationServiceCEImpl::isMcpEnabled)
+                .flatMap(mcpEnabled -> mcpEnabled ? repairMissingMcpInternalSecret() : Mono.<Void>empty())
+                .onErrorResume(error -> {
+                    log.error("Could not repair the empty APPSMITH_MCP_INTERNAL_SECRET at startup", error);
+                    return Mono.empty();
+                });
+    }
+
+    private static boolean isMcpEnabled(Organization organization) {
+        OrganizationConfiguration configuration = organization.getOrganizationConfiguration();
+        return configuration != null
+                && configuration.getMcpConfig() != null
+                && TRUE.equals(configuration.getMcpConfig().getEnabled());
+    }
+
+    private Mono<Void> repairMissingMcpInternalSecret() {
+        if (!StringUtils.hasText(commonConfig.getEnvFilePath())) {
+            log.error("MCP is on but APPSMITH_MCP_INTERNAL_SECRET is empty, and there is no env file to write a new one"
+                    + " to. Every MCP call is refused. Set APPSMITH_MCP_INTERNAL_SECRET to one random value for both"
+                    + " the backend and the MCP process, then restart.");
+            return Mono.empty();
+        }
+        return readMcpInternalSecretFromEnvFile()
+                .flatMap(secretOnFile -> {
+                    if (StringUtils.hasText(secretOnFile)) {
+                        return Mono.just(secretOnFile);
+                    }
+                    return envManager
+                            .persistMcpInternalSecret(McpTokenUtils.generateSecret())
+                            .then(readMcpInternalSecretFromEnvFile());
+                })
+                .flatMap(secret -> {
+                    if (!StringUtils.hasText(secret)) {
+                        log.error(
+                                "MCP is on but APPSMITH_MCP_INTERNAL_SECRET is empty, and writing a new one to the env"
+                                        + " file failed. Every MCP call is refused. Make the env file writable, then"
+                                        + " restart the container. Startup tries again.");
+                        return Mono.empty();
+                    }
+                    commonConfig.setMcpInternalSecret(secret);
+                    // Pods that share one env file and start together can each write a secret. The last write wins,
+                    // so a pod can end up with a different value from its MCP process. Its next restart fixes it.
+                    log.warn("MCP is on but APPSMITH_MCP_INTERNAL_SECRET was empty. Wrote a secret to the env file"
+                            + " and restarting the MCP process so it loads the same value. If MCP calls on this pod"
+                            + " still fail with MARKER_MISMATCH, restart the pod.");
+                    return envManager.restartMcpWithoutAclCheck();
+                });
+    }
+
+    private Mono<String> readMcpInternalSecretFromEnvFile() {
+        return envManager.getAllWithoutAclCheck().map(env -> env.getOrDefault(APPSMITH_MCP_INTERNAL_SECRET.name(), ""));
     }
 
     @Override

@@ -92,8 +92,9 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
 
     enum InternalMarkerCheck {
         VALID(""),
-        SERVER_SECRET_UNSET("The backend has no APPSMITH_MCP_INTERNAL_SECRET. Check docker.env, then turn MCP off and"
-                + " on in Admin Settings to create a new secret, and wait for the restart to finish."),
+        SERVER_SECRET_UNSET("The backend has no APPSMITH_MCP_INTERNAL_SECRET. When MCP is on, the backend creates one"
+                + " at startup. Check the startup log for why it did not. If the log shows no repair, turn MCP off"
+                + " and on in Admin Settings, and wait for the restart to finish."),
         MARKER_HEADER_MISSING(
                 "The request has no X-Appsmith-Mcp-Internal header. Either the MCP process has no"
                         + " APPSMITH_MCP_INTERNAL_SECRET, or a raw mcp_ token was sent straight to /api/v1. If it came from the MCP service, restart the container."),

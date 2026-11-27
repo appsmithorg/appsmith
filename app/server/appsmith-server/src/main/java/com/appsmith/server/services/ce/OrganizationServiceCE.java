@@ -31,4 +31,10 @@ public interface OrganizationServiceCE extends CrudService<Organization, String>
     Mono<Organization> retrieveById(String id);
 
     Flux<Organization> retrieveAll();
+
+    /**
+     * Runs at server startup. Creates {@code APPSMITH_MCP_INTERNAL_SECRET} when an organization has MCP on and the
+     * backend has no secret. Does nothing when MCP is off. Never fails.
+     */
+    Mono<Void> repairMcpInternalSecretOnStartup();
 }

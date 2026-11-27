@@ -244,6 +244,14 @@ async function main(): Promise<void> {
   httpServer.listen(port, "127.0.0.1", () => {
     process.stderr.write(`Appsmith MCP listening on 127.0.0.1:${port}\n`);
   });
+  // This process runs even when MCP is off, so an empty secret is not always an error. Log the state once, and never
+  // the value, so support can tell "secret missing" from "secret mismatch".
+  process.stderr.write(
+    process.env.APPSMITH_MCP_INTERNAL_SECRET
+      ? "Appsmith MCP internal secret: set\n"
+      : "Appsmith MCP internal secret: not set. This is expected while MCP Server is off in Admin Settings." +
+          " When it is on, the backend refuses every MCP call until the secret is set; check the backend log.\n",
+  );
 }
 
 // A truly uncaught exception leaves the process in an undefined state — exit so supervisord restarts it cleanly.
