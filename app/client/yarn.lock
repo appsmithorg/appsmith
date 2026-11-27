@@ -14055,7 +14055,7 @@ __metadata:
     mini-css-extract-plugin: ^2.4.5
     mixpanel-browser: ^2.55.1
     moment: 2.29.4
-    moment-timezone: ^0.5.35
+    moment-timezone: ^0.6.6
     msw: ^0.28.0
     mutative: ^1.1.0
     nanoid: ^3.3.17
@@ -26132,12 +26132,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:*, moment-timezone@npm:^0.5.35":
-  version: 0.5.35
-  resolution: "moment-timezone@npm:0.5.35"
+"moment-timezone@npm:*, moment-timezone@npm:^0.6.6":
+  version: 0.6.6
+  resolution: "moment-timezone@npm:0.6.6"
   dependencies:
-    moment: ">= 2.9.0"
-  checksum: 0f3907282dc9ae3d405fefaccf486dc4222945ff479127fd269e6c4ddc25e526e7ca9e849d6bf941c871bd17e875b256bdb276137a55db9fce4177c792a003df
+    moment: ^2.29.4
+  checksum: a01983e23465a13d42041ee7c042d632137161d36dd5b3f34dc11b084136fcf0c2a8340c963cebfcddaaa31728e09f1648e558488c8a426afbc2ee2f1b37fecd
   languageName: node
   linkType: hard
 
