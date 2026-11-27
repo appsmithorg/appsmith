@@ -6,17 +6,7 @@ import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 
-class FilePickerComponent extends React.Component<
-  FilePickerComponentProps,
-  FilePickerComponentState
-> {
-  constructor(props: FilePickerComponentProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
-
+class FilePickerComponent extends React.Component<FilePickerComponentProps> {
   openModal = () => {
     if (!this.props.isDisabled) {
       this.props.openModal();
@@ -44,10 +34,6 @@ class FilePickerComponent extends React.Component<
   public closeModal() {
     this.props.closeModal();
   }
-}
-
-export interface FilePickerComponentState {
-  isOpen: boolean;
 }
 
 export interface FilePickerComponentProps extends ComponentProps {

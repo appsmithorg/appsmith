@@ -30,22 +30,7 @@ const Wrapper = styled.div`
   display: flex;
 `;
 
-interface DynamicTextControlState {
-  showTemplateMenu: boolean;
-}
-
-class DynamicTextControl extends BaseControl<
-  DynamicTextFieldProps,
-  DynamicTextControlState
-> {
-  constructor(props: DynamicTextFieldProps) {
-    super(props);
-
-    this.state = {
-      showTemplateMenu: true,
-    };
-  }
-
+class DynamicTextControl extends BaseControl<DynamicTextFieldProps> {
   getControlType(): ControlType {
     return "QUERY_DYNAMIC_TEXT";
   }

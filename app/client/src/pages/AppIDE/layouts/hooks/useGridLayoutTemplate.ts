@@ -24,6 +24,8 @@ interface ReturnValue {
   columns: AnimatedGridUnit[];
 }
 
+const DEFAULT_ROWS: AnimatedGridUnit[] = ["1fr"];
+
 function useGridLayoutTemplate(): ReturnValue {
   const areas = React.useMemo(function initialiseAreas() {
     return [
@@ -31,7 +33,7 @@ function useGridLayoutTemplate(): ReturnValue {
     ];
   }, []);
   const [columns, setColumns] = React.useState<AnimatedGridUnit[]>([]);
-  const [rows] = React.useState<AnimatedGridUnit[]>(["1fr"]);
+  const rows = DEFAULT_ROWS;
 
   const [windowWidth] = useWindowDimensions();
   const editorStateLeftPaneWidth = useEditorStateLeftPaneWidth();
