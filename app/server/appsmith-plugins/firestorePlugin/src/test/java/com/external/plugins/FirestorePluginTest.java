@@ -1451,10 +1451,41 @@ public class FirestorePluginTest {
     }
 
     private static FirestoreException permissionDeniedFromServer(String reason) {
+        return serverError(Status.PERMISSION_DENIED, reason);
+    }
+
+    // The shape that listCollections throws: a server error that the client wraps.
+    private static FirestoreException serverError(Status status, String reason) {
         return FirestoreException.forApiException(ApiExceptionFactory.createException(
-                Status.PERMISSION_DENIED.withDescription(reason).asRuntimeException(),
-                GrpcStatusCode.of(Status.Code.PERMISSION_DENIED),
-                false));
+                status.withDescription(reason).asRuntimeException(), GrpcStatusCode.of(status.getCode()), false));
+    }
+
+    static Stream<Arguments> notFoundErrorsByDatabaseId() {
+        return Stream.of(
+                Arguments.of(null, FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID),
+                Arguments.of("my-db", FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID));
+    }
+
+    @ParameterizedTest
+    @MethodSource("notFoundErrorsByDatabaseId")
+    void should_returnConnectionError_when_firestoreReturnsNotFound(String databaseId, String expectedError) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("test-project", "{}", databaseId);
+        Firestore missingFirestore = Mockito.mock(Firestore.class);
+        Mockito.when(missingFirestore.listCollections())
+                .thenThrow(serverError(Status.NOT_FOUND, "The database my-db does not exist for project test-project"));
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(missingFirestore).when(spyExecutor).createClient(datasourceConfiguration);
+
+        // When
+        Mono<DatasourceTestResult> result = spyExecutor.testDatasource(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(datasourceTestResult ->
+                        assertThat(datasourceTestResult.getInvalids()).containsExactly(expectedError))
+                .verifyComplete();
     }
 
     // Firestore answers PERMISSION_DENIED for a service account without a Firestore role and for a project where the

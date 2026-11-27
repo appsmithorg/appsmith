@@ -1077,8 +1077,8 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         /**
-         * Reads the gRPC status from the server error that the client wraps. Clients before 3.31.4 do not copy it to
-         * {@link FirestoreException#getStatus()}.
+         * Reads the gRPC status from the server error that the client wraps. Some client versions leave
+         * {@link FirestoreException#getStatus()} unset for server errors.
          */
         private static boolean isPermissionDenied(FirestoreException e) {
             if (e.getCause() instanceof ApiException apiException) {
