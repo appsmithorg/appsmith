@@ -1,3 +1,14 @@
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+
+/**
+ * Helper to build internal CDN icon URLs for JS library author avatars.
+ * Icons are hosted at: https://assets.appsmith.com/js-library-icons/<author>.png
+ * The getAssetUrl wrapper ensures compatibility with air-gapped deployments.
+ */
+const jsLibIcon = (author: string) =>
+  getAssetUrl(`${ASSETS_CDN_URL}/js-library-icons/${author}.png`);
+
 export default [
   {
     name: "jsonwebtoken",
@@ -6,7 +17,7 @@ export default [
     docsURL: "https://github.com/auth0/node-jsonwebtoken#readme",
     version: "8.5.1",
     url: "/libraries/jsonwebtoken@8.5.1.js",
-    icon: "https://github.com/auth0.png?s=20",
+    icon: jsLibIcon("auth0"),
   },
   {
     name: "fast-xml-parser",
@@ -16,7 +27,7 @@ export default [
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     url: "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.5.4/src/fxp.min.js",
     version: "4.5.4",
-    icon: "https://img.jsdelivr.com/github.com/NaturalIntelligence.png",
+    icon: jsLibIcon("NaturalIntelligence"),
   },
   {
     name: "jspdf",
@@ -25,7 +36,7 @@ export default [
     docsURL: "https://raw.githack.com/MrRio/jsPDF/master/docs/index.html",
     version: "2.5.1",
     url: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-    icon: "https://github.com/MrRio.png?s=20",
+    icon: jsLibIcon("MrRio"),
   },
   {
     name: "@amplitude/analytics-browser",
@@ -35,7 +46,7 @@ export default [
       "https://github.com/amplitude/Amplitude-TypeScript/tree/main/packages/analytics-browser#usage",
     version: "1.6.1",
     url: "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@1.6.1/lib/scripts/amplitude-min.umd.js",
-    icon: "https://github.com/amplitude.png?s=20",
+    icon: jsLibIcon("amplitude"),
   },
   {
     name: "@supabase/supabase-js",
@@ -44,7 +55,7 @@ export default [
     docsURL: "https://supabase.com/docs/reference/javascript",
     version: "2.4.0",
     url: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.4.0/dist/umd/supabase.min.js",
-    icon: "https://github.com/supabase.png?s=20",
+    icon: jsLibIcon("supabase"),
   },
   {
     name: "uuidjs",
@@ -55,7 +66,7 @@ export default [
     docsURL:
       "https://github.com/LiosK/UUID.js/#uuidjs---rfc-compliant-uuid-generator-for-javascript",
     version: "4.2.12",
-    icon: "https://github.com/LiosK.png?s=20",
+    icon: jsLibIcon("LiosK"),
   },
   {
     name: "bcryptjs",
@@ -64,7 +75,7 @@ export default [
     author: "dcodeIO",
     docsURL: "https://github.com/dcodeIO/bcrypt.js#bcryptjs",
     version: "2.4.3",
-    icon: "https://github.com/dcodeIO.png?s=20",
+    icon: jsLibIcon("dcodeIO"),
   },
   {
     name: "Papa Parse 5",
@@ -74,7 +85,7 @@ export default [
     docsURL: "https://www.papaparse.com/docs",
     version: "5.3.2",
     url: `https://unpkg.com/papaparse@5.3.2/papaparse.min.js`,
-    icon: "https://github.com/mholt.png?s=20",
+    icon: jsLibIcon("mholt"),
   },
   {
     name: "ky",
@@ -83,7 +94,7 @@ export default [
     docsURL: "https://github.com/sindresorhus/ky#usage",
     version: "0.25.0",
     url: "https://www.unpkg.com/ky@0.25.0/umd.js",
-    icon: "https://github.com/sindresorhus.png?s=20",
+    icon: jsLibIcon("sindresorhus"),
   },
   {
     name: "appwrite",
@@ -92,7 +103,7 @@ export default [
       "Appwrite is a secure end-to-end backend server for frontend and mobile developers",
     author: "appwrite",
     version: "10.2.0",
-    icon: "https://github.com/appwrite.png?s=20",
+    icon: jsLibIcon("appwrite"),
     docsURL: "https://github.com/appwrite/sdk-for-web#getting-started",
   },
   {
@@ -101,7 +112,7 @@ export default [
     description: "i18next internationalization framework",
     author: "i18next",
     version: "22.1.4",
-    icon: "https://github.com/i18next.png?s=20",
+    icon: jsLibIcon("i18next"),
     docsURL: "https://www.i18next.com/overview/getting-started",
   },
   {
@@ -111,7 +122,7 @@ export default [
     docsURL: "https://github.com/greggman/uzip-module#uzip-module",
     version: "1.0.3",
     url: `https://cdn.jsdelivr.net/npm/uzip-module@1.0.3/dist/uzip.js`,
-    icon: "https://github.com/greggman.png?s=20",
+    icon: jsLibIcon("greggman"),
   },
   {
     name: "@sentry/browser",
@@ -120,7 +131,7 @@ export default [
     docsURL: "https://docs.sentry.io/platforms/javascript/",
     version: "7.17.3",
     url: "https://browser.sentry-cdn.com/7.17.3/bundle.min.js",
-    icon: "https://github.com/getsentry.png?s=20",
+    icon: jsLibIcon("getsentry"),
   },
   {
     name: "jsonpath",
@@ -130,7 +141,7 @@ export default [
     version: "1.1.1",
     author: "dchester",
     docsURL: "https://github.com/dchester/jsonpath/#jsonpath",
-    icon: "https://github.com/dchester.png?s=20",
+    icon: jsLibIcon("dchester"),
   },
   // We'll be enabling support for segment soon
   // {
@@ -138,11 +149,11 @@ export default [
   //   url:
   //     "https://cdn.jsdelivr.net/npm/@segment/analytics-next@1.46.1/dist/umd/index.js",
   //   description:
-  //     "Analytics Next (aka Analytics 2.0) is the latest version of Segment’s JavaScript SDK - enabling you to send your data to any tool without having to learn, test, or use a new API every time.",
+  //     "Analytics Next (aka Analytics 2.0) is the latest version of Segment's JavaScript SDK - enabling you to send your data to any tool without having to learn, test, or use a new API every time.",
   //   author: "segmentio",
   //   docsURL:
   //     "https://github.com/segmentio/analytics-next/tree/master/packages/browser#readme",
   //   version: "1.46.1",
-  //   icon: "https://github.com/segmentio.png?s=20",
+  //   icon: jsLibIcon("segmentio"),
   // },
 ];
