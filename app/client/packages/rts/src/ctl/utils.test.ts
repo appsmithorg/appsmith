@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "@jest/globals";
 import fs from "node:fs";
+import fsPromises from "fs/promises";
 
 import * as utils from "./utils";
 
@@ -154,5 +155,28 @@ describe("env file readers", () => {
     expect(utils.readRedisUrlSetting()).toBe(
       "redis://:secret==@redis.example:6379",
     );
+  });
+});
+
+describe("listLocalBackupFiles", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test("lists backups oldest first, not in readdir order", async () => {
+    jest
+      .spyOn(fsPromises, "readdir")
+      .mockResolvedValue([
+        "appsmith-backup-2026-09-24T12-00-00.000Z.tar.gz",
+        "appsmith-backup-2026-09-22T12-00-00.000Z.tar.gz.enc",
+        "not-a-backup.txt",
+        "appsmith-backup-2026-09-23T12-00-00.000Z.tar.gz",
+      ] as never);
+
+    expect(await utils.listLocalBackupFiles()).toEqual([
+      "appsmith-backup-2026-09-22T12-00-00.000Z.tar.gz.enc",
+      "appsmith-backup-2026-09-23T12-00-00.000Z.tar.gz",
+      "appsmith-backup-2026-09-24T12-00-00.000Z.tar.gz",
+    ]);
   });
 });
