@@ -205,6 +205,7 @@ function DateField({
         backgroundColor="white"
         borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
         boxShadow={schemaItem.boxShadow ?? "none"}
+        canClearSelection={!schemaItem.isRequired}
         closeOnSelection={schemaItem.closeOnSelection}
         compactMode
         dateFormat={schemaItem.dateFormat}

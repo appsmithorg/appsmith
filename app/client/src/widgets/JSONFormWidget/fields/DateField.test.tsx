@@ -9,6 +9,7 @@ import DateField from "./DateField";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 interface MockDateComponentProps {
+  canClearSelection?: boolean;
   isRequired?: boolean;
   onDateSelected: (selectedDate: string) => void;
 }
@@ -103,6 +104,22 @@ describe("DateField", () => {
     );
 
     expect(getLastRenderedProps().isRequired).toBeFalsy();
+    expect(getLastRenderedProps().canClearSelection).toBe(false);
+  });
+
+  it("allows clearing when the field is not required", () => {
+    render(
+      <MockFormWrapper>
+        <DateField
+          fieldClassName="dob"
+          name="dob"
+          propertyPath="schema.__root_schema__.children.dob"
+          schemaItem={{ ...schemaItem, isRequired: false }}
+        />
+      </MockFormWrapper>,
+    );
+
+    expect(getLastRenderedProps().canClearSelection).toBe(true);
   });
 
   it("marks an empty required field as invalid once the user clears the selected date", () => {
@@ -151,5 +168,6 @@ describe("DateField", () => {
     });
 
     expect(getLastRenderedProps().isRequired).toBeFalsy();
+    expect(getLastRenderedProps().canClearSelection).toBe(false);
   });
 });
