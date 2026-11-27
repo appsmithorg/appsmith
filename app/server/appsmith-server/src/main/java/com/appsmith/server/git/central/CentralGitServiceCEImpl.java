@@ -1362,7 +1362,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 commitDTO.setIsAmendCommit(FALSE);
                                 commitDTO.setMessage(commitMessage);
 
-                                return this.commitArtifact(commitDTO, artifact.getId(), artifactType, gitType)
+                                // Connect's write-access probe commit is system-generated — do not audit.
+                                return this.commitArtifact(
+                                                commitDTO, artifact.getId(), artifactType, gitType, TRUE, true)
                                         .onErrorResume(error -> {
                                             log.error("Error while committing", error);
                                             // If the push fails remove all the cloned files from local repo
@@ -1403,7 +1405,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<String> commitArtifact(
             CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
-        return commitArtifact(commitDTO, branchedArtifactId, artifactType, gitType, TRUE);
+        // User-facing Commit API — always treat as a user action for Audit Logs.
+        return commitArtifact(commitDTO, branchedArtifactId, artifactType, gitType, TRUE, false);
     }
 
     public Mono<String> commitArtifact(
@@ -1412,6 +1415,20 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             ArtifactType artifactType,
             GitType gitType,
             Boolean isFileLock) {
+        return commitArtifact(commitDTO, branchedArtifactId, artifactType, gitType, isFileLock, false);
+    }
+
+    /**
+     * @param isSystemGenerated true for server-driven sync commits (connect probe, post-pull, post-merge).
+     *     Those must not write a committed audit row. Do not infer this from the commit message text.
+     */
+    public Mono<String> commitArtifact(
+            CommitDTO commitDTO,
+            String branchedArtifactId,
+            ArtifactType artifactType,
+            GitType gitType,
+            Boolean isFileLock,
+            boolean isSystemGenerated) {
         /*
         1. Check if artifact exists and user have sufficient permissions
         2. Check if branch name exists in git metadata
@@ -1451,7 +1468,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return gitUserMono.flatMap(gitUser -> {
                 commitDTO.setAuthor(gitUser);
                 commitDTO.setCommitter(gitUser);
-                return commitArtifact(commitDTO, baseArtifact, branchedArtifact, gitType, isFileLock);
+                return commitArtifact(
+                        commitDTO, baseArtifact, branchedArtifact, gitType, isFileLock, isSystemGenerated);
             });
         });
     }
@@ -1461,7 +1479,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             Artifact baseArtifact,
             Artifact branchedArtifact,
             GitType gitType,
-            boolean isFileLock) {
+            boolean isFileLock,
+            boolean isSystemGenerated) {
 
         String commitMessage = commitDTO.getMessage();
 
@@ -1484,8 +1503,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             branchedArtifact.getGitArtifactMetadata().getIsRepoPrivate())
                     .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage)));
         }
-
-        boolean isSystemGenerated = commitDTO.getMessage().contains(DEFAULT_COMMIT_MESSAGE);
 
         ArtifactType artifactType = baseArtifact.getArtifactType();
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -2122,12 +2139,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     gitPullDTO.setArtifact(publishedArtifact);
 
                                     // TODO: this can be done async as well.
+                                    // Post-pull sync commit is system-generated — do not audit.
                                     return Mono.defer(() -> commitArtifact(
                                                     commitDTO,
                                                     publishedArtifact.getId(),
                                                     publishedArtifact.getArtifactType(),
                                                     gitType,
-                                                    false))
+                                                    false,
+                                                    true))
                                             .thenReturn(gitPullDTO);
                                 });
                             });
@@ -3279,12 +3298,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                                         .getReason()
                                                                 + sourceBranch);
 
+                                                        // Post-merge sync commit is system-generated — do not audit.
                                                         return commitArtifact(
                                                                         commitDTO,
                                                                         importedDestinationArtifact.getId(),
                                                                         artifactType,
                                                                         gitType,
-                                                                        false)
+                                                                        false,
+                                                                        true)
                                                                 .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
                                                                         AnalyticsEvents.GIT_MERGE,
                                                                         importedDestinationArtifact,
