@@ -5,8 +5,8 @@
 secretName: ""
 
 ## @param applicationConfig Map of APPSMITH_* environment variables for the application container
-# @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.
-# -- Map of APPSMITH_* environment variables for the application container
+# @schema description: Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive. APPSMITH_OTEL_HTTP_ENDPOINT configures Caddy, Java server, and RTS tracing. Runtime precedence is APPSMITH_OTEL_HTTP_ENDPOINT, then OTEL_EXPORTER_OTLP_TRACES_ENDPOINT, then OTEL_EXPORTER_OTLP_ENDPOINT (auto-appended with /v1/traces), then http://localhost:4318/v1/traces. APPSMITH_ENABLE_OTEL accepts case-insensitive enabled forms true, 1, yes, on and disabled forms false, 0, no, off, empty, unset. Any other value fails startup fast. APPSMITH_OTEL_TRACING_SAMPLING_PROBABILITY controls root-span head sampling for those services with a valid range of 0..1 and default 1. Invalid values fail startup fast.
+# -- Map of APPSMITH_* environment variables for the application container (APPSMITH_ENABLE_OTEL accepts true/1/yes/on and false/0/no/off case-insensitively; APPSMITH_OTEL_HTTP_ENDPOINT and APPSMITH_OTEL_TRACING_SAMPLING_PROBABILITY apply to Caddy, Java server, and RTS tracing)
 # @section -- Appsmith configuration
 applicationConfig: # @schema additionalProperties: {type: [string, boolean, integer, number]}
   # @schema hidden: true
@@ -44,6 +44,12 @@ applicationConfig: # @schema additionalProperties: {type: [string, boolean, inte
   # @schema hidden: true
   APPSMITH_DISABLE_TELEMETRY: ""
   # @schema hidden: true
+  APPSMITH_ENABLE_OTEL: "false" # disabled by default; enable with true/1/yes/on (case-insensitive); false/0/no/off/empty/unset disable; malformed values fail startup
+  # @schema hidden: true
+  APPSMITH_OTEL_HTTP_ENDPOINT: "" # Caddy, Java server, and RTS traces; precedence: APPSMITH_OTEL_HTTP_ENDPOINT -> OTEL_EXPORTER_OTLP_TRACES_ENDPOINT -> OTEL_EXPORTER_OTLP_ENDPOINT(+/v1/traces) -> http://localhost:4318/v1/traces
+  # @schema hidden: true
+  APPSMITH_OTEL_TRACING_SAMPLING_PROBABILITY: "1" # Root-span head-sampling probability for Caddy, Java server, and RTS tracing (range 0..1; invalid values fail startup). Keep high enough for collector tail-sampling workflows.
+  # @schema hidden: true
   APPSMITH_RECAPTCHA_SITE_KEY: ""
   # @schema hidden: true
   APPSMITH_RECAPTCHA_SECRET_KEY: ""
@@ -71,6 +77,8 @@ applicationConfig: # @schema additionalProperties: {type: [string, boolean, inte
   APPSMITH_KEYCLOAK_DB_PASSWORD: ""
   # @schema hidden: true
   APPSMITH_KEYCLOAK_DB_URL: ""
+  # @schema hidden: true
+  APPSMITH_SAML_ENGINE: "keycloak" # keycloak = bundled broker (default); native = explicit opt-in to in-process OpenSAML
 ## @param image.registry Container image registry
 ## @param image.repository Container image repository
 ## @param image.tag Container image tag (defaults to "latest" when omitted)
@@ -268,9 +276,9 @@ resources:
   # -- Resource requests for the Appsmith container
   # @section -- Workload configuration
   requests:
-     # @schema type: [string, number]
-     cpu: 500m
-     memory: 3000Mi
+    # @schema type: [string, number]
+    cpu: 500m
+    memory: 3000Mi
 
 ## Health probes for the Appsmith container. All three call the HTTP health endpoint.
 ## Saving some admin settings restarts the server inside the container. A restart takes
@@ -394,7 +402,6 @@ affinity: {}
 #  - maxSkew: 1 # distribute pods in an absolute even manner
 #    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
 #    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
-
 
 ## Redis parameters
 ## Values are passed through to the Bitnami redis subchart; not validated by this schema.
@@ -769,7 +776,6 @@ externalSecrets:
   # @section -- External Secrets
   remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
 
-
 ## prometheus paramaters
 ## Values are passed through to the prometheus subchart; not validated by this schema.
 prometheus: # @schema additionalProperties: true
@@ -783,7 +789,6 @@ prometheus: # @schema additionalProperties: true
     # -- Prometheus container image tag
     # @section -- Monitoring
     tag: v0.74.0
-
 
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -809,7 +814,6 @@ serviceAccount:
   # -- Additional Service Account annotations
   # @section -- Service account
   annotations: {}
-
 
 # @schema description: Kubernetes Service configuration for Appsmith.
 service:
