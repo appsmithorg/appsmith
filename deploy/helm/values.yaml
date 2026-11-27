@@ -764,10 +764,33 @@ externalSecrets:
   # -- How often to refresh secrets from the remote provider
   # @section -- External Secrets
   refreshInterval: 1m
-  ## @param externalSecrets.remoteNameSecret Name of the secret in the external provider
-  # -- Name of the secret in the external provider
+  ## @param externalSecrets.remoteSecretName Name of the secret in the external provider (legacy single-secret path)
+  # -- Name of the secret in the external provider, pulled verbatim via dataFrom.extract
   # @section -- External Secrets
-  remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
+  remoteSecretName: "" # @schema description: Name of the secret in the external Secret provider (legacy single-secret path, dataFrom.extract).
+  ## @param externalSecrets.secretStoreRef Default SecretStore reference used by the generated ExternalSecret resources
+  # @schema description: Default SecretStore reference (name/kind) applied to every generated ExternalSecret unless overridden per entry.
+  # -- Default SecretStore reference for the generated ExternalSecret resources
+  # @section -- External Secrets
+  secretStoreRef:
+    ## @param externalSecrets.secretStoreRef.name Name of the SecretStore/ClusterSecretStore
+    # -- Name of the SecretStore/ClusterSecretStore
+    # @section -- External Secrets
+    name: secretstore
+    ## @param externalSecrets.secretStoreRef.kind Kind of the store (SecretStore or ClusterSecretStore)
+    # -- Kind of the store (SecretStore or ClusterSecretStore)
+    # @section -- External Secrets
+    kind: SecretStore
+  ## @param externalSecrets.additionalSecrets Additional ExternalSecret resources with optional per-key mapping
+  # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom. An entry-level secretStoreRef is merged field by field over externalSecrets.secretStoreRef, so a missing name or kind is taken from the shared reference.
+  # -- Additional ExternalSecret resources with optional per-key mapping (see "External Secrets: per-key mapping" below for an example)
+  # @section -- External Secrets
+  additionalSecrets: []
+  ## @param externalSecrets.remoteNameSecret [Deprecated] Renamed to externalSecrets.remoteSecretName
+  # @schema description: Deprecated alias for externalSecrets.remoteSecretName. Used only when remoteSecretName is empty.
+  # -- [Deprecated] Use externalSecrets.remoteSecretName instead
+  # @section -- External Secrets
+  remoteNameSecret: ""
 
 
 ## prometheus paramaters
