@@ -10,90 +10,75 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Image widget tests",
   { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] },
   function () {
-    const image = (src: string) => 'img[src="' + src + '"]';
-    const jpgImg =
-      "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
-    const gifImg =
-      "https://www.appsmith.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Flpvian6u6i39%2F5dIHs6B4O8JrcziD01Tzpr%2F080ac2887506afab72a160b897364607%2Fimage-11.gif&w=1080&q=75";
-    const svgImg = "https://community.appsmith.com/appsmith-community-logo.svg";
-    const webpImg =
-      "https://www.appsmith.com/assets/images/animations/widgets/img_0.webp";
-    const pngImg =
-      "https://community.appsmith.com/sites/default/files/styles/16_9_card/public/septembercoding-min%20%281%29.png?itok=unYUZ0zm";
+    const fixtureOrigin = "http://127.0.0.1:4200";
+    const jpgImg = fixtureOrigin + "/453-200x300.jpg";
+    const gifImg = fixtureOrigin + "/sampleGIFfile.gif";
+    const svgImg = fixtureOrigin + "/kiwi.svg";
+    const webpImg = fixtureOrigin + "/4_sm.webp";
+    const pngImg = fixtureOrigin + "/clouddefaultImage.png";
+    let editorUrl: string;
+
+    const assertImageLoaded = (src: string) => {
+      cy.get<HTMLImageElement>(widgetLocators.image + " img").should(
+        ($image) => {
+          expect($image).to.have.attr("src", src);
+          expect($image[0].naturalWidth).to.be.greaterThan(0);
+        },
+      );
+    };
 
     before(() => {
+      cy.url().then((url) => {
+        editorUrl = url;
+      });
+    });
+
+    beforeEach(() => {
+      cy.visit(editorUrl);
+      PageList.AddNewPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
+      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue("Image", pngImg);
     });
 
     it("1. Verify Image Preview for different types of images (png, jpg, gif, svg, webp)", function () {
-      //jpg
-      propPane.UpdatePropertyFieldValue("Image", jpgImg);
-      agHelper.AssertAttribute(widgetLocators.image + " img", "src", jpgImg);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(jpgImg));
-      agHelper.AssertContains("Unable to display the image", "not.exist");
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      //gif
-      propPane.UpdatePropertyFieldValue("Image", gifImg);
-      agHelper.AssertAttribute(widgetLocators.image + " img", "src", gifImg);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(gifImg));
-      agHelper.AssertContains("Unable to display the image", "not.exist");
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      //webp
-      propPane.UpdatePropertyFieldValue("Image", webpImg);
-      agHelper.AssertAttribute(widgetLocators.image + " img", "src", webpImg);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(webpImg));
-      agHelper.AssertContains("Unable to display the image", "not.exist");
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      //Not working in cypress whereas works fine manually
-      //svg
-      // propPane.UpdatePropertyFieldValue("Image", svgImg);
-      // agHelper.AssertAttribute(widgetLocators.image + " img", "src", svgImg)
-      // deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      // agHelper.AssertElementExist(image(svgImg))
-      // agHelper.AssertContains("Unable to display the image", "not.exist")
-      // deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      //png
-      propPane.UpdatePropertyFieldValue("Image", pngImg);
-      agHelper.AssertAttribute(widgetLocators.image + " img", "src", pngImg);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(pngImg));
-      agHelper.AssertContains("Unable to display the image", "not.exist");
+      for (const src of [jpgImg, gifImg, webpImg, svgImg, pngImg]) {
+        propPane.UpdatePropertyFieldValue("Image", src);
+        assertImageLoaded(src);
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.IMAGE),
+        );
+        assertImageLoaded(src);
+        agHelper.AssertContains("Unable to display the image", "not.exist");
+        deployMode.NavigateBacktoEditor();
+        EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
+      }
     });
 
     it("2. Validate Binding Image to Button Widget and checking the behaviour on enabling/disabling the button", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Image",
         "{{Button1.isDisabled ?'" + jpgImg + "':'" + gifImg + "'}}",
       );
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 400);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(gifImg));
+      assertImageLoaded(gifImg);
       agHelper.AssertContains("Unable to display the image", "not.exist");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.TogglePropertyState("Disabled", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
-      agHelper.AssertElementExist(image(jpgImg));
+      assertImageLoaded(jpgImg);
       agHelper.AssertContains("Unable to display the image", "not.exist");
     });
 
     it("3. Verify Zoom In property", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.AssertPropertiesDropDownCurrentValue(
         "Max zoom level",
         "1x (No Zoom)",
@@ -118,6 +103,7 @@ describe(
     });
 
     it("4. Verify Object fit property", function () {
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
       agHelper.AssertCSS(widgetLocators.image, "background-size", "cover");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
@@ -143,8 +129,6 @@ describe(
     });
 
     it("5. Verify visible property is JS convertible", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
       deployMode.DeployApp();
       agHelper.AssertElementAbsence(
@@ -157,8 +141,6 @@ describe(
     });
 
     it("6. Verify image styles", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.MoveToTab("Style");
       propPane.EnterJSContext("Border radius", "", true, true);
       agHelper.AssertElementVisibility(widgetLocators.styleOrangeIcon);
@@ -187,8 +169,6 @@ describe(
     });
 
     it("7. Validate OnClick Event", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.EnterJSContext(
         "onClick",
         "{{showAlert('Image Clicked!','success')}}",

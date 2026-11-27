@@ -569,6 +569,8 @@ jobs:
 
     steps:
       - name: Notify failure on workflow run and on Slack
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TECH }}
         run: |
           set -o errexit
           set -o nounset
@@ -577,16 +579,13 @@ jobs:
           run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
           slack_message="🚨 TBP workflow failed in <$run_url|${{ vars.EDITION }} attempt ${{ github.run_attempt }} (run ${{ github.run_id }})>."
 
-          # This is the ChannelId of the tech channel.
           body="$(jq -nc \
-            --arg channel CGBPVEJ5C \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"
 
-          curl -v https://slack.com/api/chat.postMessage \
+          curl -sS "$SLACK_WEBHOOK" \
             --fail-with-body \
-            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
 
@@ -599,6 +598,8 @@ jobs:
 
     steps:
       - name: Notify failure on workflow run and on Slack
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PROJ_POSTGRES_SYNC }}
         run: |
           set -o errexit
           set -o nounset
@@ -607,14 +608,11 @@ jobs:
           run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
           slack_message="🚨 TBP workflow failed in <$run_url|${{ vars.EDITION }} attempt ${{ github.run_attempt }} (run ${{ github.run_id }})>."
 
-          # This is the ChannelId of the proj-postgres-sync channel.
           body="$(jq -nc \
-            --arg channel C07JMLWEXDJ \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"
-          curl -v https://slack.com/api/chat.postMessage \
+          curl -sS "$SLACK_WEBHOOK" \
             --fail-with-body \
-            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
