@@ -31,11 +31,10 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
       cy.wait(2000);
       agHelper.ClickButton("Submit");
-      cy.wait(4000); //for page to load
+      cy.url().should("eq", testdata.externalPage);
       agHelper.AssertElementAbsence(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );
-      cy.url().should("contain", testdata.externalPage);
     });
   },
 );

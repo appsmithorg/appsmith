@@ -16,9 +16,8 @@ import EditorNavigation, {
 
 const ppt =
   "http://host.docker.internal:4200/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
-const pngImage = "https://www.appsmith.com/favicon.png";
-const jpgImage =
-  "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
+const pngImage = "http://host.docker.internal:4200/clouddefaultImage.png";
+const jpgImage = "http://host.docker.internal:4200/453-200x300.jpg";
 const pdf = "http://host.docker.internal:4200/sample-pdf-file.pdf";
 
 describe(
@@ -204,7 +203,7 @@ describe(
         "{{FilePicker1.files[0].data}}",
       );
       agHelper.AssertContains("Current file type is not supported");
-      //Should show an png image file
+      // PNG and JPEG links should show the unsupported type message.
       propPane.UpdatePropertyFieldValue("Document link", pngImage);
       deployMode.DeployApp();
       agHelper.AssertElementExist(
@@ -212,7 +211,6 @@ describe(
       );
       agHelper.AssertContains("Current file type is not supported");
       deployMode.NavigateBacktoEditor();
-      //Should not show an jpg image file"
       EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Document link", jpgImage);
       deployMode.DeployApp();

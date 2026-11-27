@@ -94,7 +94,7 @@
     }
   ],
   "addInputWidgetBinding": "{{Table1.selectedRow.id",
-  "externalPage": "https://www.appsmith.com/",
+  "externalPage": "http://host.docker.internal:4200/",
   "loadashInput": "{{_.add(3,4)",
   "momentInput": "{{moment(new Date).format('yyyy')",
   "atobInput": "{{atob('QQ==')",
