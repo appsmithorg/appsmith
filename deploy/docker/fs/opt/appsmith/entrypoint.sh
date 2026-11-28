@@ -31,6 +31,123 @@ fi
 
 tlog "Running as: $(id)"
 
+# True when the given host (as written in a URL, IPv6 in brackets) is the loopback
+# address served by the embedded Redis. Exact match only, so that names such as
+# "redis-localhost.example.com" are treated as remote hosts.
+redis_host_is_local() {
+  case "$1" in
+    localhost | 127.0.0.1 | "[::1]") return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# True when the host part of a Redis URL is local (see redis_host_is_local).
+redis_url_is_local() {
+  local rest="${1#*://}"
+  # Isolate the authority first, so an "@" in the path or query is not taken as userinfo.
+  rest="${rest%%[/?#]*}"
+  rest="${rest##*@}"
+  if [[ "$rest" == \[* ]]; then
+    rest="${rest%%]*}]"
+  else
+    rest="${rest%%:*}"
+  fi
+  redis_host_is_local "$rest"
+}
+
+# Build APPSMITH_REDIS_URL from its individual components when a full URL has not
+# been supplied. This lets operators wire up Redis from the discrete values that
+# secret stores such as AWS Secrets Manager expose for a managed Redis/ElastiCache
+# instance (host, port, password) without having to hand-assemble a connection URL:
+#
+#   APPSMITH_REDIS_HOST=master.redis-prd-appsmith.lbfmiu.euc1.cache.amazonaws.com
+#   APPSMITH_REDIS_PORT=6379
+#   APPSMITH_REDIS_PASSWORD=<password>
+#
+# Precedence and rules:
+#   - An explicitly set APPSMITH_REDIS_URL always wins and is left untouched, so
+#     existing deployments keep working unchanged.
+#   - Composition only happens when APPSMITH_REDIS_HOST is set and no
+#     APPSMITH_REDIS_URL was supplied from outside. The localhost URL and generated
+#     password written to docker.env for the embedded Redis are ignored then.
+#   - APPSMITH_REDIS_PORT defaults to 6379 when not provided.
+#   - APPSMITH_REDIS_PASSWORD is optional; when empty, a passwordless URL is built.
+#   - APPSMITH_REDIS_TLS=true (or APPSMITH_REDIS_SSL=true) selects the `rediss://`
+#     scheme for TLS-enabled endpoints; otherwise `redis://` is used.
+#
+# The composed value is exported so every downstream consumer (the Java server, the
+# RTS/appsmithctl tooling, the MCP process, and this script's own embedded-vs-external
+# Redis detection) sees a single, consistent URL.
+compose_redis_url_from_parts() {
+  # Only values supplied from outside count as explicit. The URL and password that
+  # docker.env generates for the embedded Redis are defaults and must not block, or
+  # leak into, a host-based configuration. init_env_file records the external values
+  # before docker.env is loaded; fall back to the current values when it did not run.
+  local explicit_url="${APPSMITH_REDIS_URL_EXTERNAL-${APPSMITH_REDIS_URL:-}}"
+  local explicit_password="${APPSMITH_REDIS_PASSWORD_EXTERNAL-${APPSMITH_REDIS_PASSWORD:-}}"
+
+  # Nothing to do if an explicit URL is already provided.
+  if [[ -n "$explicit_url" ]]; then
+    return 0
+  fi
+
+  # Need at least a host to compose a URL.
+  if [[ -z "${APPSMITH_REDIS_HOST:-}" ]]; then
+    return 0
+  fi
+
+  local host="$APPSMITH_REDIS_HOST"
+  # Only a plain hostname, IPv4 address or bracketed IPv6 address is accepted. Anything
+  # else (e.g. "user@host" or a host with a path) would corrupt the URL authority.
+  if ! [[ "$host" =~ ^[A-Za-z0-9._-]+$ || "$host" =~ ^\[[0-9A-Fa-f:.]+\]$ ]]; then
+    tlog "ERROR: APPSMITH_REDIS_HOST must be a plain hostname, IPv4 address or bracketed IPv6 address (e.g. [::1])"
+    return 1
+  fi
+  local port="${APPSMITH_REDIS_PORT:-6379}"
+  local password="$explicit_password"
+  # The embedded Redis (localhost) is started with the generated password, so a
+  # localhost host must use it. Remote hosts never receive the generated password.
+  if [[ -z "$password" ]] && redis_host_is_local "$host"; then
+    password="${APPSMITH_REDIS_PASSWORD:-}"
+  fi
+
+  local scheme="redis"
+  if [[ "${APPSMITH_REDIS_TLS:-}" == "true" || "${APPSMITH_REDIS_SSL:-}" == "true" ]]; then
+    scheme="rediss"
+  fi
+
+  local userinfo=""
+  if [[ -n "$password" ]]; then
+    # URL-encode the password so special characters (/, @, :, #, ? ...) in
+    # secret-store values do not corrupt the composed URL. The username part is
+    # left empty, matching the `redis://:<password>@host:port` convention
+    # Appsmith already uses for its embedded Redis.
+    local encoded_password
+    encoded_password="$(ENC_PASSWORD="$password" /usr/bin/python3 -c \
+      'import os, urllib.parse; print(urllib.parse.quote(os.environ["ENC_PASSWORD"], safe=""))')"
+    userinfo=":${encoded_password}@"
+  fi
+
+  export APPSMITH_REDIS_URL="${scheme}://${userinfo}${host}:${port}"
+  REDIS_URL_COMPOSED=true
+  tlog "Composed APPSMITH_REDIS_URL from APPSMITH_REDIS_HOST/PORT/PASSWORD (scheme: ${scheme}, host: ${host}, port: ${port})"
+}
+
+# Services start through run-with-env.sh, which reloads docker.env (with its localhost
+# default) and then pre-define.json. Store the composed URL in pre-define.json so it
+# survives that reload, exactly like an externally supplied URL would.
+persist_composed_redis_url() {
+  [[ "${REDIS_URL_COMPOSED:-}" == "true" ]] || return 0
+  REDIS_URL_VALUE="$APPSMITH_REDIS_URL" /usr/bin/python3 -c \
+    'import json, os, sys
+path = sys.argv[1]
+with open(path, encoding="utf-8") as f:
+    values = json.load(f)
+values["APPSMITH_REDIS_URL"] = os.environ["REDIS_URL_VALUE"]
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(values, f)' "$TMP/pre-define.json"
+}
+
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
 
@@ -79,6 +196,11 @@ init_env_file() {
 
   # Preserve externally supplied values verbatim, including embedded newlines.
   (umask 077; /usr/bin/python3 /opt/appsmith/env-file.py snapshot "$TMP/pre-define.json")
+
+  # Remember which Redis values were supplied from outside, before docker.env
+  # (with its generated embedded-Redis defaults) is loaded.
+  APPSMITH_REDIS_URL_EXTERNAL="${APPSMITH_REDIS_URL:-}"
+  APPSMITH_REDIS_PASSWORD_EXTERNAL="${APPSMITH_REDIS_PASSWORD:-}"
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -141,6 +263,8 @@ init_env_file() {
 }
 
 init_env_file
+compose_redis_url_from_parts
+persist_composed_redis_url
 setup_proxy_variables
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
@@ -505,7 +629,7 @@ configure_supervisord() {
     if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
-    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+    if redis_url_is_local "$APPSMITH_REDIS_URL"; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
       # Write Redis server config so the password is not visible in the process list.

@@ -1,0 +1,215 @@
+{
+  "addToCollection": {
+    "id": "<string>",
+    "path": "<string>"
+  },
+  "createDocument": {
+    "lastUpdateTime": {
+      "nanos": "<number>",
+      "seconds": "<number>"
+    }
+  },
+  "deleteDocument": {
+    "lastUpdateTime": {
+      "nanos": "<number>",
+      "seconds": "<number>"
+    }
+  },
+  "errorCreateExistingDocument": {
+    "appsmithErrorMessage": "Error occurred while getting the response. To know more please check the error details.",
+    "downstreamErrorMessage": "com.google.api.gax.rpc.AlreadyExistsException: io.grpc.StatusRuntimeException: ALREADY_EXISTS",
+    "isExecutionSuccess": false,
+    "title": "Query execution error"
+  },
+  "errorDocumentPathWithOddSegments": {
+    "appsmithErrorMessage": "Firestore query has failed to execute. To know more please check the error details.",
+    "downstreamErrorMessage": "java.lang.IllegalArgumentException: Path should point to a Document Reference: sdk-snapshot",
+    "isExecutionSuccess": false,
+    "title": "Query execution error"
+  },
+  "errorUpdateMissingDocument": {
+    "appsmithErrorMessage": "Error occurred while getting the response. To know more please check the error details.",
+    "downstreamErrorMessage": "com.google.api.gax.rpc.NotFoundException: io.grpc.StatusRuntimeException: NOT_FOUND",
+    "isExecutionSuccess": false,
+    "title": "Query execution error"
+  },
+  "getCollectionWithVectors": [
+    {
+      "_ref": {
+        "id": "seeded",
+        "path": "sdk-vectors/seeded"
+      },
+      "inArray": [
+        {
+          "vector": {
+            "__type__": "__vector__",
+            "value": [1.5, -2.25]
+          }
+        }
+      ],
+      "inMap": {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      },
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    }
+  ],
+  "getCollectionWithWhereOrderByAndLimit": [
+    {
+      "_ref": {
+        "id": "p4",
+        "path": "sdk-pages/p4"
+      },
+      "n": 4,
+      "ts": {
+        "nanos": 0,
+        "seconds": 1709214334
+      }
+    },
+    {
+      "_ref": {
+        "id": "p3",
+        "path": "sdk-pages/p3"
+      },
+      "n": 3,
+      "ts": {
+        "nanos": 0,
+        "seconds": 1709214333
+      }
+    }
+  ],
+  "getDocumentWithEveryFieldType": {
+    "_ref": {
+      "id": "all-types",
+      "path": "sdk-snapshot/all-types"
+    },
+    "array": ["a", 1, true],
+    "arrayWithReference": [
+      {
+        "id": "other",
+        "path": "sdk-snapshot/other"
+      }
+    ],
+    "boolean": true,
+    "bytes": {},
+    "date": {
+      "nanos": 123000000,
+      "seconds": 1709214330
+    },
+    "double": 1.5,
+    "geoPoint": {
+      "latitude": 12.5,
+      "longitude": -45.25
+    },
+    "long": 9007199254740993,
+    "map": {
+      "inner": "x",
+      "n": 1
+    },
+    "mapWithReference": {
+      "ref": {
+        "id": "other",
+        "path": "sdk-snapshot/other"
+      }
+    },
+    "reference": {
+      "id": "other",
+      "path": "sdk-snapshot/other"
+    },
+    "string": "héllo wörld",
+    "timestamp": {
+      "nanos": 123456000,
+      "seconds": 1709214330
+    }
+  },
+  "getDocumentWithVectors": {
+    "_ref": {
+      "id": "seeded",
+      "path": "sdk-vectors/seeded"
+    },
+    "inArray": [
+      {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      }
+    ],
+    "inMap": {
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    },
+    "vector": {
+      "__type__": "__vector__",
+      "value": [1.5, -2.25]
+    }
+  },
+  "getMissingDocument": {
+    "_ref": {
+      "id": "missing",
+      "path": "sdk-snapshot/missing"
+    }
+  },
+  "paginateByTimestamp": {
+    "firstPageIds": ["p1", "p2"],
+    "secondPage": []
+  },
+  "setDocument": {
+    "lastUpdateTime": {
+      "nanos": "<number>",
+      "seconds": "<number>"
+    }
+  },
+  "updateDocument": {
+    "lastUpdateTime": {
+      "nanos": "<number>",
+      "seconds": "<number>"
+    }
+  },
+  "updateWithServerTimestamp": {
+    "readBack": {
+      "_ref": {
+        "id": "set",
+        "path": "sdk-writes/set"
+      },
+      "n": 4,
+      "updatedAt": {
+        "nanos": "<number>",
+        "seconds": "<number>"
+      }
+    },
+    "update": {
+      "lastUpdateTime": {
+        "nanos": "<number>",
+        "seconds": "<number>"
+      }
+    }
+  },
+  "writeBackTheVectorsThatWereRead": {
+    "inArray": [
+      {
+        "vector": {
+          "__type__": "__vector__",
+          "value": [1.5, -2.25]
+        }
+      }
+    ],
+    "inMap": {
+      "vector": {
+        "__type__": "__vector__",
+        "value": [1.5, -2.25]
+      }
+    },
+    "vector": {
+      "__type__": "__vector__",
+      "value": [1.5, -2.25]
+    }
+  }
+}

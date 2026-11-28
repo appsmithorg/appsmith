@@ -165,7 +165,12 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 |-----|------|---------|-------------|
 | externalSecrets.enabled | bool | `false` | Enable External Secrets Operator integration |
 | externalSecrets.refreshInterval | string | `"1m"` | How often to refresh secrets from the remote provider |
-| externalSecrets.remoteNameSecret | string | `""` | Name of the secret in the external provider |
+| externalSecrets.remoteSecretName | string | `""` | Name of the secret in the external provider, pulled verbatim via dataFrom.extract |
+| externalSecrets.secretStoreRef | object | `{"kind":"SecretStore","name":"secretstore"}` | Default SecretStore reference for the generated ExternalSecret resources |
+| externalSecrets.secretStoreRef.name | string | `"secretstore"` | Name of the SecretStore/ClusterSecretStore |
+| externalSecrets.secretStoreRef.kind | string | `"SecretStore"` | Kind of the store (SecretStore or ClusterSecretStore) |
+| externalSecrets.additionalSecrets | list | `[]` | Additional ExternalSecret resources with optional per-key mapping (see "External Secrets: per-key mapping" below for an example) |
+| externalSecrets.remoteNameSecret | string | `""` | [Deprecated] Use externalSecrets.remoteSecretName instead |
 
 ### Monitoring
 
@@ -252,6 +257,36 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | keda.triggers | list | `[]` | KEDA trigger definitions (passed through to ScaledObject) |
 | autoupdate.enabled | bool | `false` | Enable the auto-update CronJob |
 | autoupdate.scheduler | string | `"0 * * * *"` | CronJob schedule expression for auto-update |
+
+## External Secrets: per-key mapping
+
+`externalSecrets.additionalSecrets` creates extra `ExternalSecret` resources. Each generated Secret is loaded into the pod via `envFrom`.
+An entry's `secretStoreRef` is merged field by field over `externalSecrets.secretStoreRef`: a `name` or `kind` the entry leaves out is taken from the shared reference (then `secretstore` / `SecretStore`).
+This example renames the AWS Secrets Manager keys `host`/`port`/`password` to the env vars Appsmith expects:
+
+```yaml
+redis:
+  enabled: false   # use the remote Redis below instead of the bundled one
+externalSecrets:
+  additionalSecrets:
+    - name: redis
+      # secretStoreRef:            # optional, merged field by field over externalSecrets.secretStoreRef
+      #   name: aws-secretstore
+      #   kind: ClusterSecretStore
+      data:
+        - secretKey: APPSMITH_REDIS_HOST
+          remoteRef:
+            key: redis-prd-appsmith   # name of the secret in AWS Secrets Manager
+            property: host            # JSON property within that secret
+        - secretKey: APPSMITH_REDIS_PORT
+          remoteRef:
+            key: redis-prd-appsmith
+            property: port
+        - secretKey: APPSMITH_REDIS_PASSWORD
+          remoteRef:
+            key: redis-prd-appsmith
+            property: password
+```
 
 ## Testing
 

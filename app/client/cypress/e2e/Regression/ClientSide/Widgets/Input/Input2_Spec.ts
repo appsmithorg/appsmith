@@ -242,7 +242,7 @@ describe(
       //Validate characters, decimals & negative numbers
       testcases = [
         {
-          input: "!@#$56&*(),:",
+          input: "!@#$56&*():",
           expected: "56",
         },
         {
