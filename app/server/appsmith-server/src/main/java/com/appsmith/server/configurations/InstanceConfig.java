@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.OrganizationService;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import static java.lang.Boolean.TRUE;
 
@@ -29,6 +31,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     private final InstanceConfigHelper instanceConfigHelper;
+
+    private final OrganizationService organizationService;
 
     private static final String WWW_PATH = System.getenv("WWW_PATH");
 
@@ -70,6 +74,14 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
             startupProcess.block();
         } catch (Exception e) {
             log.debug("Application start up encountered an error: {}", e.getMessage());
+        }
+
+        // Runs on its own so an earlier startup error cannot skip it. It never fails, and the timeout stops a hung
+        // database read from holding up startup.
+        try {
+            organizationService.repairMcpInternalSecretOnStartup().block(Duration.ofSeconds(90));
+        } catch (Exception e) {
+            log.error("MCP internal secret repair at startup encountered an error", e);
         }
     }
 

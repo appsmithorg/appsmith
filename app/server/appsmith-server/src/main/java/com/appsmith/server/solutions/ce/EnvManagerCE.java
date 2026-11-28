@@ -50,4 +50,11 @@ public interface EnvManagerCE {
      * Callers must also update {@code CommonConfig#mcpInternalSecret} for the running process.
      */
     Mono<Void> persistMcpInternalSecret(String secret);
+
+    /**
+     * Restarts only the {@code mcp} supervisor program on this pod, so it reads {@code docker.env} again. Skips ACL
+     * checks, so call it only from server startup, never from a request path. Never fails: an error or a non-zero
+     * supervisorctl exit is logged instead.
+     */
+    Mono<Void> restartMcpWithoutAclCheck();
 }

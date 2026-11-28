@@ -71,6 +71,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -992,6 +993,37 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
         }
         return Mono.empty();
+    }
+
+    @Override
+    public Mono<Void> restartMcpWithoutAclCheck() {
+        return Mono.fromRunnable(() -> {
+                    log.warn("Restarting the MCP process via supervisor so it loads APPSMITH_MCP_INTERNAL_SECRET.");
+                    try {
+                        // Discard the output so a full pipe buffer cannot stall supervisorctl.
+                        Process process = new ProcessBuilder("supervisorctl", "restart", "mcp")
+                                .redirectErrorStream(true)
+                                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                                .start();
+                        if (!process.waitFor(60, TimeUnit.SECONDS)) {
+                            process.destroy();
+                            log.error("supervisorctl did not finish restarting the MCP process within 60 seconds."
+                                    + " Restart the container.");
+                        } else if (process.exitValue() != 0) {
+                            log.error(
+                                    "supervisorctl exited with code {} while restarting the MCP process. Restart the"
+                                            + " container.",
+                                    process.exitValue());
+                        }
+                    } catch (IOException e) {
+                        log.error("Error invoking supervisorctl to restart the MCP process. Restart the container.", e);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.error("Interrupted while restarting the MCP process. Restart the container.", e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 
     private static final Set<Integer> DEFAULT_SMTP_PORTS = Set.of(25, 465, 587, 2525);
