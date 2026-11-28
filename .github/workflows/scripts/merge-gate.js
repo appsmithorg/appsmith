@@ -7,20 +7,25 @@
 //   - internal PR: `qc-result` AND `perform-test / ci-test-result`
 //   - internal PR whose changed files are all docs-only: `qc-result` alone
 //   - fork PR:     `external-ci-result` AND the approved Cypress result
-//                  (persisted as the `ci/fork-cypress` commit status)
+//                  (persisted as the `ci/fork-cypress-full` commit status,
+//                  which is `success` only for a green full `@tag.All` run)
 //
 // It is invoked from two places so exactly one writes per PR:
 //   - merge-gate.yml (workflow_run) — recomputes on every completion / rerun
 //     start of the feeding workflows; owns internal PRs and recomputes the fork
 //     credential-free side.
-//   - build-client-server.yml (/approve-ci dispatch) — persists ci/fork-cypress
+//   - build-client-server.yml (/approve-ci dispatch) — persists ci/fork-cypress-full
 //     and writes the gate for fork PRs, where the approved head SHA is known.
 //
 // Fail-closed everywhere: anything not proven green (skipped, neutral, missing,
 // in-flight) maps to `pending`, never `success`.
 
 const GATE = "ci/merge-gate";
-const FORK_CYPRESS = "ci/fork-cypress";
+// The context name carries the full-suite rule. Statuses under the earlier
+// `ci/fork-cypress` context could record a one-spec limited run as success, so
+// the gate does not read them; a fork PR approved under the old rule needs a
+// new `/approve-ci` run.
+const FORK_CYPRESS = "ci/fork-cypress-full";
 
 // Feeding workflow name -> the check-run context it produces. Used to force an
 // input to `pending` while that workflow is re-running (workflow_run
@@ -158,12 +163,26 @@ function decide({ fork, docsOnly, checkRuns, statuses, pendingChecks, forkCypres
   };
 }
 
+// Only a full-suite run satisfies the fork gate. `/approve-ci tags=...` narrows
+// the suite, and `/ci-test-limit` runs `limited-tests.txt`; a green result from
+// either is reported but never counts as "approved Cypress passed".
+const FULL_SUITE_TAG = "@tag.All";
+
 // Exactly one of the three fork Cypress result jobs runs per invocation; 0 or
-// >1 is unexpected and fails closed.
-function forkCypressStateFromResults(results) {
-  const ran = (results || []).filter((r) => r && r !== "skipped");
-  if (ran.length !== 1) return "failure";
-  return ran[0] === "success" ? "success" : "failure";
+// >1 is unexpected and fails closed. A green run that is not the full suite
+// leaves the gate pending.
+function forkCypressVerdict({ limited, full, existing, tags, spec } = {}) {
+  const ran = [limited, full, existing].filter((r) => r && r !== "skipped");
+  if (ran.length !== 1 || ran[0] !== "success") {
+    return { state: "failure", description: "Approved Cypress not green" };
+  }
+  if (full !== "success" || tags !== FULL_SUITE_TAG || spec) {
+    return {
+      state: "pending",
+      description: "Partial Cypress run passed; the full @tag.All suite is required",
+    };
+  }
+  return { state: "success", description: "Full Cypress suite (@tag.All) passed" };
 }
 
 // Resolve the unique open PR whose head is `sha`. No arbitrary fallback: a
@@ -264,15 +283,15 @@ async function writeGate({ github, owner, repo, sha, state, description, runUrl 
   });
 }
 
-async function publishForkCypress({ github, owner, repo, sha, results, runUrl }) {
-  const state = forkCypressStateFromResults(results);
+async function publishForkCypress({ github, owner, repo, sha, run, runUrl }) {
+  const { state, description } = forkCypressVerdict(run);
   await github.rest.repos.createCommitStatus({
     owner,
     repo,
     sha,
     state,
     context: FORK_CYPRESS,
-    description: state === "success" ? "Approved Cypress passed" : "Approved Cypress not green",
+    description,
     target_url: runUrl,
   });
   return state;
@@ -306,7 +325,8 @@ module.exports = {
   isDocsOnlyChange,
   readDocsOnly,
   decide,
-  forkCypressStateFromResults,
+  FULL_SUITE_TAG,
+  forkCypressVerdict,
   resolvePr,
   readRef,
   writeGate,
