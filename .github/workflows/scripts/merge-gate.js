@@ -7,21 +7,25 @@
 //   - internal PR: `qc-result` AND `perform-test / ci-test-result`
 //   - internal PR whose changed files are all docs-only: `qc-result` alone
 //   - fork PR:     `external-ci-result` AND the approved Cypress result
-//                  (persisted as the `ci/fork-cypress` commit status, which
-//                  is `success` only for a green full `@tag.All` run)
+//                  (persisted as the `ci/fork-cypress-full` commit status,
+//                  which is `success` only for a green full `@tag.All` run)
 //
 // It is invoked from two places so exactly one writes per PR:
 //   - merge-gate.yml (workflow_run) — recomputes on every completion / rerun
 //     start of the feeding workflows; owns internal PRs and recomputes the fork
 //     credential-free side.
-//   - build-client-server.yml (/approve-ci dispatch) — persists ci/fork-cypress
+//   - build-client-server.yml (/approve-ci dispatch) — persists ci/fork-cypress-full
 //     and writes the gate for fork PRs, where the approved head SHA is known.
 //
 // Fail-closed everywhere: anything not proven green (skipped, neutral, missing,
 // in-flight) maps to `pending`, never `success`.
 
 const GATE = "ci/merge-gate";
-const FORK_CYPRESS = "ci/fork-cypress";
+// The context name carries the full-suite rule. Statuses under the earlier
+// `ci/fork-cypress` context could record a one-spec limited run as success, so
+// the gate does not read them; a fork PR approved under the old rule needs a
+// new `/approve-ci` run.
+const FORK_CYPRESS = "ci/fork-cypress-full";
 
 // Feeding workflow name -> the check-run context it produces. Used to force an
 // input to `pending` while that workflow is re-running (workflow_run

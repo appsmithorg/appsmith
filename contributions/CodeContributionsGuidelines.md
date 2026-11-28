@@ -78,7 +78,7 @@ current commit.
 
 Only the command sets the scope. Tags in the PR description are ignored on
 fork PRs, because the contributor writes the description. A green run with a
-narrower scope sets `ci/fork-cypress` to `pending`, so the PR cannot merge
+narrower scope sets `ci/fork-cypress-full` to `pending`, so the PR cannot merge
 until a full `/approve-ci` run passes.
 
 `/approve-ci` approval applies to one commit. After a new push, a maintainer

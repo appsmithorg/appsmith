@@ -759,7 +759,7 @@ jobs:
               target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
             });
 
-  # Fork PRs: persist the approved Cypress result (`ci/fork-cypress`) on the
+  # Fork PRs: persist the approved Cypress result (`ci/fork-cypress-full`) on the
   # approved head SHA, then write the single required `ci/merge-gate`. Uses the
   # shared gate script, checked out from the trusted base repo (a
   # repository_dispatch run defaults to the default branch — never fork code).

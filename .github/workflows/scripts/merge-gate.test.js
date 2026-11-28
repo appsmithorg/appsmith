@@ -342,6 +342,15 @@ test.describe("publishForkCypress", () => {
     assert.equal(github.written[0].description, "Full Cypress suite (@tag.All) passed");
   });
 
+  test("a success under the legacy ci/fork-cypress context does not pass the fork gate", () => {
+    const r = gate.decide({
+      fork: true,
+      checkRuns: [completed("external-ci-result", "success")],
+      statuses: [{ context: "ci/fork-cypress", state: "success" }],
+    });
+    assert.deepEqual(r, { state: "pending", description: "Waiting: approved Cypress" });
+  });
+
   test("a pending fork-cypress result keeps the fork gate pending", () => {
     const r = gate.decide({
       fork: true,
