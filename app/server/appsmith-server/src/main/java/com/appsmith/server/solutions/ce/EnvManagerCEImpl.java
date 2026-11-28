@@ -1000,8 +1000,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.fromRunnable(() -> {
                     log.warn("Restarting the MCP process via supervisor so it loads APPSMITH_MCP_INTERNAL_SECRET.");
                     try {
-                        Process process = Runtime.getRuntime().exec(new String[] {"supervisorctl", "restart", "mcp"});
+                        // Discard the output so a full pipe buffer cannot stall supervisorctl.
+                        Process process = new ProcessBuilder("supervisorctl", "restart", "mcp")
+                                .redirectErrorStream(true)
+                                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                                .start();
                         if (!process.waitFor(60, TimeUnit.SECONDS)) {
+                            process.destroy();
                             log.error("supervisorctl did not finish restarting the MCP process within 60 seconds."
                                     + " Restart the container.");
                         } else if (process.exitValue() != 0) {

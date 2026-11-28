@@ -60,11 +60,11 @@ class OrganizationServiceCEImplMcpSecretRepairTest {
 
         // A working env file by default, so a test that expects no write fails if the code writes anyway.
         onFile = new AtomicReference<>("");
+        // Match production timing. The read happens when getAllWithoutAclCheck() is called, and the write
+        // happens only when the returned Mono is subscribed. So a read-back built before the write sees the old value.
         when(envManager.getAllWithoutAclCheck()).thenAnswer(invocation -> Mono.just(Map.of(SECRET_KEY, onFile.get())));
-        when(envManager.persistMcpInternalSecret(anyString())).thenAnswer(invocation -> {
-            onFile.set(invocation.getArgument(0));
-            return Mono.empty();
-        });
+        when(envManager.persistMcpInternalSecret(anyString()))
+                .thenAnswer(invocation -> Mono.fromRunnable(() -> onFile.set(invocation.getArgument(0))));
 
         service = new OrganizationServiceCEImpl(
                 mock(Validator.class),

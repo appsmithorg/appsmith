@@ -308,8 +308,13 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                 });
     }
 
+    /**
+     * Reads the secret from the env file when subscribed. {@code getAllWithoutAclCheck} reads the file as soon as it is
+     * called, so without {@code Mono.defer} the read-back after a write would see the file from before the write.
+     */
     private Mono<String> readMcpInternalSecretFromEnvFile() {
-        return envManager.getAllWithoutAclCheck().map(env -> env.getOrDefault(APPSMITH_MCP_INTERNAL_SECRET.name(), ""));
+        return Mono.defer(() -> envManager.getAllWithoutAclCheck())
+                .map(env -> env.getOrDefault(APPSMITH_MCP_INTERNAL_SECRET.name(), ""));
     }
 
     @Override
