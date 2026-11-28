@@ -35,7 +35,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -252,5 +254,44 @@ public class NewActionServiceUnitTest {
         Mockito.verify(datasourceService, Mockito.atLeastOnce())
                 .findById(eq(foreignDatasourceId), eq(actionCreatePermission));
         Mockito.verify(datasourceService, Mockito.never()).findById(eq(foreignDatasourceId));
+    }
+
+    @Test
+    public void testArchiveActionsByApplicationId_propagatesArchiveError() {
+        NewAction first = new NewAction();
+        first.setId("first");
+        NewAction second = new NewAction();
+        second.setId("second");
+        Mockito.when(newActionRepository.findByApplicationId(anyString(), Mockito.<AclPermission>any()))
+                .thenReturn(Flux.just(first, second));
+        Mockito.when(newActionRepository.archive(Mockito.any(NewAction.class)))
+                .thenReturn(Mono.error(new IllegalStateException("archive failed")));
+
+        StepVerifier.create(newActionService.archiveActionsByApplicationId("testAppId", null))
+                .expectErrorMessage("archive failed")
+                .verify();
+
+        // The failure stops the sequence, so no further action is archived.
+        Mockito.verify(newActionRepository, Mockito.times(1)).archive(Mockito.any(NewAction.class));
+    }
+
+    @Test
+    public void testArchiveActionsByApplicationId_archivesOneActionAtATime() {
+        NewAction first = new NewAction();
+        first.setId("first");
+        NewAction second = new NewAction();
+        second.setId("second");
+        Sinks.One<NewAction> firstArchive = Sinks.one();
+        Mockito.when(newActionRepository.findByApplicationId(anyString(), Mockito.<AclPermission>any()))
+                .thenReturn(Flux.just(first, second));
+        Mockito.when(newActionRepository.archive(Mockito.same(first))).thenReturn(firstArchive.asMono());
+        Mockito.when(newActionRepository.archive(Mockito.same(second))).thenReturn(Mono.just(second));
+
+        StepVerifier.create(newActionService.archiveActionsByApplicationId("testAppId", null))
+                .then(() -> Mockito.verify(newActionRepository, Mockito.never()).archive(Mockito.same(second)))
+                .then(() -> firstArchive.tryEmitValue(first))
+                .verifyComplete();
+
+        Mockito.verify(newActionRepository).archive(Mockito.same(second));
     }
 }
