@@ -26,18 +26,27 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
+import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.BsonObjectId;
+import com.google.cloud.firestore.BsonTimestamp;
 import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.Decimal128Value;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.Int32Value;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.RegexValue;
+import com.google.cloud.firestore.VectorValue;
 import com.google.cloud.firestore.WriteResult;
 import com.google.common.base.Ticker;
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.Extension;
@@ -53,6 +62,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -943,7 +953,40 @@ public class FirestorePlugin extends BasePlugin {
                                 objResult.getClass().getName()));
             }
 
-            return objResult;
+            return toReservedMap(objResult);
+        }
+
+        /**
+         * Firestore stores these values as maps with reserved keys, and the client turns them into its own types. This
+         * returns the map, because the types do not serialize to JSON in full and a query can write the map back as the
+         * same value.
+         */
+        private static Object toReservedMap(Object value) {
+            if (value instanceof VectorValue vector) {
+                return Map.of(
+                        "__type__",
+                        "__vector__",
+                        "value",
+                        Arrays.stream(vector.toArray()).boxed().toList());
+            }
+            if (value instanceof Int32Value int32) {
+                return Map.of("__int__", int32.value);
+            }
+            if (value instanceof Decimal128Value decimal) {
+                return Map.of("__decimal128__", decimal.stringValue);
+            }
+            if (value instanceof BsonObjectId objectId) {
+                return Map.of("__oid__", objectId.value);
+            }
+            if (value instanceof BsonTimestamp timestamp) {
+                return Map.of(
+                        "__request_timestamp__",
+                        Map.of("seconds", timestamp.seconds, "increment", timestamp.increment));
+            }
+            if (value instanceof RegexValue regex) {
+                return Map.of("__regex__", Map.of("pattern", regex.pattern, "options", regex.options));
+            }
+            return value;
         }
 
         @Override
@@ -1059,6 +1102,11 @@ public class FirestorePlugin extends BasePlugin {
                             Collections.singletonList(FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
                     return datasourceTestResult;
                 }
+                // Firestore answers PERMISSION_DENIED when the service account has no Firestore role and when the
+                // Firestore API is disabled for the project.
+                if (isPermissionDenied(e)) {
+                    return new DatasourceTestResult(FirestoreErrorMessages.DS_PERMISSION_DENIED_ERROR_MSG);
+                }
                 // With a named database, the failure can come from the Database ID as well as the project.
                 return new DatasourceTestResult(
                         DEFAULT_DATABASE_ID.equals(databaseId)
@@ -1066,6 +1114,17 @@ public class FirestorePlugin extends BasePlugin {
                                 : FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID);
             }
             return new DatasourceTestResult();
+        }
+
+        /**
+         * The server error that the client wraps carries the gRPC code. {@link FirestoreException#getStatus()} covers
+         * errors that the client creates without one.
+         */
+        private static boolean isPermissionDenied(FirestoreException e) {
+            if (e.getCause() instanceof ApiException apiException) {
+                return apiException.getStatusCode().getCode() == StatusCode.Code.PERMISSION_DENIED;
+            }
+            return e.getStatus() != null && e.getStatus().getCode() == Status.Code.PERMISSION_DENIED;
         }
 
         @Override

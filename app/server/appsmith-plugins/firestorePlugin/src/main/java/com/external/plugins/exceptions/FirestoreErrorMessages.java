@@ -78,6 +78,10 @@ public class FirestoreErrorMessages extends BasePluginErrorMessages {
     public static final String DS_CONNECTION_FAILED_FOR_PROJECT_ID =
             "Unable to connect to the Firestore project. No project found for the given ProjectID.";
 
+    public static final String DS_PERMISSION_DENIED_ERROR_MSG = "Firestore refused access to this project. Check the "
+            + "ProjectID, that the service account has a Firestore role such as Cloud Datastore User, and that the "
+            + "Cloud Firestore API is enabled for the project.";
+
     public static final String DS_CONNECTION_FAILED_FOR_DATABASE_ID =
             "Unable to connect to the Firestore database. Check that a database with the given Database ID exists "
                     + "in the project and that the ProjectID is correct.";
